@@ -1,2 +1,2 @@
 # cdslab_auth
-CDSLab authentication API
+CDSLab authentication API.

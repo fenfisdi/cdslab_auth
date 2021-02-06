@@ -49,6 +49,10 @@ setup(
         '2FA'
         ],
     python_requires='>=3.5',
-    install_requires=[],
+    install_requires=[
+        "python=3.8",
+        "fastapi=0.63.0",
+        'python-dotenv=0.15.0'
+    ],
     zip_safe=False
     )

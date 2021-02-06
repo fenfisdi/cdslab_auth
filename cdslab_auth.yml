@@ -5,4 +5,5 @@ dependencies:
   - python=3.8
   - fastapi
   - python-dotenv
+  - uvicorn
 prefix: C:\Users\Alejandro\Anaconda3\envs\cdslab_auth

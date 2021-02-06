@@ -52,7 +52,8 @@ setup(
     install_requires=[
         "python=3.8",
         "fastapi=0.63.0",
-        'python-dotenv=0.15.0'
+        'python-dotenv=0.15.0',
+        "uvicorn=0.13.3"
     ],
     zip_safe=False
     )

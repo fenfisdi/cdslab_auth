@@ -1,7 +1,7 @@
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 import os
 
 load_dotenv(find_dotenv())
 
-host = os.environ("HOST")
-port = os.environ("PORT")
+host = os.getenv('HOST')
+port = os.getenv('PORT')

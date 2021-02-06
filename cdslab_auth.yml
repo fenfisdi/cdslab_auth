@@ -1,0 +1,8 @@
+name: cdslab_auth
+channels:
+  - defaults
+dependencies:
+  - python=3.8
+  - fastapi
+  - python-dotenv
+prefix: C:\Users\Alejandro\Anaconda3\envs\cdslab_auth

@@ -1,0 +1,6 @@
+__pycache__
+.env
+vscode
+config.cfg
+templates
+json_test.json

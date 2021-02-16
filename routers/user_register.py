@@ -1,7 +1,12 @@
-from pydantic import BaseModel, ValidationError, validator
-from fastapi import Form, FastAPI, Request, HTTPException, Depends
+from fastapi import HTTPException, APIRouter
 
-from config import config
+from dependencies import user_creation_request
+from schemas import user
+from db_conection import users
+
+router = APIRouter()
+
+
 
 
 

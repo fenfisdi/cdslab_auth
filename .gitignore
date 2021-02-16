@@ -4,3 +4,6 @@ vscode
 config.cfg
 templates
 json_test.json
+assets
+.env_secrets
+

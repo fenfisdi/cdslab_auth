@@ -5,3 +5,4 @@ load_dotenv(find_dotenv())
 
 host = os.getenv('HOST')
 port = os.getenv('PORT')
+domain = os.getenv('DOMAIN')

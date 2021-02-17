@@ -8,22 +8,24 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from passlib.context import CryptContext
+from jose import JWTError, jws
+import json
 
 from models import user
 from db_conection import users
 from config import config
 
 
-def hash_email(email: str):
-    """hash the email taken the applicant_user class as a parameter
+def email_access_token(email: str):
+    """tokenize the email taken the applicant_user class as a parameter
 
     Keywords arguments:
     email -- the vaule of email field in the applicant_user class
     """
-    crypto_context = CryptContext(
-        schemes=[secrets.crypto_context_schem], 
-        deprecated=[secrets.crypto_context_deprecated])
-    return crypto_context.hash(email)
+    email_to_encode = {'email': email}
+    tokenized_email = jws.sign(email_to_encode, secrets.secret_key, algorithm=secrets.algorithm)
+    return tokenized_email
+
 
 def send_registration_email(email: str):
     """Send registration email to the adress entered by the user
@@ -32,7 +34,7 @@ def send_registration_email(email: str):
     email -- the value of email field in the applicant_user class
     """
     domain = settings.domain
-    key_email = hash_email(email)
+    key_email = email_access_token(email)
     key_email = '/'+key_email
     applicant_key = domain+settings.applicant_path+key_email
     msg = MIMEMultipart()
@@ -42,16 +44,13 @@ def send_registration_email(email: str):
     msg["To"] = email
     msg["Subject"] = config.send_registration_email.subject()
     msg.attach(MIMEText(config.send_registration_email.logo(), "html"))
-
     fp = open(config.send_registration_email.logo_path(),"rb")
     msgImg = MIMEImage(fp.read())
     fp.close()
-
     msgImg.add_header("Content-ID", "<image1>")
     msg.attach(msgImg)
     msg.attach(MIMEText(message, "html"))
     msg.attach(MIMEText(applicant_key,"html"))
-
     server = smtplib.SMTP(config.send_registration_email.server())
     server.starttls()
     server.login(msg["From"], password)
@@ -74,10 +73,16 @@ async def request_registration(user: user.applicant_user):
         return send_registration_email(user.email)
 
     
-@router.get("/{hashed_email}")
-async def read_email(hashed_email):
-    item = {"detail": hashed_email}
-    return item
+@router.get("/{token_email}")
+async def read_email(token_email):
+    """Decode de tokenized email and return a dict whit key pair email: decode_email
+
+    Keywords arguments:
+    token_email -- the tokenized email generates in the router
+    """
+    decode_email = jws.verify(token_email, secrets.secret_key, algorithms=secrets.algorithm)
+    decode_email = json.loads(decode_email.decode("utf-8"))
+    return decode_email
     
 
 

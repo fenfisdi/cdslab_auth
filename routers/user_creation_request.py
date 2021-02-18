@@ -75,7 +75,7 @@ async def request_registration(user: user.applicant_user):
     
 @router.get("/{token_email}")
 async def read_email(token_email):
-    """Decode de tokenized email and return a dict whit key pair email: decode_email
+    """Decode de tokenized email and return a dict with key pair email: decode_email
 
     Keywords arguments:
     token_email -- the tokenized email generates in the router

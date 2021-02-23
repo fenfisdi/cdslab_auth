@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 import os
 
-env_path = Path('.')/'.env_secrets'
+env_path = Path('.')/'.secrets'
 load_dotenv(dotenv_path=env_path)
 
 secret_key = os.getenv('SECRET_KEY')

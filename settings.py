@@ -8,4 +8,4 @@ port = os.getenv('PORT')
 domain = os.getenv('DOMAIN')
 applicant_path = os.getenv('APPLICANT_PATH')
 
-#print(applicant_path)
+#print(domain)

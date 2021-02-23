@@ -30,7 +30,7 @@ class user_to_register(applicant_user):
         """
         if 'password' in values and password_to_verify != values['password']:
             raise ValueError('passwords do not match')
-        return v
+        return password_to_verify
     
 
 

@@ -6,4 +6,16 @@ dependencies:
   - fastapi
   - python-dotenv
   - uvicorn
+  - json-cfg
+  - pymongo
+  - python-multipart
+  - jinja2
+  - email_validator
+  - passlib
+  - python-jose
+  - pytest
+  - pyotp
+  - qrcode
+  - pillow
+  - phonenumbers
 prefix: C:\Users\Alejandro\Anaconda3\envs\cdslab_auth

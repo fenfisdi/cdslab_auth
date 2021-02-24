@@ -51,5 +51,6 @@ CDSLab authentication API.
     https://passlib.readthedocs.io/en/stable/lib/passlib.context.html
     https://python-jose.readthedocs.io/en/latest/jws/index.html
 
-With this your configuration is ready to run the app!!!!
+With this your configuration is ready to run the app!!
+The final step is run the main.py script in the browser just add /docs to your uvicorn path to 
     

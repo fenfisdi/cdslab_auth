@@ -12,7 +12,7 @@ def test_valid_email_user():
 
 # These tests for email should be fail always
 
-@pytest.mark.xfail(reason = "Invalid email")
+@pytest.mark.xfail(reason = "Invalid email", run = False)
 def test_invalid_email_without_dot():
     assert user.applicant_user(email = "user@examplecom")
 

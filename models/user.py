@@ -1,5 +1,7 @@
 import smtplib
-
+import sys
+import os
+sys.path.append('./')
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
@@ -7,19 +9,21 @@ from passlib.context import CryptContext
 from typing import Optional
 from pydantic import BaseModel, EmailStr, ValidationError, validator
 from jose import jwt, JWSError
+from dotenv import dotenv_values
 
-import secrets
 import settings
-
 from config import config
+
+secrets = dotenv_values(".env.secrets")
 
 #shared properties
 class applicant_user(BaseModel):
     
     email: EmailStr
-
+    
     @classmethod
-    def tokenize_email(cls, email):
+    def tokenize_email(cls, email: EmailStr):
+        
         """Tokenize the email taken the applicant_user class as a parameter
 
         Parameters
@@ -32,12 +36,15 @@ class applicant_user(BaseModel):
         str
             The email tokenized by jws method
         """
+        if type(email) is not str:
+            raise ValueError("Invalid type")
+        
         email_to_encode = {'email': email}
-        tokenized_email = jwt.encode(email_to_encode, secrets.secret_key, algorithm=secrets.algorithm)
-        return tokenized_email 
+        tokenized_email = jwt.encode(email_to_encode, secrets["SECRET_KEY"], algorithm=secrets["ALGORITHM"])
+        return tokenized_email
 
     @classmethod
-    def send_registration_email(cls, email):
+    def send_registration_email(cls, email: EmailStr) -> str:
         """Send registration email to the adress entered by the user
 
 
@@ -133,7 +140,3 @@ class user_to_register(applicant_user):
         if 'password' in values and password_to_verify != values['password']:
             raise ValueError('passwords do not match')
         return password_to_verify
-    
-
-
- 

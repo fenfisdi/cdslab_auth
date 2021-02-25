@@ -3,11 +3,14 @@ import settings
 
 from fastapi import HTTPException, APIRouter
 from jose import JWTError, jwt
+from dotenv import dotenv_values
 import json
 
 from models import user
 from db_conection import users
 from config import config
+
+secrets = dotenv_values(".env.secrets")
 
 router = APIRouter(prefix=settings.applicant_path)
 
@@ -54,7 +57,7 @@ async def read_email(token_email):
     decode_email: class applicant_user
         The key pair whit the value of the email entered by the user in the post method
     """
-    decode_email = jwt.decode(token_email, secrets.secret_key, algorithms=secrets.algorithm)
+    decode_email = jwt.decode(token_email, secrets["SECRET_KEY"], algorithms=secrets["ALGORITHM"])
     
     return decode_email
     

@@ -9,7 +9,7 @@ __pycache__
 config.cfg
 
 # Secrets
-.secrets
+.secrets.env
 
 # Text editor
 .vscode

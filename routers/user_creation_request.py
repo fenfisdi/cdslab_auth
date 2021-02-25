@@ -2,7 +2,7 @@ import secrets
 import settings
 
 from fastapi import HTTPException, APIRouter
-from jose import JWTError, jws
+from jose import JWTError, jwt
 import json
 
 from models import user
@@ -54,8 +54,8 @@ async def read_email(token_email):
     decode_email: class applicant_user
         The key pair whit the value of the email entered by the user in the post method
     """
-    decode_email = jws.verify(token_email, secrets.secret_key, algorithms=secrets.algorithm)
-    decode_email = json.loads(decode_email.decode("utf-8"))
+    decode_email = jwt.decode(token_email, secrets.secret_key, algorithms=secrets.algorithm)
+    
     return decode_email
     
 

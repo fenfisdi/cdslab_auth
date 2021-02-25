@@ -6,7 +6,7 @@ from email.mime.image import MIMEImage
 from passlib.context import CryptContext
 from typing import Optional
 from pydantic import BaseModel, EmailStr, ValidationError, validator
-from jose import jws, JWSError
+from jose import jwt, JWSError
 
 import secrets
 import settings
@@ -33,7 +33,7 @@ class applicant_user(BaseModel):
             The email tokenized by jws method
         """
         email_to_encode = {'email': email}
-        tokenized_email = jws.sign(email_to_encode, secrets.secret_key, algorithm=secrets.algorithm)
+        tokenized_email = jwt.encode(email_to_encode, secrets.secret_key, algorithm=secrets.algorithm)
         return tokenized_email 
 
     @classmethod

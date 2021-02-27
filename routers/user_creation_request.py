@@ -10,7 +10,7 @@ from models import user
 from db_conection import users
 from config import config
 
-secrets = dotenv_values(".env.secrets")
+secrets = dotenv_values(".secrets")
 
 router = APIRouter(prefix=settings.applicant_path)
 

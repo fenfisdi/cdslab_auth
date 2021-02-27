@@ -14,7 +14,7 @@ from dotenv import dotenv_values
 import settings
 from config import config
 
-secrets = dotenv_values(".env.secrets")
+secrets = dotenv_values(".secrets")
 
 #shared properties
 class applicant_user(BaseModel):

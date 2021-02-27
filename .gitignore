@@ -9,7 +9,7 @@ __pycache__
 config.cfg
 
 # Secrets
-.env.secrets
+.secrets
 
 # Text editor
 .vscode
@@ -19,3 +19,18 @@ templates
 
 # Pytest
 .pytest_cache
+
+# Notebook Checkpoints
+.ipynb_checkpoints
+.vscode
+
+# Byte-compiled / optimized / DLL files
+_pycache_/
+*.py[cod]
+
+# Distribution / packaging
+eggs/
+.eggs/
+*.egg-info/
+.installed.cfg
+*.egg

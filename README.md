@@ -1,43 +1,68 @@
-# cdslab_auth
-CDSLab authentication API.  
+# CDSLab Auth
 
-## How to use it
-1. Create an environment in your local folder that contains the cloned repository
-    * For conda package managment type the following comands:
-    
-            -conda create --name myenv
-            -conda activate myenv
-    
-    * For pip type:
+This is the Authentication API for CDSLab.
 
-            -python3 -m venv myenv
+## Environment setup
 
-        *  To activate the environment, if you are on Linux or MAC type:
+### Create `venv_cdslab_auth` environment
 
-                -source <myenv>/bin/activate
-        
-        * To activate on windows type:
+Create an environment in your local folder that contains the cloned repository
 
-                -<myenv>\Scripts\activate.bat
+If you are using `conda` package managment type the following comands (please
+be aware that `venv_cdslab_auth` is the default environment name of this repo.
+Don't change it):
 
-2. Install the packages that use the authentication API
-    * For conda you need to install the packages on yml file, for this type:
+```shell
+conda create --name venv_cdslab_auth
+conda activate venv_cdslab_auth
+```
 
-            -conda env update -n my_env --file cdslab_auth.yaml
+Otherwise, if you are using `pip` type:
 
-    * For pip you need use the packages on requirements.txt, for that type:
+```shell
+python3 -m venv venv_cdslab_auth
+```
 
-            -pip install -r requirements.txt
+For activating the environment, if you are on Linux or MAC, then type:
 
-3. The authentication API works with mongodb as a database, for this you need install mongodb      https://www.mongodb.com/try/download/community. once installed mongo just type in another comand window:
+```shell
+source venv_cdslab_auth/bin/activate
+```
+
+Otherwise, if you are on windows, then type:
+
+```shell
+venv_cdslab_auth\Scripts\activate.bat
+```
+
+### Required packages installation
+
+Install packages used by **CDSLab Auth**
+
+If you are using `conda`, then you must install the packages using
+`requirements.yml` file:
+
+```shell
+conda env update -n venv_cdslab_auth --file requirements.yml
+```
+
+Otherwise, if you are using `pip`, then you must install the packages using 
+`requirements.txt` file:
+
+```shell
+pip install -r requirements.txt
+```
+
+
+1. The authentication API works with mongodb as a database, for this you need install mongodb      https://www.mongodb.com/try/download/community. once installed mongo just type in another comand window:
 
         -mongod
 
     You can see how the database server starts, if don´t make this, the API will never be able to conect with the database.
 
-4. The next step is create a database and within this create the collection that will contain the user registry, for that please check the mongo documentation https://docs.mongodb.com/manual/core/databases-and-collections/#databases
+2. The next step is create a database and within this create the collection that will contain the user registry, for that please check the mongo documentation https://docs.mongodb.com/manual/core/databases-and-collections/#databases
 
-5. Now, you need to configure the .env file, for this please remove the "_example" from the .env_examples file, do the same with the .secrets_example and config_examples.cfg
+3. Now, you need to configure the .env file, for this please remove the "_example" from the .env_examples file, do the same with the .secrets_example and config_examples.cfg
 
     * Inside .env file please configure the host and the port that you want to use, if you dont know wich host and port will use, you can type the next comand on your comand window
 

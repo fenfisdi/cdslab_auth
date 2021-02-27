@@ -2,7 +2,10 @@
 # Byte-compiled / optimized / DLL files
 __pycache__
 
-# Virtual env
+# Virtual environment - venv
+venv_cdslab_auth
+
+# Dot env
 .env
 
 # configuration settings

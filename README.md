@@ -69,6 +69,17 @@ database.
 
 ### Configuration files setup
 
+#### Database configuration file
+
+db_config.cfg
+
+#### Email configuration file
+
+config.cfg
+
+.env
+.secrets
+
 Now, you need to configure the .env file, for this please remove the "_example" from the .env_examples file, do the same with the .secrets_example and config_examples.cfg
 
     * Inside .env file please configure the host and the port that you want to use, if you dont know wich host and port will use, you can type the next comand on your comand window

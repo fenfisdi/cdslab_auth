@@ -7,7 +7,7 @@ from dotenv import dotenv_values
 import json
 
 from models import user
-from db_conection import users
+from db_connection import users
 from config import config
 
 secrets = dotenv_values(".secrets")

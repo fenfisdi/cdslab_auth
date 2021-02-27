@@ -53,16 +53,23 @@ Otherwise, if you are using `pip`, then you must install the packages using
 pip install -r requirements.txt
 ```
 
+### Database setup
 
-1. The authentication API works with mongodb as a database, for this you need install mongodb      https://www.mongodb.com/try/download/community. once installed mongo just type in another comand window:
+**CDSLab Auth** requires [MongoDB](https://www.mongodb.com/try/download/community).
 
-        -mongod
+Once you install **MongoDB**, just execute it.
 
-    You can see how the database server starts, if don´t make this, the API will never be able to conect with the database.
+```shell
+mongod
+```
 
-2. The next step is create a database and within this create the collection that will contain the user registry, for that please check the mongo documentation https://docs.mongodb.com/manual/core/databases-and-collections/#databases
+The server should start, if it doesn't then refer to official documentation in
+order to solve it, otherwise **CDSLab Auth** won't be able to connect with the
+database.
 
-3. Now, you need to configure the .env file, for this please remove the "_example" from the .env_examples file, do the same with the .secrets_example and config_examples.cfg
+### Configuration files setup
+
+Now, you need to configure the .env file, for this please remove the "_example" from the .env_examples file, do the same with the .secrets_example and config_examples.cfg
 
     * Inside .env file please configure the host and the port that you want to use, if you dont know wich host and port will use, you can type the next comand on your comand window
 

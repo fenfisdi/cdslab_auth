@@ -1,11 +1,13 @@
+import jsoncfg
 from pymongo import MongoClient
-import config
 
+
+db_config = jsoncfg.load_config('db_config.cfg')
 
 client = MongoClient(
-    config.config.db_connection_pymongo.host(),
-    config.config.db_connection_pymongo.port()
+    db_config.host(),
+    db_config.port()
     )
 
-db = client[config.config.db_connection_pymongo.db_name()]
-users = db[config.config.db_connection_pymongo.collection()]
+db = client[db_config.db_name()]
+users = db[db_config.collection()]

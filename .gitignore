@@ -9,7 +9,9 @@ venv_cdslab_auth
 .env
 
 # configuration settings
+db_config.cfg
 config.cfg
+
 
 # Secrets
 .secrets

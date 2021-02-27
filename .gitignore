@@ -11,9 +11,6 @@ config.cfg
 # Secrets
 .secrets
 
-# Text editor
-.vscode
-
 # Templates to render in each path
 templates
 

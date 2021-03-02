@@ -10,6 +10,7 @@ venv_cdslab_auth
 
 # configuration settings
 db_config.cfg
+send_email.cfg
 config.cfg
 
 

@@ -1,18 +1,18 @@
-import secrets
-import settings
+import json
 
 from fastapi import HTTPException, APIRouter
 from jose import JWTError, jwt
 from dotenv import dotenv_values
-import json
 
-from models import user
 from db_connection import users
+from models import user
 from config import config
 
+
+settings = dotenv_values(".env")
 secrets = dotenv_values(".secrets")
 
-router = APIRouter(prefix=settings.applicant_path)
+router = APIRouter(prefix=settings["APPLICANT_PATH"])
 
 @router.post("/")
 async def request_registration(user: user.applicant_user):

@@ -1,6 +1,7 @@
 import smtplib
 import sys
 import os
+import jsoncfg
 sys.path.append('./')
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -11,12 +12,11 @@ from pydantic import BaseModel, EmailStr, ValidationError, validator
 from jose import jwt, JWSError
 from dotenv import dotenv_values
 
-import settings
-from config import config
-
+send_registration_email = jsoncfg.load_config('send_email.cfg')
+settings = dotenv_values(".env")
 secrets = dotenv_values(".secrets")
 
-#shared properties
+
 class applicant_user(BaseModel):
     
     email: EmailStr
@@ -65,20 +65,20 @@ class applicant_user(BaseModel):
             The confirmation with the email is sended
 
         """
-        domain = settings.domain
+        
         key_email = applicant_user.tokenize_email(email)
         key_email = f'{"/"}{key_email}'
-        applicant_key = f'{domain}{settings.applicant_path}{key_email}'
+        applicant_key = f'{settings["DOMAIN"]}{settings["APPLICANT_PATH"]}{key_email}'
         msg = MIMEMultipart()
 
-        message = config.send_registration_email.message()
-        password = config.send_registration_email.password()
-        msg["From"] = config.send_registration_email.from_email()
+        message = send_registration_email.message()
+        password = send_registration_email.password()
+        msg["From"] = send_registration_email.from_email()
         msg["To"] = email
-        msg["Subject"] = config.send_registration_email.subject()
-        msg.attach(MIMEText(config.send_registration_email.logo(), "html"))
+        msg["Subject"] = send_registration_email.subject()
+        msg.attach(MIMEText(send_registration_email.logo(), "html"))
 
-        fp = open(config.send_registration_email.logo_path(),"rb")
+        fp = open(send_registration_email.logo_path(),"rb")
         msgImg = MIMEImage(fp.read())
         fp.close()
 
@@ -87,13 +87,13 @@ class applicant_user(BaseModel):
         msg.attach(MIMEText(message, "html"))
         msg.attach(MIMEText(applicant_key,"html"))
 
-        server = smtplib.SMTP(config.send_registration_email.server())
+        server = smtplib.SMTP(send_registration_email.server())
         server.starttls()
         server.login(msg["From"], password)
         server.sendmail(msg["From"], msg["To"], msg.as_string())
         server.quit()
 
-        return config.send_registration_email.response() + msg["To"]
+        return send_registration_email.response() + msg["To"]
         
 class user_to_register(applicant_user):
     name: str = None

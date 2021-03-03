@@ -6,13 +6,13 @@ from dotenv import dotenv_values
 
 from db_connection import users
 from models import user
-from config import config
 
 
 settings = dotenv_values(".env")
 secrets = dotenv_values(".secrets")
 
 router = APIRouter(prefix=settings["APPLICANT_PATH"])
+
 
 @router.post("/")
 async def request_registration(user: user.applicant_user):
@@ -42,7 +42,7 @@ async def request_registration(user: user.applicant_user):
     else:
         return user.send_registration_email(user.email)
 
-    
+
 @router.get("/{token_email}")
 async def read_email(token_email):
     """Decode de tokenized email and return a dict with key pair email: decode_email
@@ -58,9 +58,9 @@ async def read_email(token_email):
         The key pair whit the value of the email entered by the user in the post method
     """
     decode_email = jwt.decode(token_email, secrets["SECRET_KEY"], algorithms=secrets["ALGORITHM"])
-    
+
     return decode_email
-    
+
 
 
 

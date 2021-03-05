@@ -8,7 +8,6 @@ from db_connection import users
 from models import user
 from config import config
 
-
 settings = dotenv_values(".env")
 secrets = dotenv_values(".secrets")
 

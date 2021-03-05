@@ -83,7 +83,7 @@ class applicant_user(BaseModel):
         msgImg = MIMEImage(fp.read())
         fp.close()
 
-        msgImg.add_header("Content-ID", "<image1>")
+        msgImg.add_header("Content-ID", "<cdslab_auth_logo>")
         msg.attach(msgImg)
         msg.attach(MIMEText(message, "html"))
         msg.attach(MIMEText(applicant_key,"html"))

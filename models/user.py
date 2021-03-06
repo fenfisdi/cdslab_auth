@@ -1,7 +1,5 @@
 import smtplib
-import sys
 import jsoncfg
-sys.path.append('./')
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -19,80 +17,7 @@ secrets = dotenv_values(".secrets")
 class applicant_user(BaseModel):
     
     email: EmailStr
-    
-    @classmethod
-    def tokenize_email(cls, email: EmailStr):
-        
-        """Tokenize the email taken the applicant_user class as a parameter
 
-        Parameters
-        ----------
-        email : str 
-                the value of email entered by the user
-
-        Returns
-        ----------
-        str
-            The email tokenized by jws method
-        """
-        if type(email) is not str:
-            raise ValueError("Invalid type")
-        
-        email_to_encode = {'email': email}
-        tokenized_email = jwt.encode(email_to_encode, secrets["SECRET_KEY"], algorithm=secrets["ALGORITHM"])
-        return tokenized_email
-
-    @classmethod
-    def send_registration_email(cls, email: EmailStr) -> str:
-        """Send registration email to the adress entered by the user
-
-
-        Build the path that will be sent to the user and add the tokenized email, 
-        then use the MIMEMultipart library to pack the welcome message, 
-        the image and the link to the registration, finally it connects with 
-        the google server and with the credentials of the specified email send the message
-
-
-        Parameters
-        ----------
-        email : str 
-                the value of email field in the applicant_user class
-
-        Returns
-        ----------
-        str
-            The confirmation with the email is sended
-
-        """
-        
-        key_email = applicant_user.tokenize_email(email)
-        key_email = f'{"/"}{key_email}'
-        applicant_key = f'{settings["DOMAIN"]}{settings["APPLICANT_PATH"]}{key_email}'
-        msg = MIMEMultipart()
-
-        message = send_registration_email.message()
-        password = send_registration_email.password()
-        msg["From"] = send_registration_email.from_email()
-        msg["To"] = email
-        msg["Subject"] = send_registration_email.subject()
-        msg.attach(MIMEText(send_registration_email.logo(), "html"))
-
-        fp = open(send_registration_email.logo_path(),"rb")
-        msgImg = MIMEImage(fp.read())
-        fp.close()
-
-        msgImg.add_header("Content-ID", "<cdslab_auth_logo>")
-        msg.attach(msgImg)
-        msg.attach(MIMEText(message, "html"))
-        msg.attach(MIMEText(applicant_key,"html"))
-
-        server = smtplib.SMTP(send_registration_email.server())
-        server.starttls()
-        server.login(msg["From"], password)
-        server.sendmail(msg["From"], msg["To"], msg.as_string())
-        server.quit()
-
-        return send_registration_email.response() + msg["To"]
         
 class user_to_register(applicant_user):
     name: str = None

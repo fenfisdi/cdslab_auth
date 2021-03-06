@@ -6,6 +6,7 @@ from dotenv import dotenv_values
 
 from db_connection import users
 from models import user
+from dependencies import user_deps
 
 settings = dotenv_values(".env")
 secrets = dotenv_values(".secrets")
@@ -39,7 +40,7 @@ async def request_registration(user: user.applicant_user):
     if  users.find_one({'email': user.email}):
         raise HTTPException(status_code=404, detail="User already exists")
     else:
-        return user.send_registration_email(user.email)
+        return user_deps.send_email(user)
 
 
 @router.get("/{token_email}")

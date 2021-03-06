@@ -1,16 +1,14 @@
 import smtplib
 import sys
-import os
 import jsoncfg
 sys.path.append('./')
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
-from passlib.context import CryptContext
 from typing import Optional
 from pydantic import BaseModel, EmailStr, ValidationError, validator
-from jose import jwt, JWSError
+from jose import jwt
 from dotenv import dotenv_values
 
 send_registration_email = jsoncfg.load_config('send_email.cfg')

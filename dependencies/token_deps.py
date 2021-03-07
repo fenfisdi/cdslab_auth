@@ -1,6 +1,7 @@
 from fastapi import HTTPException, status
 from jose import jwt, JWTError
 from dotenv import dotenv_values
+from pydantic import EmailStr
 
 from models import user
 

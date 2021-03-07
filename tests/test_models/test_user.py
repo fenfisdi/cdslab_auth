@@ -1,15 +1,14 @@
-import sys
-sys.path.append('./')
 import pytest
-from config import config
-from models import user
 
+from models import user
+from dependencies import user_deps
+from tests.utils import utils
 # Test application_user class
 
 # Testing Emailstr field
 
 def test_valid_email_user():
-    assert user.applicant_user(email = "user@example.com") == {"email": "user@example.com"}
+    assert user.applicant_user(email = utils.random_email())
 
 # These tests for email should be fail always
 
@@ -36,16 +35,16 @@ def test_invalid_email_empty_field():
 # Test tokenize_email function
 
 def test_tokenize_email():
-    assert user.applicant_user.tokenize_email("use@example.com") == 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVzZUBleGFtcGxlLmNvbSJ9.ZpBTpBEEkmOS9nXEu0m1ZKkbpptJXnGB4aGvnlAi0A0'
+    assert user_deps.tokenize_email(user.applicant_user(email = utils.random_email()))
 
 @pytest.mark.xfail(reason = "Invalid type mail")
 def test_tokenize_email_Invalid_type():
-    assert user.applicant_user.tokenize_email(email = 14156)
+    assert user_deps.tokenize_email({"email": 14156})
 
 @pytest.mark.xfail(reason = "Invalid type email")
 def test_tokenize_email_Invalid_type2():
-    assert user.applicant_user.tokenize_email(email = ["user@example.com"])
+    assert user_deps.tokenize_email({"email": [utils.random_email()]})
 
 @pytest.mark.xfail(reason = "Invalid type email")
 def test_tokenize_email_Invalid_type3():
-    assert user.applicant_user.tokenize_email(email = {"email": "user@example.com"})
+    assert user_deps.tokenize_email({"email" : {"email": utils.random_email()}})

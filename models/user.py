@@ -1,17 +1,5 @@
-import smtplib
-import jsoncfg
-
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
 from typing import Optional
 from pydantic import BaseModel, EmailStr, ValidationError, validator
-from jose import jwt
-from dotenv import dotenv_values
-
-send_registration_email = jsoncfg.load_config('send_email.cfg')
-settings = dotenv_values(".env")
-secrets = dotenv_values(".secrets")
 
 
 class applicant_user(BaseModel):

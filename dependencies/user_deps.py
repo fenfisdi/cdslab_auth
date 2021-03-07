@@ -30,7 +30,7 @@ def tokenize_email(user: user.applicant_user) -> str:
     if type(user.email) is not str:
             raise ValueError("Invalid type")
         
-    email_to_encode = {"email":  user.email}
+    email_to_encode = user.dict()
     tokenized_email = jwt.encode(email_to_encode, secrets["SECRET_KEY"], algorithm=secrets["ALGORITHM"])
     return tokenized_email
 

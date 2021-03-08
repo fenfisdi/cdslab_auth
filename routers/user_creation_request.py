@@ -1,6 +1,6 @@
 import json
 
-from fastapi import HTTPException, APIRouter, Depends
+from fastapi import HTTPException, APIRouter
 from jose import JWTError, jwt
 from dotenv import dotenv_values
 
@@ -45,7 +45,7 @@ async def request_registration(user: user.applicant_user):
 
 
 @router.get("/{token_email}", response_model=user.applicant_user)
-async def read_email(untokenized_email: user.applicant_user = Depends(token_deps.validate_access_token_email)):
+async def read_email(token_email):
     """
     Decode de tokenized email and return a dict with key pair email: decode_email
 
@@ -65,6 +65,7 @@ async def read_email(untokenized_email: user.applicant_user = Depends(token_deps
     - **HTTPException**
             If the token is invalid or the email key doesn´t exist
     """
+    untokenized_email = token_deps.validate_access_token_email(token_email)
     return untokenized_email
 
 

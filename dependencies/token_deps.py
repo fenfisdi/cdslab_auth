@@ -23,8 +23,7 @@ def validate_access_token_email(token: str) -> user.applicant_user:
     """
     credential_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Access Denied",
-        headers={"WWW-Authenticate": "Bearer"},
+        detail="Access Denied"
     )
     try:
         decode_email = jwt.decode(token, secrets["SECRET_KEY"], algorithms=secrets["ALGORITHM"])

@@ -46,7 +46,7 @@ If you are using `conda`, then you must install the packages using
 conda env update -n venv_cdslab_auth --file requirements.yml
 ```
 
-Otherwise, if you are using `pip`, then you must install the packages using 
+Otherwise, if you are using `pip`, then you must install the packages using
 `requirements.txt` file:
 
 ```shell
@@ -101,7 +101,7 @@ parameters used by `passlib` (for more information please visit
 [JSON Web Signature](https://python-jose.readthedocs.io/en/latest/jws/index.html)
 )
 
-Once you have finished with these configurations, then your app will be ready!!
+Once you have finished with these configurations, then your app will be ready!!.
 
 The final step is run the application with help of uvicorn, for this just type:
 

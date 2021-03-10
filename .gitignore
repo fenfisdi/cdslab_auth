@@ -1,0 +1,39 @@
+
+# Byte-compiled / optimized / DLL files
+__pycache__
+
+# Virtual environment - venv
+venv_cdslab_auth
+
+# Dot env
+.env
+
+# configuration settings
+db_config.cfg
+send_email.cfg
+config.cfg
+
+
+# Secrets
+.secrets
+
+# Templates to render in each path
+templates
+
+# Pytest
+.pytest_cache
+
+# Notebook Checkpoints
+.ipynb_checkpoints
+.vscode
+
+# Byte-compiled / optimized / DLL files
+_pycache_/
+*.py[cod]
+
+# Distribution / packaging
+eggs/
+.eggs/
+*.egg-info/
+.installed.cfg
+*.egg

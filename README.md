@@ -101,7 +101,7 @@ parameters used by `passlib` (for more information please visit
 [JSON Web Signature](https://python-jose.readthedocs.io/en/latest/jws/index.html)
 )
 
-Once you have finished with these configurations, then your app will be ready!!.
+Once you have finished with these configurations, then your app will be ready!!
 
 The final step is run the application with help of uvicorn, for this just type:
 

@@ -13,12 +13,9 @@ from phonenumbers import (
 
 MOBILE_NUMBER_TYPES = PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBILE
 
-class applicant_user(BaseModel):
-    
+      
+class user_to_register(BaseModel):
     email: EmailStr
-
-        
-class user_to_register(applicant_user):
     name: str = Field(max_length=64, strip_whitespace=True)
     last_name: str = Field(max_length=63, strip_whitespace=True)
     sex: str = Field(max_length=1)
@@ -27,7 +24,7 @@ class user_to_register(applicant_user):
     institution_afiliation: str = Field(min_length=3)
     profession: str = Field(min_length=3)
     date_of_birth: datetime
-    is_active: bool = False
+    
     
     @validator('name', 'last_name', 'institution', 'institution_afiliation', 'profession')
     def validate_alphabetic_field(cls, alphabetic_field):
@@ -106,4 +103,6 @@ class user_in(user_to_register):
 
 class user_in_db(user_to_register):
 
+    is_active: bool = False
     hashed_password: str = None
+    key_qr: str = None

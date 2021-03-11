@@ -7,7 +7,7 @@ from models import user
 
 secrets = dotenv_values(".secrets")
 
-def validate_access_token_email(token: str) -> user.applicant_user:
+def validate_access_token_email(token: str) -> user.user_to_register:
     """
     Decode de tokenized email and return a dict with key pair email: decode_email
 

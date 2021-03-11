@@ -10,4 +10,5 @@ client = MongoClient(
     )
 
 db = client[db_config.db_name()]
-users = db[db_config.collection()]
+
+users = db[db_config.collection.users()]

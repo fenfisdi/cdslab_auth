@@ -113,3 +113,8 @@ class user_in_db(user_to_register):
 class auth_in(BaseModel):
     email: EmailStr
     password: str
+
+
+class two_auth_in(BaseModel):
+    email: EmailStr
+    qr_value: str

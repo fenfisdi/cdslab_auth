@@ -52,7 +52,8 @@ def generate_token_jwt(payload: dict):
             token for route protection
     """
     token = jwt.encode(
-        payload, secrets["SECRET_KEY"], algorithm=secrets["ALGORITHM"])
+        payload, secrets["SECRET_KEY"], algorithm=secrets["ALGORITHM"]
+    )
 
     return {
         "access_token": token

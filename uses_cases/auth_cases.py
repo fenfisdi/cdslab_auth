@@ -18,10 +18,10 @@ def validation_login_auth(data: auth_in):
             return responses.response_model({'key_qr': user_retrive['key_qr'], 'email': user_retrive['email']}, "successfull")
 
         raise HTTPException(status_code=404, detail=responses.error_response_model(
-            'password not is equal', 404, 'Error'))
+            'user or password invalid', 404, 'Error'))
 
     raise HTTPException(status_code=404, detail=responses.error_response_model(
-        'user not exist.!', 404, 'Error'))
+        'user or password invalid', 404, 'Error'))
 
 
 def validation_qr_auth(email: str, qr_value: str):

@@ -8,7 +8,7 @@ from tests.utils import utils
 # Testing Emailstr field
 
 def test_valid_email_user():
-    assert user.applicant_user(email = utils.random_email())
+    assert user.user_to_register(email = utils.random_email())
 
 # These tests for email should be fail always
 

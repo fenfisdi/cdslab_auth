@@ -11,8 +11,8 @@ from phonenumbers import (
     parse as parse_phone_number,
 )
 
-MOBILE_NUMBER_TYPES = PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBILE
 
+MOBILE_NUMBER_TYPES = PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBILE
 
 class user_to_register(BaseModel):
     email: EmailStr

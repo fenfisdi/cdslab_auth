@@ -17,11 +17,9 @@ def validation_login_auth(data: auth_in):
         if is_equal:
             return responses.response_model({'key_qr': user_retrive['key_qr'], 'email': user_retrive['email']}, "successfull")
 
-        raise HTTPException(status_code=404, detail=responses.error_response_model(
-            'password not is equal', 404, 'Error'))
+        return responses.error_response_model('password not is equal', 404, 'Error')
 
-    raise HTTPException(status_code=404, detail=responses.error_response_model(
-        'user not exist.!', 404, 'Error'))
+    return responses.error_response_model('user not exist.!', 404, 'Error')
 
 
 def validation_qr_auth(email: str, qr_value: str):
@@ -39,7 +37,5 @@ def validation_qr_auth(email: str, qr_value: str):
         token = token_deps.generate_token_jwt(payload)
         if token:
             return responses.response_model(token, "successfull")
-        raise HTTPException(status_code=404, detail=responses.error_response_model(
-            'error generate token', 404, 'Error'))
-    raise HTTPException(status_code=404, detail=responses.error_response_model(
-        'incorret valition qr credentials', 404, 'Error'))
+        return error_response_model('error generate token', 404, 'Error')
+    return responses.error_response_model('incorret valition qr credentials', 404, 'Error')

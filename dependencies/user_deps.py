@@ -10,7 +10,7 @@ from dotenv import dotenv_values
 
 from db_connection import users
 from models import user
-from dependencies import qr_deps
+from dependencies import qr_deps, token_deps
 
 
 send_registration_email = jsoncfg.load_config('send_email.cfg')
@@ -44,7 +44,7 @@ def tokenize_email(user: user.user_to_register) -> str:
     return tokenized_email
 
 
-def send_email(user: user.user_to_register) -> str:
+def send_email(email: str) -> str:
     """
     Send registration email to the adress entered by the user
 
@@ -66,15 +66,15 @@ def send_email(user: user.user_to_register) -> str:
             The confirmation with the email is sended
 
     """
-    key_email = tokenize_email(user)
-    key_email = f'{"/"}{key_email}'
-    applicant_key = f'{settings["DOMAIN"]}{settings["APPLICANT_PATH"]}{key_email}'
+    key_email = token_deps.generate_token_jwt({'email': email})
+    key_email = key_email['access_token']
+    applicant_key = f'{settings["DOMAIN"]}{settings["REGISTER_PATH"]}/{key_email}'
     msg = MIMEMultipart()
 
     message = send_registration_email.message()
     password = send_registration_email.password()
     msg["From"] = send_registration_email.from_email()
-    msg["To"] = user.email
+    msg["To"] = email
     msg["Subject"] = send_registration_email.subject()
     msg.attach(MIMEText(send_registration_email.logo(), "html"))
 

@@ -3,8 +3,9 @@ from models import user
 from uses_cases.auth_cases import validation_login_auth, validation_qr_auth
 import pyotp
 from pprint import pprint
-router = APIRouter()
 
+
+router = APIRouter()
 
 @router.post("/loginAuthentication")
 async def login_auth(user: user.auth_in):

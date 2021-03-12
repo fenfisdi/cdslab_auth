@@ -5,13 +5,14 @@ from uses_cases.user_cases import *
 from models import user
 from dependencies import token_deps
 
+
 settings = dotenv_values(".env")
 secrets = dotenv_values(".secrets")
 
-router = APIRouter(prefix=settings["REGISTER_PATH"])
+router = APIRouter()
 
-@router.post("/")
-async def request_registration(user: user.user_in):
+@router.post("/save_user")
+async def save_user(user: user.user_in) -> dict:
     """
     Validates the data entered by the user, confirms that the user 
     does not exist within the database and creates the model that will 
@@ -44,10 +45,15 @@ async def request_registration(user: user.user_in):
     - **ValueError**
         If the password and verify password doesn't match
     """
-    response = send_qr(user)
+    response = save_user_in_db(user)
 
     return response
 
+@router.post("/qr_validation")
+async def qr_validation(email: str, key_qr_value: str) -> bool:
+
+    response = validate_qr_registration(email, key_qr_value)
+    return response
 
 
 @router.get("/{token_email}")

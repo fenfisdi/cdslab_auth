@@ -31,11 +31,12 @@ def validation_qr_auth(email: str, qr_value: str):
         payload = {
             "expires": str(datetime.utcnow() + timedelta(hours=24)),
             "id": str(user_retrive["_id"]),
+            "rol": str(user_retrive["rol"]),
             "email": str(user_retrive["email"]),
         }
 
         token = token_deps.generate_token_jwt(payload)
         if token:
             return responses.response_model(token, "successfull")
-        return error_response_model('error generate token', 404, 'Error')
+        return responses.error_response_model('error generate token', 404, 'Error')
     return responses.error_response_model('incorret valition qr credentials', 404, 'Error')

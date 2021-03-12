@@ -106,6 +106,7 @@ class user_in(user_to_register):
 class user_in_db(user_to_register):
 
     is_active: bool = False
+    rol: str = "regular"
     hashed_password: str = None
     key_qr: str = None
 

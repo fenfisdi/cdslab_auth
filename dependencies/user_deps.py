@@ -5,10 +5,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from passlib.context import CryptContext
-from jose import jwt
 from dotenv import dotenv_values
 
-from db_connection import users
 from models import user
 from dependencies import qr_deps, token_deps
 
@@ -19,30 +17,6 @@ settings = dotenv_values(".env")
 
 context = CryptContext(schemes=[secrets['CRYPTOCONTEXT_SCHEM']],
                        deprecated=secrets['CRYPTOCONTEXT_DEPRECATED'])
-
-
-def tokenize_email(user: user.user_to_register) -> str:
-    """
-    Tokenize the email taken the applicant_user class as a parameter
-
-    Parameters
-    ----------
-    user : dict 
-            Object type applicant_user
-
-    Returns
-    ----------
-    str
-    The email tokenized by jwt method
-    """
-    if type(user.email) is not str:
-        raise ValueError("Invalid type")
-
-    email_to_encode = {'email': user.email}
-    tokenized_email = jwt.encode(
-        email_to_encode, secrets["SECRET_KEY"], algorithm=secrets["ALGORITHM"])
-    return tokenized_email
-
 
 def send_email(email: str) -> str:
     """

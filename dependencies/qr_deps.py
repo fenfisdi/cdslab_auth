@@ -1,6 +1,6 @@
 import jsoncfg
 import pyotp
-import qrcode
+
 from operations.user_operations import *
 from dependencies import qr_deps
 from PIL import Image

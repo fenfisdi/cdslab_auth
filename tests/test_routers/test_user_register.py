@@ -17,11 +17,15 @@ client = TestClient(app)
 
 def test_created_correct_user():
     random_user = created_random_user("", "")
-    response = client.post(f"{settings['REGISTER_PATH']}/save_user", json=random_user)
     if users.find_one():
+        response = client.post(f"{settings['REGISTER_PATH']}/save_user", json=random_user)
         users.delete_one({"email": random_user["email"]})
-    assert response.status_code == 200
-
+        assert response.status_code == 200
+    else:
+        response = client.post(f"{settings['REGISTER_PATH']}/save_user", json=random_user)
+        assert response.status_code == 200
+   
+    
 def test_register_user_invalid_email():
     response = client.post(f"{settings['REGISTER_PATH']}/save_user", json=created_random_user('email', random_lower_string()))
     assert response.status_code >= 400
@@ -53,11 +57,17 @@ def test_register_user_password_not_match():
 # Test POST qr_validation path
 
 def test_valid_user_qr():
-    response = client.post(f"{settings['REGISTER_PATH']}/qr_validation", json={"email":"pipin@gmail.com", "qr_value": qr_deps.get_value_key_qr("JL4BEB76RXBFLPRUUWMPO5BUSC7OHTEL")})
+    response = client.post(f"{settings['REGISTER_PATH']}/qr_validation", 
+            json={"email": users.find_one({},{'email': 1})['email'], 
+                'qr_value': qr_deps.get_value_key_qr(users.find_one({},
+                {'key_qr': 1})['key_qr'])})
     assert response.status_code == 200
 
 def test_invalid_user_qr():
-    response = client.post(f"{settings['REGISTER_PATH']}/qr_validation", json={"email":"pipin@gmail.com", "qr_value": random_lower_string()})
+    response = client.post(f"{settings['REGISTER_PATH']}/qr_validation", 
+        json={"email": users.find_one({},
+            {'email': 1})['email'], 
+            "qr_value": random_lower_string()})
     assert response.status_code >= 400
 
 # Test GET token_email

@@ -1,8 +1,6 @@
 from fastapi import APIRouter
 from models import user
 from uses_cases.auth_cases import validation_login_auth, validation_qr_auth
-import pyotp
-from pprint import pprint
 
 
 router = APIRouter()
@@ -35,7 +33,7 @@ async def login_auth(user: user.auth_in):
 
 
 @router.post("/qrAuthentication")
-async def qr_auth(email: str, qr_value: int):
+async def qr_auth(user: user.two_auth_in):
     """
     validates the value of the qr with the value entered by the user
     and generate the token
@@ -61,7 +59,5 @@ async def qr_auth(email: str, qr_value: int):
 
     """
 
-    #totp = pyotp.TOTP("VKFPZN6M3HFTFZXENMTZMQ7LBU3C26G4").now()
-    # print(totp)
-    is_auth = validation_qr_auth(email, qr_value)
+    is_auth = validation_qr_auth(user.email, user.qr_value)
     return is_auth

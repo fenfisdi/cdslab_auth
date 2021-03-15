@@ -78,3 +78,9 @@ def update_user_state(data: dict, id:str):
             return True
         return False
     return False
+
+def find_users():
+
+    users = users.find_one()
+
+    return users

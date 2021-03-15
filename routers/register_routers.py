@@ -1,13 +1,9 @@
 from fastapi import APIRouter
-from dotenv import dotenv_values
 
 from uses_cases.user_cases import *
 from models import user
 from dependencies import token_deps
 
-
-settings = dotenv_values(".env")
-secrets = dotenv_values(".secrets")
 
 router = APIRouter()
 
@@ -50,9 +46,9 @@ async def save_user(user: user.user_in) -> dict:
     return response
 
 @router.post("/qr_validation")
-async def qr_validation(email: str, key_qr_value: str) -> bool:
+async def qr_validation(user: user.two_auth_in) -> dict:
 
-    response = validate_qr_registration(email, key_qr_value)
+    response = validate_qr_registration(user.email, user.qr_value)
     return response
 
 

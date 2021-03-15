@@ -24,7 +24,7 @@ def generate_key_qr() -> str:
 
 def generate_url_qr(qr_key: str, user: user_to_register) -> str:
     """
-    Generates the url that contains the QR asociated with the user email, this
+    Generates the url that contains the QR associated with the user email, this
     QR can be rendered by the frontend
 
     Parameters
@@ -52,7 +52,7 @@ def get_value_key_qr(key_qr: str):
         Parameters
         ----------
         key_qr: str
-                string obtained by the client
+                String obtained by the client
 
 
 
@@ -71,19 +71,19 @@ def validate_qr(query: dict, qr_value: str):
         Parameters
         ----------
         query: dict
-                database search query 
+                Database search query 
 
         qr_value:str
-                value to compare
+                Value to compare
 
         Returns
         ----------
         value: Boolean
 
     """
-    user_retrive = retrive_user(query)
-    if user_retrive:
-        key_qr_value = qr_deps.get_value_key_qr(user_retrive["key_qr"])
+    user_retrieve = retrieve_user(query)
+    if user_retrieve:
+        key_qr_value = qr_deps.get_value_key_qr(user_retrieve["key_qr"])
         if key_qr_value:
             if str(key_qr_value) == str(qr_value):
                 return True

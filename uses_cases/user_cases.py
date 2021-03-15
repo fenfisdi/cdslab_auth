@@ -4,7 +4,7 @@ from fastapi import HTTPException
 
 def save_user_in_db(user: dict) -> dict:
 
-    if  retrive_user({'email': user.email}):
+    if  retrieve_user({'email': user.email}):
         return responses.error_response_model('User already exists', 404, 'Error')
     user_in_db = user_deps.transform_props_to_user(user)
     user_insert = insert_user(user_in_db.dict())
@@ -16,7 +16,7 @@ def save_user_in_db(user: dict) -> dict:
 
 def activate_user(user: dict) -> dict:
 
-    is_user = retrive_user({'email': user['email']})
+    is_user = retrieve_user({'email': user['email']})
     
     if is_user:
         is_updated = update_user_state({'is_active': True}, is_user['_id'])

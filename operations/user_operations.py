@@ -7,7 +7,8 @@ db_config = jsoncfg.load_config('db_config.cfg')
 
 users = db[db_config.collection.users()]
 
-def retrive_user(query: dict) -> dict:
+
+def retrieve_user(query: dict) -> dict:
     user = users.find_one(query)
     """
     Takes a dictionary as a parameter to perform a search
@@ -24,6 +25,7 @@ def retrive_user(query: dict) -> dict:
     """
     return user
 
+
 def insert_user(data: dict):
     """
     Takes a dictionary and save it on the mongo collection users
@@ -33,7 +35,7 @@ def insert_user(data: dict):
     data: dict
             The dict that will be saved on the database as json document
 
-    
+
     Return
     ----------
     user: dict
@@ -43,7 +45,8 @@ def insert_user(data: dict):
     new_user = users.find_one({"_id": user.inserted_id})
     return new_user
 
-def update_user_state(data: dict, id:str):
+
+def update_user_state(data: dict, id: str):
     """
     Takes dictionary with the pair key value and its id associated 
     and change the value to true
@@ -54,7 +57,7 @@ def update_user_state(data: dict, id:str):
             The parameter that contains the pair key value 
     id: str
             The id that associated with the document found from data parameter as a query
-    
+
     Return
     ----------
     False:
@@ -78,9 +81,3 @@ def update_user_state(data: dict, id:str):
             return True
         return False
     return False
-
-def find_users():
-
-    users = users.find_one()
-
-    return users

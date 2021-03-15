@@ -27,7 +27,8 @@ def validate_access_token_email(token: str) -> user.user_to_register:
     )
     try:
         decode_email = jwt.decode(
-            token, secrets["SECRET_KEY"], algorithms=secrets["ALGORITHM"])
+            token, secrets["SECRET_KEY"], algorithms=secrets["ALGORITHM"]
+        )
         if decode_email["email"] is None:
             raise credential_exception
     except JWTError:
@@ -50,7 +51,8 @@ def generate_token_jwt(payload: dict):
             token for route protection
     """
     token = jwt.encode(
-        payload, secrets["SECRET_KEY"], algorithm=secrets["ALGORITHM"])
+        payload, secrets["SECRET_KEY"], algorithm=secrets["ALGORITHM"]
+    )
 
     return {
         "access_token": token

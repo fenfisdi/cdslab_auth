@@ -17,13 +17,10 @@ client = TestClient(app)
 
 def test_created_correct_user():
     random_user = created_random_user("", "")
-    if users.find_one():
-        response = client.post(f"{settings['REGISTER_PATH']}/save_user", json=random_user)
-        users.delete_one({"email": random_user["email"]})
-        assert response.status_code == 200
-    else:
-        response = client.post(f"{settings['REGISTER_PATH']}/save_user", json=random_user)
-        assert response.status_code == 200
+    response = client.post(f"{settings['REGISTER_PATH']}/save_user", json=random_user)
+    users.delete_one({"email": random_user["email"]})
+    assert response.status_code == 200
+
    
     
 def test_register_user_invalid_email():

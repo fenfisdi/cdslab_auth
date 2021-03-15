@@ -7,6 +7,7 @@ from dependencies import user_deps, qr_deps
 from models import user
 from tests.utils.utils import random_email, random_lower_string
 from tests.utils.token import generate_random_token, generate_fake_token_with_other_secret_key
+from tests.utils.user import *
 
 
 settings = dotenv_values(".env")
@@ -16,8 +17,14 @@ client = TestClient(app)
 # Test POST LoginAuthentication
 
 def test_valid_password():
-    response = client.post(f"/auth/loginAuthentication", json={"email": users.find_one({},{'email': 1})['email'], "password": "12345"})
-    assert response.status_code == 200
+    random_user = created_random_user("", "")
+    if users.find_one():
+        response = client.post(f"/auth/loginAuthentication", json={"email": users.find_one({},{'email': 1})['email'], "password": "12345"})
+        assert response.status_code == 200
+    else:
+        client.post(f"{settings['REGISTER_PATH']}/save_user", json=random_user)
+        response = client.post(f"/auth/loginAuthentication", json={"email": users.find_one({},{'email': 1})['email'], "password": "12345"})
+        assert response.status_code == 200
 
 def test_incorrect_password():
     response = client.post(f"/auth/loginAuthentication", json={"email": users.find_one({},{'email': 1})['email'], "password": "1234567"})

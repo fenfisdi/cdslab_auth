@@ -118,3 +118,8 @@ class auth_in(BaseModel):
 class two_auth_in(BaseModel):
     email: EmailStr
     qr_value: str
+
+
+class auth_refresh(BaseModel):
+    email: EmailStr
+    key_qr: str

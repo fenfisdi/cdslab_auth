@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from models import user
-from uses_cases.auth_cases import validation_login_auth, validation_qr_auth
+from uses_cases.auth_cases import validation_login_auth, validation_qr_auth, generate_refresh_token
 import pyotp
 from pprint import pprint
 router = APIRouter()
@@ -65,3 +65,31 @@ async def qr_auth(user: user.two_auth_in):
 
     is_auth = validation_qr_auth(user.email, user.qr_value)
     return is_auth
+
+
+@router.post("/refreshAuthentication")
+async def refresh_auth(user: user.auth_refresh):
+    """
+     generates a new token to the user
+
+     Parameters
+     ----------
+     - email: str
+             A string email
+
+     - key_qr: str
+             Is a str value of the key_qr stored in BD
+     Returns
+     ----------
+     - **response** : string
+             token
+
+     Raises
+     ----------
+     - **HTTPException**
+             If the library is unable to generate the token
+     - **HTTPException**
+             If incorret key_qr value
+
+     """
+    return generate_refresh_token(user.key_qr)

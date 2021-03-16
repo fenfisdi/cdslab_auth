@@ -31,13 +31,8 @@ def send_email(email: str) -> str:
 
     Parameters
     ----------
-    user : dict 
-            Object type applicant_user
-
-    Returns
-    ----------
-    str
-            The confirmation with the email is sended
+    email : str 
+            Who receives the sent email
 
     """
     key_email = token_deps.generate_token_jwt({'email': email})
@@ -114,7 +109,7 @@ def transform_props_to_user(user_in: user.user_in):
     Parameters
     ----------
     user_in: Pydantic class
-            inherits the properties of user_in
+            Inherits the properties of user_in
 
     Return
     ----------

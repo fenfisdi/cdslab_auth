@@ -38,17 +38,18 @@ def validate_access_token_email(token: str) -> user.user_to_register:
 
 def generate_token_jwt(payload: dict):
     """
-        generate token given a payload
+    Generates token with the given payload
 
-        Parameters
-        ----------
-        payload: dict
-            dictionary with values to tokenize
+    Parameters
+    ----------
+    payload: dict
+        Dictionary with values to tokenize
 
-        Returns
-        ----------
-        token: str 
-            token for route protection
+    Returns
+    ----------
+    token: str 
+        Token for route protection
+
     """
     token = jwt.encode(
         payload, secrets["SECRET_KEY"], algorithm=secrets["ALGORITHM"]

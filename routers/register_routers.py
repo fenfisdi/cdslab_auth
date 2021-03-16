@@ -47,7 +47,28 @@ async def save_user(user: user.user_in) -> dict:
 
 @router.post("/qr_validation")
 async def qr_validation(user: user.two_auth_in) -> dict:
+    """
+    Validates the GA numbers entered by the user.
 
+    Parameters
+    ----------
+    - **user** : pydantic class 
+            It's a parameter that inherits the properties of the two_auth_in class
+
+    Returns
+    ----------
+    - **response** : str 
+            Sended magic link to the user email and returns a message 
+
+    Raises
+    ----------
+    - **HTTPException**
+        If the email isn't registered in the database
+    - **HTTPException**
+        If the email doesn't correspond with the respective key_qr
+    - **ValueError**
+        If the email is not a valid email address
+    """
     response = validate_qr_registration(user.email, user.qr_value)
     return response
 

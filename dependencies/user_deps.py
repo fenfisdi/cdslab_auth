@@ -17,7 +17,9 @@ send_registration_email = jsoncfg.load_config('send_email.cfg')
 secrets = dotenv_values(".secrets")
 settings = dotenv_values(".env")
 
-context = CryptContext(schemes=[secrets['CRYPTOCONTEXT_SCHEM']], deprecated=secrets['CRYPTOCONTEXT_DEPRECATED'])
+context = CryptContext(schemes=[secrets['CRYPTOCONTEXT_SCHEM']],
+                       deprecated=secrets['CRYPTOCONTEXT_DEPRECATED'])
+
 
 def tokenize_email(user: user.user_to_register) -> str:
     """
@@ -34,11 +36,13 @@ def tokenize_email(user: user.user_to_register) -> str:
     The email tokenized by jwt method
     """
     if type(user.email) is not str:
-            raise ValueError("Invalid type")
+        raise ValueError("Invalid type")
 
     email_to_encode = {'email': user.email}
-    tokenized_email = jwt.encode(email_to_encode, secrets["SECRET_KEY"], algorithm=secrets["ALGORITHM"])
+    tokenized_email = jwt.encode(
+        email_to_encode, secrets["SECRET_KEY"], algorithm=secrets["ALGORITHM"])
     return tokenized_email
+
 
 def send_email(user: user.user_to_register) -> str:
     """
@@ -74,14 +78,14 @@ def send_email(user: user.user_to_register) -> str:
     msg["Subject"] = send_registration_email.subject()
     msg.attach(MIMEText(send_registration_email.logo(), "html"))
 
-    fp = open(send_registration_email.logo_path(),"rb")
+    fp = open(send_registration_email.logo_path(), "rb")
     msgImg = MIMEImage(fp.read())
     fp.close()
 
     msgImg.add_header("Content-ID", "<cdslab_auth_logo>")
     msg.attach(msgImg)
     msg.attach(MIMEText(message, "html"))
-    msg.attach(MIMEText(applicant_key,"html"))
+    msg.attach(MIMEText(applicant_key, "html"))
 
     server = smtplib.SMTP(send_registration_email.server())
     server.starttls()
@@ -98,7 +102,7 @@ def get_hash_password(password: user.user_in) -> str:
     ----------
     password: dict
             The password taked from user_in class
-    
+
     Return
     ----------
     hashed_passoword: str
@@ -107,7 +111,8 @@ def get_hash_password(password: user.user_in) -> str:
     hashed_password = context.hash(password)
     return hashed_password
 
-def verify_passowrd(plain_password: str, hashed_password: user.user_in_db) -> bool:
+
+def verify_passowrd(plain_password: str, hashed_password: str) -> bool:
     """
     Verify if the password entered by the user and the hassed password in the database
     match
@@ -118,7 +123,7 @@ def verify_passowrd(plain_password: str, hashed_password: user.user_in_db) -> bo
             String entered by the user in the authentication step
     hashed_password: str
             The password hashed saved in the database associated with the user
-    
+
     Return
     ----------
     is_verify: bool
@@ -127,10 +132,11 @@ def verify_passowrd(plain_password: str, hashed_password: user.user_in_db) -> bo
     is_verify = context.verify(plain_password, hashed_password)
     return is_verify
 
+
 def transform_props_to_user(user_in: user.user_in):
     """
     Takes the user_in class and contruct the model that will be saved on the database
-    
+
     Parameters
     ----------
     user_in: Pydantic class
@@ -143,8 +149,8 @@ def transform_props_to_user(user_in: user.user_in):
             and user_in_db class
     """
     hashed_password = get_hash_password(user_in.password)
-    user_in_db = user.user_in_db(**user_in.dict(), 
-                hashed_password=hashed_password, 
-                key_qr=qr_deps.generate_key_qr())
-    
+    user_in_db = user.user_in_db(**user_in.dict(),
+                                 hashed_password=hashed_password,
+                                 key_qr=qr_deps.generate_key_qr())
+
     return user_in_db

@@ -8,7 +8,7 @@ from dependencies import token_deps
 settings = dotenv_values(".env")
 secrets = dotenv_values(".secrets")
 
-router = APIRouter(prefix=settings["APPLICANT_PATH"])
+router = APIRouter(prefix=settings["REGISTER_PATH"])
 
 @router.post("/")
 async def request_registration(user: user.user_in):

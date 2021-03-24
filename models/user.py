@@ -13,7 +13,7 @@ from phonenumbers import (
 
 MOBILE_NUMBER_TYPES = PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBILE
 
-      
+
 class user_to_register(BaseModel):
     email: EmailStr
     name: str = Field(max_length=64, strip_whitespace=True)
@@ -24,8 +24,7 @@ class user_to_register(BaseModel):
     institution_afiliation: str = Field(min_length=3)
     profession: str = Field(min_length=3)
     date_of_birth: datetime
-    
-    
+
     @validator('name', 'last_name', 'institution', 'institution_afiliation', 'profession')
     def validate_alphabetic_field(cls, alphabetic_field):
         """Valid that the value entered by the user in the registration step is an alphabetic string
@@ -37,7 +36,7 @@ class user_to_register(BaseModel):
         """
         assert alphabetic_field.isalpha(), "must be alphabetic field"
         return alphabetic_field
-    
+
     @validator('sex')
     def validate_sex(cls, sex):
         """Valid that the field sex take just the value M or f
@@ -57,12 +56,14 @@ class user_to_register(BaseModel):
         try:
             n = parse_phone_number(phone_number, 'GB')
         except NumberParseException as e:
-            raise ValueError('Please provide a valid mobile phone number') from e
+            raise ValueError(
+                'Please provide a valid mobile phone number') from e
 
         if not is_valid_number(n) or number_type(n) not in MOBILE_NUMBER_TYPES:
             raise ValueError('Please provide a valid mobile phone number')
 
         return format_number(n, PhoneNumberFormat.NATIONAL if n.country_code == 44 else PhoneNumberFormat.INTERNATIONAL)
+
 
 class user_in(user_to_register):
     password: str = None
@@ -90,7 +91,7 @@ class user_in(user_to_register):
         ----------
         password_to_verify: str
             If the password and verify_password match, returns the value in passowrd filed
-        
+
         Raises:
         ----------
         ValueError
@@ -101,8 +102,24 @@ class user_in(user_to_register):
             raise ValueError('passwords do not match')
         return password_to_verify
 
+
 class user_in_db(user_to_register):
 
     is_active: bool = False
     hashed_password: str = None
     key_qr: str = None
+
+
+class auth_in(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class two_auth_in(BaseModel):
+    email: EmailStr
+    qr_value: str
+
+
+class auth_refresh(BaseModel):
+    email: EmailStr
+    key_qr: str

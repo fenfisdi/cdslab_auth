@@ -1,53 +1,106 @@
+---
 # CDSLab Auth
+---
 
-This is the Authentication API for CDSLab.
+This API constitutes the authentication module used in CDSLab.
 
 ## Environment setup
 
-### Create `venv_cdslab_auth` environment
+We recommend using a local python environment to avoid messing with the global
+installation. In the following process we will go through the process of
+creating such environment (generally known as _virtual environment_) and it will
+be named *venv_cdslab_auth*.
 
-Create an environment in your local folder that contains the cloned repository
+---
+### Creation of `venv_cdslab_auth`
 
-If you are using `conda` package managment type the following comands (please
-be aware that `venv_cdslab_auth` is the default environment name of this repo.
-Don't change it):
+Whether you use Python installed locally (the usual case for Linux users) or you
+prefer to manage your installations using Conda, the creation of the environment
+is straight forward, and this guide covers a great amount of the base cases.
+
+The first step to begin this process is to create a folder wherever you prefer,
+but it would be better if it is accessible with ease. In our case, we will call
+it _venv_cdslab_auth_, as previously mentioned. It will be localized on the same
+folder as the one where this repository is located at.
+
+---
+After this point, Conda users and Python users have to follow slightly different
+steps.
+---
+
+#### Conda Users:
+
+The first step is to open a terminal that has access to Conda
+* *Windows:* Execute `Conda Prompt` from the start menu.
+* *Linux/Mac:* Launch any terminal that you have accessible.
+
+Now, the creation of virtual environment is as easy as just typing the following
+commands:
 
 ```shell
 conda create --name venv_cdslab_auth
 conda activate venv_cdslab_auth
 ```
 
-Otherwise, if you are using `pip` type:
+Which creates a virtual environment inside the folder we created on the previous
+section and activates it so that it gets detected by the prompt when you launch
+it.
+
+#### Vanilla Python 3 User:
+
+Virtual environments are just as easy to create as when using Conda, there are
+only some slightly differences. We will asume the usage of Python 3, as the
+library is intended to work on this version. Most Python installation use
+`python3` as the command to execute processes within Python 3, but there are
+some Linux distribution that prefer the usage of `python`, such as:
+* Arch Linux
+* Manjaro
+* Gentoo
+
+If you are not using any of the previously mention distros, then do as follows
+(Otherwise change `python3` -> `python`):
 
 ```shell
 python3 -m venv venv_cdslab_auth
 ```
-
-For activating the environment, if you are on Linux or MAC, then type:
+This creates a virtual environment on the folder we mentioned previously, after
+that we need to activate it so that the prompt has access to it whenever needed.
+This gets done by executing:
 
 ```shell
 source venv_cdslab_auth/bin/activate
 ```
 
-Otherwise, if you are on windows, then type:
+on Linux/Mac, or
 
 ```shell
 venv_cdslab_auth\Scripts\activate.bat
 ```
 
+on Windows.
+
 ### Required packages installation
 
-Install packages used by **CDSLab Auth**
+Now, in order to use the library, we need to install all of the required
+packages. `cd` into `venv_cdslab_auth` and follow the steps bellow:
 
-If you are using `conda`, then you must install the packages using
-`requirements.yml` file:
+#### Conda
+
+Do `ls` from within the prompt, there should be a list of the files inside the
+folder, one of them is called `requirements.yml` this is a _YAML_ file, and it
+is in charge of telling Conda which packages to install inside the virtual
+environment and which python version 
 
 ```shell
 conda env update -n venv_cdslab_auth --file requirements.yml
 ```
 
-Otherwise, if you are using `pip`, then you must install the packages using
-`requirements.txt` file:
+When managing packages locally without Conda, the alternative is to use *Pip*
+which is the official way to manage python libraries outside _Python Base_.
+Pip comes preinstalled within the Python package for Windows, as for Linux it
+can be installed using the package manager of your distro, while on Mac there is
+not a unique way of doing it, but internet has lot of wonderful tutorials about
+it, be our guest. The process is a little simpler, from the prompt execute:
 
 ```shell
 pip install -r requirements.txt
@@ -55,6 +108,9 @@ pip install -r requirements.txt
 
 ### Database setup
 
+The library uses [MongoDB](https://www.mongodb.com/try/download/community).
+
+ as the database management,
 **CDSLab Auth** requires [MongoDB](https://www.mongodb.com/try/download/community).
 
 Once you install **MongoDB**, just execute it.

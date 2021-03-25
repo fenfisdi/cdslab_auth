@@ -5,12 +5,10 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from passlib.context import CryptContext
-from jose import jwt
 from dotenv import dotenv_values
 
-from db_connection import users
 from models import user
-from dependencies import qr_deps
+from dependencies import qr_deps, token_deps
 
 
 send_registration_email = jsoncfg.load_config('send_email.cfg')
@@ -20,31 +18,7 @@ settings = dotenv_values(".env")
 context = CryptContext(schemes=[secrets['CRYPTOCONTEXT_SCHEM']],
                        deprecated=secrets['CRYPTOCONTEXT_DEPRECATED'])
 
-
-def tokenize_email(user: user.user_to_register) -> str:
-    """
-    Tokenize the email taken the applicant_user class as a parameter
-
-    Parameters
-    ----------
-    user : dict 
-            Object type applicant_user
-
-    Returns
-    ----------
-    str
-    The email tokenized by jwt method
-    """
-    if type(user.email) is not str:
-        raise ValueError("Invalid type")
-
-    email_to_encode = {'email': user.email}
-    tokenized_email = jwt.encode(
-        email_to_encode, secrets["SECRET_KEY"], algorithm=secrets["ALGORITHM"])
-    return tokenized_email
-
-
-def send_email(user: user.user_to_register) -> str:
+def send_email(email: str) -> str:
     """
     Send registration email to the adress entered by the user
 
@@ -57,24 +31,19 @@ def send_email(user: user.user_to_register) -> str:
 
     Parameters
     ----------
-    user : dict 
-            Object type applicant_user
-
-    Returns
-    ----------
-    str
-            The confirmation with the email is sended
+    email : str 
+            Who receives the sent email
 
     """
-    key_email = tokenize_email(user)
-    key_email = f'{"/"}{key_email}'
-    applicant_key = f'{settings["DOMAIN"]}{settings["APPLICANT_PATH"]}{key_email}'
+    key_email = token_deps.generate_token_jwt({'email': email})
+    key_email = key_email['access_token']
+    applicant_key = f'{settings["DOMAIN"]}{settings["REGISTER_PATH"]}/{key_email}'
     msg = MIMEMultipart()
 
     message = send_registration_email.message()
     password = send_registration_email.password()
     msg["From"] = send_registration_email.from_email()
-    msg["To"] = user.email
+    msg["To"] = email
     msg["Subject"] = send_registration_email.subject()
     msg.attach(MIMEText(send_registration_email.logo(), "html"))
 
@@ -140,7 +109,7 @@ def transform_props_to_user(user_in: user.user_in):
     Parameters
     ----------
     user_in: Pydantic class
-            inherits the properties of user_in
+            Inherits the properties of user_in
 
     Return
     ----------

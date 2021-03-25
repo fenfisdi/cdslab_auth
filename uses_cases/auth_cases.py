@@ -18,18 +18,9 @@ def validation_login_auth(data: auth_in):
         if is_equal:
             return responses.response_model({'key_qr': user_retrieve['key_qr'], 'email': user_retrieve['email']}, "successfull")
 
-        raise HTTPException(
-            status_code=404,
-            detail=responses.error_response_model(
-                'user or password invalid!', 404, 'Error'
-            )
-        )
+        return responses.error_response_model('password not is equal', 404, 'Error')
 
-    raise HTTPException(
-        status_code=404, detail=responses.error_response_model(
-            'user or password invalid!', 404, 'Error'
-        )
-    )
+    return responses.error_response_model('user not exist.!', 404, 'Error')
 
 
 def validation_qr_auth(email: str, qr_value: str):
@@ -41,25 +32,15 @@ def validation_qr_auth(email: str, qr_value: str):
         payload = {
             "expires": str(datetime.utcnow() + timedelta(hours=24)),
             "id": str(user_retrieve["_id"]),
+            "rol": str(user_retrieve["rol"]),
             "email": str(user_retrieve["email"]),
         }
 
         token = token_deps.generate_token_jwt(payload)
         if token:
             return responses.response_model(token, "successfull")
-        raise HTTPException(
-            status_code=404,
-            detail=responses.error_response_model(
-                'error generating usaurio token', 404, 'Error'
-            )
-        )
-    raise HTTPException(
-        status_code=404,
-        detail=responses.error_response_model(
-            'incorrect credentials for qr validation', 404, 'Error'
-        )
-    )
-
+        return responses.error_response_model('error generate token', 404, 'Error')
+    return responses.error_response_model('incorret valition qr credentials', 404, 'Error')
 
 def generate_refresh_token(key_qr):
     user_retrieve = retrieve_user({"key_qr": key_qr})
@@ -68,21 +49,12 @@ def generate_refresh_token(key_qr):
         payload = {
             "expires": str(datetime.utcnow() + timedelta(hours=24)),
             "id": str(user_retrieve["_id"]),
+            "rol": str(user_retrieve["rol"]),
             "email": str(user_retrieve["email"]),
         }
 
         token = token_deps.generate_token_jwt(payload)
         if token:
             return responses.response_model(token, "successfull")
-        raise HTTPException(
-            status_code=404,
-            detail=responses.error_response_model(
-                'error generating usaurio token', 404, 'Error'
-            )
-        )
-    raise HTTPException(
-        status_code=404,
-        detail=responses.error_response_model(
-            'incorrect key', 404, 'Error'
-        )
-    )
+        return responses.error_response_model('Error generating user token', 404, 'Error')
+    return responses.error_response_model('Incorrect key', 404, 'Error')

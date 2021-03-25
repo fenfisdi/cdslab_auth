@@ -11,8 +11,8 @@ from phonenumbers import (
     parse as parse_phone_number,
 )
 
-MOBILE_NUMBER_TYPES = PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBILE
 
+MOBILE_NUMBER_TYPES = PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBILE
 
 class user_to_register(BaseModel):
     email: EmailStr
@@ -27,23 +27,50 @@ class user_to_register(BaseModel):
 
     @validator('name', 'last_name', 'institution', 'institution_afiliation', 'profession')
     def validate_alphabetic_field(cls, alphabetic_field):
-        """Valid that the value entered by the user in the registration step is an alphabetic string
+        """
+        Validates if the name, last_name, institution, institution_afiliation and profession fields
+        contains only alphabetic characters
 
-        Keywords arguments:
-        cls -- takes user_to_register class as an argument
-        alphabetic_field -- takes the value of decorator and applies the function, in this case name, 
-        Last_name, institution, institution_afiliation, profession.
+        Parameters
+        ----------
+        cls: Pydantic class refers to user_to_register
+                Inherits the pydantic BaseModel class
+        alphabetic_field: Field
+                The fields that must contains only alphabetic characters
+
+        Return
+        ----------
+        alphabetic_field: str
+            If the field just contains alphabetic characters, returns de value of this string
+        assert: str
+            If the field doesn't contain alphabetic characters
+
         """
         assert alphabetic_field.isalpha(), "must be alphabetic field"
         return alphabetic_field
 
     @validator('sex')
     def validate_sex(cls, sex):
-        """Valid that the field sex take just the value M or f
+        """
+        Validates if the field sex is the letter M or F
 
-        Keywords arguments:
-        cls -- takes user_to_register class as an argument
-        sex -- takes the value of decorator and applies the function
+        Parameters
+        ----------
+        cls: Pydantic class refers to user_to_register
+                Inherits the pydantic BaseModel class
+        sex: Field
+                The sex entered by the user in the registration step
+
+        Return
+        ----------
+        sex: str
+            If the field just contains alphabetic characters, returns de value of this string
+
+        Raise
+        ----------   
+        ValueError: str
+            If the field isn't F or M letters
+
         """
         if sex != "M" and sex != "F":
             raise ValueError("Invalid type")
@@ -51,6 +78,28 @@ class user_to_register(BaseModel):
 
     @validator('phone_number')
     def validate_phone_number(cls, phone_number):
+        """
+        Validates if the field is a valid phone number. the phone number must contains: 
+        the plus symbol '+', the country code,  local code and 7 digits.
+
+        Parameters
+        ----------
+        cls: Pydantic class refers to user_to_register
+                Inherits the pydantic BaseModel class
+        phone_number: constr
+                The phone number entered by the user in the registration step
+
+        Return
+        ----------
+        phone_number: str
+            If the field is a valid phone_number
+
+        Raise
+        ----------   
+        ValueError: str
+            If the field is a invalid phone number or invalid mobile number 
+
+        """
         if phone_number is None:
             return phone_number
         try:
@@ -106,6 +155,7 @@ class user_in(user_to_register):
 class user_in_db(user_to_register):
 
     is_active: bool = False
+    rol: str = "regular"
     hashed_password: str = None
     key_qr: str = None
 

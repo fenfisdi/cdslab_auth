@@ -1,17 +1,14 @@
 from fastapi import APIRouter
-from dotenv import dotenv_values
 
 from uses_cases.user_cases import *
 from models import user
 from dependencies import token_deps
 
-settings = dotenv_values(".env")
-secrets = dotenv_values(".secrets")
 
-router = APIRouter(prefix=settings["REGISTER_PATH"])
+router = APIRouter()
 
-@router.post("/")
-async def request_registration(user: user.user_in):
+@router.post("/save_user")
+async def save_user(user: user.user_in) -> dict:
     """
     Validates the data entered by the user, confirms that the user 
     does not exist within the database and creates the model that will 
@@ -44,10 +41,36 @@ async def request_registration(user: user.user_in):
     - **ValueError**
         If the password and verify password doesn't match
     """
-    response = send_qr(user)
+    response = save_user_in_db(user)
 
     return response
 
+@router.post("/qr_validation")
+async def qr_validation(user: user.two_auth_in) -> dict:
+    """
+    Validates the GA numbers entered by the user.
+
+    Parameters
+    ----------
+    - **user** : pydantic class 
+            It's a parameter that inherits the properties of the two_auth_in class
+
+    Returns
+    ----------
+    - **response** : str 
+            Sended magic link to the user email and returns a message 
+
+    Raises
+    ----------
+    - **HTTPException**
+        If the email isn't registered in the database
+    - **HTTPException**
+        If the email doesn't correspond with the respective key_qr
+    - **ValueError**
+        If the email is not a valid email address
+    """
+    response = validate_qr_registration(user.email, user.qr_value)
+    return response
 
 
 @router.get("/{token_email}")

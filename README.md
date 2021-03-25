@@ -106,5 +106,5 @@ Once you have finished with these configurations, then your app will be ready!!
 The final step is run the application with help of uvicorn, for this just type:
 
 ```shell
-uvicorn main:app --host YOUR_HOST(without quotation marks "") --port YOUR_PORT(without quotation marks "") --reload
+uvicorn main:app --host YOUR_HOST --port YOUR_PORT --reload
 ```

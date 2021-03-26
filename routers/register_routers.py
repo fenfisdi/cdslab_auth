@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from uses_cases.user_cases import *
+from use_cases.user_cases import save_user_in_db, activate_user, validate_qr_registration
 from models import user
 from dependencies import token_deps
 

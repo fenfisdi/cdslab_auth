@@ -115,8 +115,8 @@ class user_to_register(BaseModel):
 
 
 class user_in(user_to_register):
-    password: str = None
-    verify_password: str = None
+    password: str
+    verify_password: str
 
     @validator('verify_password')
     def password_match(cls, password_to_verify, values, **kwargs):
@@ -153,11 +153,10 @@ class user_in(user_to_register):
 
 
 class user_in_db(user_to_register):
-
     is_active: bool = False
     rol: str = "regular"
-    hashed_password: str = None
-    key_qr: str = None
+    hashed_password: str
+    key_qr: str
 
 
 class auth_in(BaseModel):

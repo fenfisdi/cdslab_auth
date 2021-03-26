@@ -1,7 +1,7 @@
 import jsoncfg
 import pyotp
 
-from operations.user_operations import *
+from operations.user_operations import retrieve_user
 from dependencies import qr_deps
 from PIL import Image
 

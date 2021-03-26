@@ -57,7 +57,7 @@ some Linux distribution that prefer the usage of `python`, such as:
 * Manjaro
 * Gentoo
 
-If you are not using any of the previously mention distros, then do as follows
+If you are not using any of the previously mentioned distros, then do as follows
 (Otherwise change `python3` -> `python`):
 
 ```shell
@@ -79,7 +79,8 @@ venv_cdslab_auth\Scripts\activate.bat
 
 on Windows.
 
-### Required packages installation
+---
+### Installation of required libraries
 
 Now, in order to use the library, we need to install all of the required
 packages. `cd` into `venv_cdslab_auth` and follow the steps bellow:
@@ -89,7 +90,7 @@ packages. `cd` into `venv_cdslab_auth` and follow the steps bellow:
 Do `ls` from within the prompt, there should be a list of the files inside the
 folder, one of them is called `requirements.yml` this is a _YAML_ file, and it
 is in charge of telling Conda which packages to install inside the virtual
-environment and which python version 
+environment and which python version to use
 
 ```shell
 conda env update -n venv_cdslab_auth --file requirements.yml
@@ -106,6 +107,7 @@ it, be our guest. The process is a little simpler, from the prompt execute:
 pip install -r requirements.txt
 ```
 
+---
 ### Database setup
 
 The library uses [MongoDB](https://www.mongodb.com/try/download/community) to
@@ -121,7 +123,7 @@ This should start a deamon (server), in case any error appears, consult the
 official documentation on how to solve it, otherwise using this library will not
 be possible.
 
-
+---
 ### Configuration files setup
 
 #### Database configuration file
@@ -146,7 +148,7 @@ file needs to be modified manually to add the `host` and `port` fields, which
 are needed by `uvicorn`. This also allows you to change the name of the
 application as desired.
 
-#### Secrets file configuration
+#### Secrets configuration
 
 The `.secrets` file contains the required specifications for both `python-jose`
 and `passlib`, this will be used to encrypt the sensible data such as user

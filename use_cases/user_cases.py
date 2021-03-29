@@ -12,12 +12,12 @@ def save_user_in_db(user: dict) -> dict:
         url_path = qr_deps.generate_url_qr(user_in_db.key_qr, user)
         return {'email':user_in_db.email, 'url_path': url_path, 'key_qr': user_in_db.key_qr}
     return responses.error_response_model('insert error in users collection', 404, 'Error')
-        
+
 
 def activate_user(user: dict) -> dict:
 
     is_user = retrieve_user({'email': user['email']})
-    
+
     if is_user:
         is_updated = update_user_state({'is_active': True}, is_user['_id'])
         if is_updated:

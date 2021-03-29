@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 
 
-def response_model(data: dict, message: str) -> str:
+def response_model(data: dict, message: str) -> dict:
     """
     Response dict from the endpoint when the request is successful
 

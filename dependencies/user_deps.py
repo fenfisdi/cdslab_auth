@@ -48,11 +48,11 @@ def send_email(email: str) -> str:
     msg.attach(MIMEText(send_registration_email.logo(), "html"))
 
     fp = open(send_registration_email.logo_path(), "rb")
-    msgImg = MIMEImage(fp.read())
+    msg_img = MIMEImage(fp.read())
     fp.close()
 
-    msgImg.add_header("Content-ID", "<cdslab_auth_logo>")
-    msg.attach(msgImg)
+    msg_img.add_header("Content-ID", "<cdslab_auth_logo>")
+    msg.attach(msg_img)
     msg.attach(MIMEText(message, "html"))
     msg.attach(MIMEText(applicant_key, "html"))
 

@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 
+
 def response_model(data: dict, message: str) -> dict:
     """
     Response dict from the endpoint when the request is successful
@@ -23,7 +24,7 @@ def response_model(data: dict, message: str) -> dict:
     }
 
 
-def error_response_model(error, code, message):
+def error_response_model(message, code, error):
     """
     Response dict from the endpoint when the request fails
 
@@ -40,4 +41,8 @@ def error_response_model(error, code, message):
     ----------
     dict with the parameters data, code and message
     """
-    raise HTTPException(status_code=code, detail=(error, message))
+    raise HTTPException(status_code=code, detail=({
+        "error": error,
+        "code": 200,
+        "message": message,
+    }))

@@ -1,10 +1,13 @@
-from fastapi import APIRouter
-from models import user
-from use_cases.auth_cases import validation_login_auth, validation_qr_auth, generate_refresh_token
 import pyotp
-from pprint import pprint
-router = APIRouter()
 
+from fastapi import APIRouter
+from pprint import pprint
+
+from models import user
+from use_cases.auth_cases import (validation_login_auth,
+                                  validation_qr_auth,
+                                  generate_refresh_token
+                                 )
 
 router = APIRouter()
 

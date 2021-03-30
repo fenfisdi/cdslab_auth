@@ -1,12 +1,13 @@
-from operations.user_operations import *
-from models.user import *
-from pprint import pprint
-from dependencies import user_deps, responses, qr_deps, token_deps
-from fastapi import HTTPException
 import time
+
+from fastapi import HTTPException
 from bson.objectid import ObjectId
 from datetime import datetime, timedelta
+from pprint import pprint
 
+from dependencies import user_deps, responses, qr_deps, token_deps
+from models.user import *
+from operations.user_operations import *
 
 def validation_login_auth(data: auth_in):
     user_retrieve = retrieve_user({"email": data.email})
@@ -16,10 +17,11 @@ def validation_login_auth(data: auth_in):
             data.password, user_retrieve['hashed_password']
         )
         if is_equal:
-            return responses.response_model({'key_qr': user_retrieve['key_qr'], 'email': user_retrieve['email']}, "successfull")
-
+            return responses.response_model({'key_qr': user_retrieve['key_qr'],
+                                             'email': user_retrieve['email']},
+                                             'successful'
+                                           )
         return responses.error_response_model('password not is equal', 404, 'Error')
-
     return responses.error_response_model('user not exist.!', 404, 'Error')
 
 

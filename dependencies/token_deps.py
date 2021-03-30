@@ -47,7 +47,7 @@ def generate_token_jwt(payload: dict):
 
     Returns
     ----------
-    token: str 
+    token: str
         Token for route protection
 
     """

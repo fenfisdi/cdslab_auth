@@ -31,7 +31,7 @@ def send_email(email: str) -> str:
 
     Parameters
     ----------
-    email : str 
+    email : str
             Who receives the sent email
 
     """

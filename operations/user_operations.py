@@ -12,12 +12,12 @@ def retrieve_user(query: dict) -> dict:
     user = users.find_one(query)
     """
     Takes a dictionary as a parameter to perform a search
-    
+
     Parameters
     ----------
     query: dict
             The key pair associated with the search
-    
+
     Return
     ----------
     user: pymongo object
@@ -34,7 +34,6 @@ def insert_user(data: dict):
     ----------
     data: dict
             The dict that will be saved on the database as json document
-
 
     Return
     ----------
@@ -54,7 +53,7 @@ def update_user_state(data: dict, id: str):
     Parameters
     ----------
     data: dict
-            The parameter that contains the pair key value 
+            The parameter that contains the pair key value
     id: str
             The id that associated with the document found from data parameter as a query
 
@@ -62,12 +61,12 @@ def update_user_state(data: dict, id: str):
     ----------
     False:
         If the data doesn't exist
-    False: 
+    False:
         If the Updated wasn't successful
     False:
         If the ObjectId didn't match with the document associated to data parameter
     True:
-        If the searched user exist and the updated was successfull 
+        If the searched user exist and the updated was successfull
     """
 
     if len(data) < 1:

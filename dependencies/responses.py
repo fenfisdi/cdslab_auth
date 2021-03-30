@@ -8,8 +8,8 @@ def response_model(data: dict, message: str) -> dict:
     Parameters
     ----------
     data: dict
-            The dict with the successful response  
-    message: str 
+            The dict with the successful response
+    message: str
             custom message that will be sent as a reply along with data
 
     Returns
@@ -33,8 +33,8 @@ def error_response_model(message, code, error):
     data: dict
             The dict with the fail response
     code: int
-            The status code returned in the response endpoint  
-    message: str 
+            The status code returned in the response endpoint
+    message: str
             Custom message that will be sent as a reply along with data
 
     Returns

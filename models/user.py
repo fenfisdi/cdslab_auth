@@ -67,7 +67,7 @@ class user_to_register(BaseModel):
             If the field just contains alphabetic characters, returns de value of this string
 
         Raise
-        ----------   
+        ----------
         ValueError: str
             If the field isn't F or M letters
 
@@ -95,9 +95,9 @@ class user_to_register(BaseModel):
             If the field is a valid phone_number
 
         Raise
-        ----------   
+        ----------
         ValueError: str
-            If the field is a invalid phone number or invalid mobile number 
+            If the field is a invalid phone number or invalid mobile number
 
         """
         if phone_number is None:
@@ -126,12 +126,12 @@ class user_in(user_to_register):
         ----------
         cls
             takes user_to_register class as an argument
-        password_to_verify: str 
+        password_to_verify: str
             is the value in the verify_password field 
         values: str
             is the value in the password field, by default the decorator takes 
             this name as a parameter
-        **kwargs:  
+        **kwargs:
             if provided, this will include the arguments above not explicitly 
             listed in the signature, this is necessary for the function takes 
             the key value pairs defined in the class

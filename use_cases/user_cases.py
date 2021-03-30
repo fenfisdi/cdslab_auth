@@ -1,6 +1,7 @@
-from operations.user_operations import *
-from dependencies import user_deps, qr_deps, responses
 from fastapi import HTTPException
+
+from dependencies import user_deps, qr_deps, responses
+from operations.user_operations import *
 
 def save_user_in_db(user: dict) -> dict:
 
@@ -31,4 +32,4 @@ def validate_qr_registration(email: str, qr_value: str) -> str:
     if is_validate:
         user_deps.send_email(email)
         return "Check your email to finish the registration process"
-    return responses.error_response_model("authorization failure", 404, "Error") 
+    return responses.error_response_model("authorization failure", 404, "Error")

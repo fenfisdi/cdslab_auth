@@ -5,6 +5,9 @@ __pycache__
 # Virtual environment - venv
 venv_cdslab_auth
 
+# Virtual environment - pyenv
+.python-version
+
 # Dot env
 .env
 

@@ -9,8 +9,8 @@ from phonenumbers import (
     number_type,
     parse as parse_phone_number,
 )
-import pprint
-
+from dependencies import responses
+from pprint import pprint
 
 MOBILE_NUMBER_TYPES = PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBILE
 
@@ -27,7 +27,9 @@ class user_to_register(BaseModel):
     date_of_birth: str
 
     @validator('name', 'last_name', 'institution', 'institution_afiliation', 'profession')
-    def validate_alphabetic_field(cls, alphabetic_field):
+    def validate_alphabetic_field(cls, alphabetic_field, **kwargs):
+        pprint(kwargs)
+        pprint(alphabetic_field)
         """
         Validates if the name, last_name, institution, institution_afiliation and profession fields
         contains only alphabetic characters
@@ -49,8 +51,7 @@ class user_to_register(BaseModel):
         """
         if alphabetic_field.isalpha():
             return alphabetic_field
-        print(alphabetic_field)
-        return ValueError
+        return responses.error_response_model("error", 404, alphabetic_field.title() + "must be alphabetic field")
 
     @ validator('sex')
     def validate_sex(cls, sex):

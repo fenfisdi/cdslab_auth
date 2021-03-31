@@ -44,5 +44,5 @@ def validate_qr_registration(email: str, qr_value: str) -> str:
     is_validate = qr_deps.validate_qr({"email": email}, qr_value)
     if is_validate:
         user_deps.send_email(email)
-        return "Check your email to finish the registration process"
-    return responses.error_response_model("authorization failure", 404, "Error")
+        return responses.response_model({}, "successful")
+    return responses.error_response_model("authorization failure", 404, "Error") 

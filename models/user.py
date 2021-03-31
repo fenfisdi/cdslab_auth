@@ -28,23 +28,22 @@ class user_to_register(BaseModel):
     @validator('name', 'last_name', 'institution', 'institution_afiliation', 'profession')
     def validate_alphabetic_field(cls, alphabetic_field):
         """
-        Validates if the name, last_name, institution, institution_afiliation and profession fields
-        contains only alphabetic characters
+            Validate name, last_name, institution, institution_afiliation and profession to
+            contain only alphabetic characters
 
-        Parameters
-        ----------
-        cls: Pydantic class refers to user_to_register
-                Inherits the pydantic BaseModel class
-        alphabetic_field: Field
-                The fields that must contains only alphabetic characters
+            Parameters
+            ----------
+            cls: Pydantic class extended from BaseModel
 
-        Return
-        ----------
-        alphabetic_field: str
-            If the field just contains alphabetic characters, returns de value of this string
-        assert: str
-            If the field doesn't contain alphabetic characters
+            alphabetic_field: str
+                String containing only alphabetic characters
 
+            Return
+            ----------
+            alphabetic_field: str
+                If the field passes the validation, this string string is returned
+            assert: str
+                Otherwise, force correction
         """
         assert alphabetic_field.isalpha(), "must be alphabetic field"
         return alphabetic_field
@@ -52,25 +51,24 @@ class user_to_register(BaseModel):
     @validator('sex')
     def validate_sex(cls, sex):
         """
-        Validates if the field sex is the letter M or F
+            Validate sex field to either M or F
 
-        Parameters
-        ----------
-        cls: Pydantic class refers to user_to_register
-                Inherits the pydantic BaseModel class
-        sex: Field
-                The sex entered by the user in the registration step
+            Parameters
+            ----------
+            cls: Pydantic class extended from BaseModel
 
-        Return
-        ----------
-        sex: str
-            If the field just contains alphabetic characters, returns de value of this string
+            sex: str
+                M or F
 
-        Raise
-        ----------
-        ValueError: str
-            If the field isn't F or M letters
+            Return
+            ----------
+            sex: str
+                If the field passes the validation, this string is returned
 
+            Raise
+            ----------
+            ValueError: str
+                Otherwise, raise an error
         """
         if sex != "M" and sex != "F":
             raise ValueError("Invalid type")
@@ -79,26 +77,25 @@ class user_to_register(BaseModel):
     @validator('phone_number')
     def validate_phone_number(cls, phone_number):
         """
-        Validates if the field is a valid phone number. the phone number must contains: 
-        the plus symbol '+', the country code,  local code and 7 digits.
+            Validate phone_number to contain '+' sign, country code, local code and
+            7 digits
 
-        Parameters
-        ----------
-        cls: Pydantic class refers to user_to_register
-                Inherits the pydantic BaseModel class
-        phone_number: constr
-                The phone number entered by the user in the registration step
+            Parameters
+            ----------
+            cls: Pydantic class extended from BaseModel
 
-        Return
-        ----------
-        phone_number: str
-            If the field is a valid phone_number
+            phone_number: str
+                Phone number entered by the user
 
-        Raise
-        ----------
-        ValueError: str
-            If the field is a invalid phone number or invalid mobile number
+            Return
+            ----------
+            phone_number: str
+                If the field passes the validation, this string is returned
 
+            Raise
+            ----------
+            ValueError: str
+                Otherwise, raise an error
         """
         if phone_number is None:
             return phone_number
@@ -111,7 +108,12 @@ class user_to_register(BaseModel):
         if not is_valid_number(n) or number_type(n) not in MOBILE_NUMBER_TYPES:
             raise ValueError('Please provide a valid mobile phone number')
 
-        return format_number(n, PhoneNumberFormat.NATIONAL if n.country_code == 44 else PhoneNumberFormat.INTERNATIONAL)
+        if n.country_code == 44:
+            phone_nationality = PhoneNumberFormat.NATIONAL
+        else:
+            phone_nationality = PhoneNumberFormat.INTERNATIONAL
+
+        return format_number(n, phone_nationality)
 
 
 class user_in(user_to_register):
@@ -119,33 +121,29 @@ class user_in(user_to_register):
     verify_password: Optional[str] = None
 
     @validator('verify_password')
-    def password_match(cls, password_to_verify, values, **kwargs):
-        """ Validate that the value taken by password and verify_password match
+    def password_match(cls, password_to_verify, values):
+        """
+            Validate whether passwords match
 
-        Parameters
-        ----------
-        cls
-            takes user_to_register class as an argument
-        password_to_verify: str
-            is the value in the verify_password field 
-        values: str
-            is the value in the password field, by default the decorator takes 
-            this name as a parameter
-        **kwargs:
-            if provided, this will include the arguments above not explicitly 
-            listed in the signature, this is necessary for the function takes 
-            the key value pairs defined in the class
+            Parameters
+            ----------
+            cls: Pydantic class extended from BaseModel
 
-        Return:
-        ----------
-        password_to_verify: str
-            If the password and verify_password match, returns the value in passowrd filed
+            password_to_verify: str
+                User input with the password to check
 
-        Raises:
-        ----------
-        ValueError
-            If the password and verify_passowrd does'nt match
+            values: dict
+                Dictionary containing the stored password to compare
 
+            Return
+            ----------
+            password_to_verify: str
+                If the field passes the validation, this string is returned
+
+            Raises:
+            ----------
+            ValueError
+                Otherwise, raise an error
         """
         if 'password' in values and password_to_verify != values['password']:
             raise ValueError('passwords do not match')

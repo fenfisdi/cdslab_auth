@@ -3,18 +3,18 @@ from fastapi import HTTPException
 
 def response_model(data: dict, message: str) -> dict:
     """
-    Response dict from the endpoint when the request is successful
+        Endpoint response for every successful request
 
-    Parameters
-    ----------
-    data: dict
-            The dict with the successful response
-    message: str
-            custom message that will be sent as a reply along with data
+        Parameters
+        ----------
+        data: dict
+            Dictionary containing a successful response
+        message: str
+            Customized reply
 
-    Returns
-    ----------
-    dict with the parameters data, message and the successful response indicator as 200
+        Returns
+        ----------
+        Dictionary containing data, a message and a code response
     """
 
     return {
@@ -26,23 +26,23 @@ def response_model(data: dict, message: str) -> dict:
 
 def error_response_model(message, code, error):
     """
-    Response dict from the endpoint when the request fails
+        Endpoint response for every failed request
 
-    Parameters
-    ----------
-    data: dict
-            The dict with the fail response
-    code: int
-            The status code returned in the response endpoint
-    message: str
-            Custom message that will be sent as a reply along with data
+        Parameters
+        ----------
+        data: dict
+            Dictionary containing a failed response
+        code: int
+            Status code associated with the response
+        message: str
+            Customized reply
 
-    Returns
-    ----------
-    dict with the parameters data, code and message
+        Returns
+        ----------
+        Dictionary containing data, a message and a code response
     """
     raise HTTPException(status_code=code, detail=({
         "error": error,
-        "code": 200,
+        "code": code,
         "message": message,
     }))

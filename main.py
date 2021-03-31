@@ -14,15 +14,15 @@ settings = dotenv_values(".env")
 
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=settings["ALLOWED_HOSTS"]
+    allowed_hosts=settings["ALLOWED_HOSTS"].split(",")
     )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings["ALLOWED_ORIGINS"],
     allow_credentials=settings["ALLOW_CREDENTIALS"],
-    allow_methods=settings["ALLOWED_METHODS"],
-    allow_headers=settings["ALLOWED_HEADERS"]
+    allowed_origins=settings["ALLOWED_ORIGINS"].split(","),
+    allowed_methods=settings["ALLOWED_METHODS"].split(","),
+    allowed_headers=settings["ALLOWED_HEADERS"].split(",")
     )
 
 app.include_router(
@@ -30,7 +30,7 @@ app.include_router(
     tags=["Register"],
     prefix=settings['REGISTER_PATH']
     )
-    
+
 app.include_router(
     auth_routers.router,
     tags=["Auth"],

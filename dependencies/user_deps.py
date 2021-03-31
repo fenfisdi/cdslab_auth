@@ -20,20 +20,19 @@ context = CryptContext(schemes=[secrets['CRYPTOCONTEXT_SCHEM']],
 
 def send_email(email: str) -> str:
     """
-    Send registration email to the adress entered by the user
+        Send registration email to the given address.
+
+        Build path for the user and add the tokenized email,
+        use MIMEMultipart to add the welcome message containing the
+        image and the link to finish the registration process,
+        connect to the google server and using the user's credentials
+        send the message
 
 
-    Build the path that will be sent to the user and add the tokenized email, 
-    then use the MIMEMultipart library to pack the welcome message, 
-    the image and the link to the registration, finally it connects with 
-    the google server and with the credentials of the specified email send the message
-
-
-    Parameters
-    ----------
-    email : str
-            Who receives the sent email
-
+        Parameters
+        ----------
+        email : str
+            User's email
     """
     key_email = token_deps.generate_token_jwt({'email': email})
     key_email = key_email['access_token']
@@ -65,61 +64,56 @@ def send_email(email: str) -> str:
 
 def get_hash_password(password: user.user_in) -> str:
     """
-    Take the user password and hash it
+        Take the user password and hash it
 
-    Parameters
-    ----------
-    password: dict
+        Parameters
+        ----------
+        password: dict
             The password taked from user_in class
 
-    Return
-    ----------
-    hashed_passoword: str
-            The password hashed by the passlib library
+        Return
+        ----------
+        Method: str
+            Password hashed by the passlib library
     """
-    hashed_password = context.hash(password)
-    return hashed_password
+    return context.hash(password)
 
 
 def verify_passowrd(plain_password: str, hashed_password: str) -> bool:
     """
-    Verify if the password entered by the user and the hassed password in the database
-    match
+        Compare stored and entered passwords
 
-    Parameters
-    ----------
-    plain_password: str
-            String entered by the user in the authentication step
-    hashed_password: str
-            The password hashed saved in the database associated with the user
+        Parameters
+        ----------
+        plain_password: str
+            String used to authenticate
+        hashed_password: str
+            String with the respective stored password
 
-    Return
-    ----------
-    is_verify: bool
-            If the password match returns True otherwise returns false
+        Return
+        ----------
+        Method: bool
+            True or False whether passwords match
     """
-    is_verify = context.verify(plain_password, hashed_password)
-    return is_verify
+    return context.verify(plain_password, hashed_password)
 
 
 def transform_props_to_user(user_in: user.user_in):
     """
-    Takes the user_in class and contruct the model that will be saved on the database
+        Construct model from user_in class to store in database
 
-    Parameters
-    ----------
-    user_in: Pydantic class
+        Parameters
+        ----------
+        user_in: Pydantic class
             Inherits the properties of user_in
 
-    Return
-    ----------
-    user_in_db: Pydantic class
-            The model that will be saved in the databases merging the attributes in user_in class
-            and user_in_db class
+        Return
+        ----------
+        user_in_db: Pydantic class
+            Model to store in database
     """
     hashed_password = get_hash_password(user_in.password)
     user_in_db = user.user_in_db(**user_in.dict(),
                                  hashed_password=hashed_password,
                                  key_qr=qr_deps.generate_key_qr())
-
     return user_in_db

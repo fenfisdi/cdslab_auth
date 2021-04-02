@@ -14,7 +14,7 @@ settings = dotenv_values(".env")
 
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=settings["ALLOWED_HOSTS"].split(",")
+    allow_hosts=settings["ALLOWED_HOSTS"].split(",")
     )
 
 app.add_middleware(

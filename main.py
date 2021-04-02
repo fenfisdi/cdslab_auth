@@ -5,7 +5,8 @@ from fastapi import FastAPI
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import register_routers, auth_routers
+from routers.register import router_of_registry
+from routers.authentication import router_of_authentication
 
 
 app = FastAPI()
@@ -26,13 +27,13 @@ app.add_middleware(
     )
 
 app.include_router(
-    register_routers.router,
+    router_of_registry,
     tags=["Register"],
     prefix=settings['REGISTER_PATH']
     )
 
 app.include_router(
-    auth_routers.router,
+    router_of_authentication,
     tags=["Auth"],
     prefix=settings['AUTHENTICATION_PATH']
     )

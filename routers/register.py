@@ -8,9 +8,9 @@ from use_cases.user_cases import (save_user_in_db,
                                   validate_qr_registration
                                  )
 
-router = APIRouter()
+router_of_registry = APIRouter()
 
-@router.post("/save_user")
+@router_of_registry.post("/save_user")
 async def save_user(user: user.user_in) -> dict:
     """
         Validate user data, verify if that the user doesn't exist in the
@@ -18,64 +18,64 @@ async def save_user(user: user.user_in) -> dict:
 
         Parameters
         ----------
-        - user: pydantic class
+        - **user**: pydantic class
             Class extending user_to_register, contains all the information
             about a user
 
         Returns
         ----------
-        - response: dict
+        - **response**: dict
             Email sent to the user containing generated QR
 
         Raises
         ----------
-        - HTTPException:
+        - **HTTPException**:
             If email is alredy registered
-        - ValueError:
+        - **ValueError**:
             If email is not valid
-        - ValueError:
+        - **ValueError**:
             If name has non-alphabetic values
-        - ValueError:
+        - **ValueError**:
             If last_name has non-alphabetic values
-        - ValueError:
+        - **ValueError**:
             If sex contains characters other than M or F
-        - ValueError:
+        - **ValueError**:
             If phone_number is not valid
-        - ValueError:
+        - **ValueError**:
             If the verified password doesn't match
     """
     return save_user_in_db(user)
 
 
-@router.post("/qr_validation")
+@router_of_registry.post("/qr_validation")
 async def qr_validation(user: user.two_auth_in) -> dict:
     """
         Validate the code given by Google Authenticator
 
         Parameters
         ----------
-        - user: pydantic class
+        - **user**: pydantic class
             Class extending two_auth_in, contains the data necessary for
             two factor authentication
 
         Returns
         ----------
-        - response: str
+        - **response**: str
             Send link with the tokenized information to user's email
 
         Raises
         ----------
-        - HTTPException:
+        - **HTTPException**:
             If email isn't stored in the database
-        - HTTPException:
+        - **HTTPException**:
             If email doesn't match the key_qr
-        - ValueError:
+        - **ValueError**:
             If email is not valid
     """
     return validate_qr_registration(user.email, user.qr_value)
 
 
-@router.get("/{token_email}")
+@router_of_registry.get("/{token_email}")
 async def read_email(token_email):
     """
         Read the tokenized email, check if it is inside the database
@@ -83,20 +83,20 @@ async def read_email(token_email):
 
         Parameters
         ----------
-        - token_email: str
+        - **token_email**: str
             String containing a tokenized version of the user's email
 
         Returns
         ----------
-        - response: dict
+        - **response**: dict
 
         Raises
         ----------
-        - HTTPException:
+        - **HTTPException**:
             If token or email key don't exist
-        - HTTPException:
+        - **HTTPException**:
             If status update is not successful
-        - HTTPException:
+        - **HTTPException**:
             If user's email cannot be found
     """
     untokenized_email = token_deps.validate_access_token_email(token_email)

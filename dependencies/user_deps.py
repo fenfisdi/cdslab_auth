@@ -34,8 +34,9 @@ def send_email(email: str) -> str:
         email : str
             User's email
     """
-    key_email = token_deps.generate_token_jwt({'email': email})
-    key_email = key_email['access_token']
+
+    key_email = token_deps.generate_token_jwt({'email': email})['access_token']
+
     applicant_key = f'{settings["DOMAIN"]}{settings["REGISTER_PATH"]}/{key_email}'
     msg = MIMEMultipart()
 

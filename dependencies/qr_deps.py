@@ -3,7 +3,6 @@ import jsoncfg
 
 from PIL import Image
 
-from dependencies import qr_deps
 from models.user import user_to_register
 from operations.user_operations import retrieve_user
 

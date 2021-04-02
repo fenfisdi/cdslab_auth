@@ -2,12 +2,11 @@ from fastapi import HTTPException, status
 from jose import jwt, JWTError
 from dotenv import dotenv_values
 
-from models import user
+from models.user import user_to_register
 
 secrets = dotenv_values(".secrets")
 
-
-def validate_access_token_email(token: str) -> user.user_to_register:
+def validate_access_token_email(token: str) -> user_to_register:
     """
         Extract email from token and return a key pair
 

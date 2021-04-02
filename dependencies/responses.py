@@ -1,6 +1,5 @@
 from fastapi import HTTPException
 
-
 def response_model(data: dict, message: str) -> dict:
     """
         Endpoint response for every successful request

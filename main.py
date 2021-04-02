@@ -20,9 +20,9 @@ app.add_middleware(
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=settings["ALLOW_CREDENTIALS"],
-    allowed_origins=settings["ALLOWED_ORIGINS"].split(","),
-    allowed_methods=settings["ALLOWED_METHODS"].split(","),
-    allowed_headers=settings["ALLOWED_HEADERS"].split(",")
+    allow_origins=settings["ALLOWED_ORIGINS"].split(","),
+    allow_methods=settings["ALLOWED_METHODS"].split(","),
+    allow_headers=settings["ALLOWED_HEADERS"].split(",")
     )
 
 app.include_router(

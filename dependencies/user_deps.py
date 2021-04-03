@@ -20,13 +20,15 @@ context = CryptContext(schemes=[secrets['CRYPTOCONTEXT_SCHEM']],
 
 def send_email(email: str) -> str:
     """
-        Send registration email to the given address.
+        Sends registration email to the given address.
 
-        Build path for the user and add the tokenized email,
-        use MIMEMultipart to add the welcome message containing the
-        image and the link to finish the registration process,
+        Builds path for the user and add the tokenized email,
+        then uses MIMEMultipart to add the welcome message containing the
+        image and the link to finish the registration process.
+        
         connect to the google server and using the user's credentials
         send the message
+
 
         Parameters
         ----------
@@ -36,7 +38,8 @@ def send_email(email: str) -> str:
 
     key_email = token_deps.generate_token_jwt({'email': email})['access_token']
 
-    applicant_key = f'{settings["DOMAIN"]}{settings["REGISTER_PATH"]}/{key_email}'
+    applicant_link = f'{settings["DOMAIN"]}{settings["REGISTER_PATH"]}/{key_email}'
+
     msg = MIMEMultipart()
 
     message = send_registration_email.message()

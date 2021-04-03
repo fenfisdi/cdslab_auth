@@ -2,18 +2,21 @@ from fastapi import APIRouter
 
 from dependencies import token_deps
 
-from models import user
-from use_cases.user_cases import (save_user_in_db,
-                                  activate_user,
-                                  validate_qr_registration
-                                 )
+from models.user import user_in, two_auth_in
+from use_cases.user_cases import (
+    save_user_in_db,
+    activate_user,
+    validate_qr_registration
+    )
+
 
 router_of_registry = APIRouter()
 
+
 @router_of_registry.post("/save_user")
-async def save_user(user: user.user_in) -> dict:
+async def save_user(user: user_in) -> dict:
     """
-        Validate user data, verify if that the user doesn't exist in the
+        Validates user data by verifying if that the user doesn't exist in the
         database and creates the model to be added to the user collection
 
         Parameters
@@ -31,16 +34,22 @@ async def save_user(user: user.user_in) -> dict:
         ----------
         - **HTTPException**:
             If email is alredy registered
+    
         - **ValueError**:
             If email is not valid
+
         - **ValueError**:
             If name has non-alphabetic values
+
         - **ValueError**:
             If last_name has non-alphabetic values
+
         - **ValueError**:
             If sex contains characters other than M or F
+
         - **ValueError**:
             If phone_number is not valid
+
         - **ValueError**:
             If the verified password doesn't match
     """
@@ -48,7 +57,7 @@ async def save_user(user: user.user_in) -> dict:
 
 
 @router_of_registry.post("/qr_validation")
-async def qr_validation(user: user.two_auth_in) -> dict:
+async def qr_validation(user: two_auth_in) -> dict:
     """
         Validate the code given by Google Authenticator
 

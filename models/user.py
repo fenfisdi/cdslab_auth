@@ -1,84 +1,96 @@
+from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr, ValidationError, validator, Field, constr, PositiveInt
-from datetime import date, datetime
+from pydantic import BaseModel, EmailStr, validator, Field, constr
 from phonenumbers import (
-    NumberParseException,
-    PhoneNumberFormat,
-    PhoneNumberType,
-    format_number,
-    is_valid_number,
-    number_type,
-    parse as parse_phone_number,
-)
+    NumberParseException, PhoneNumberFormat, PhoneNumberType,
+    format_number, is_valid_number, number_type,
+    parse as parse_phone_number
+    )
+from dotenv import dotenv_values
 
 
-MOBILE_NUMBER_TYPES = PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBILE
+MOBILE_NUMBER_TYPES = \
+    PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBILE
+
+
+settings = dotenv_values(".env")
 
 class user_to_register(BaseModel):
     email: EmailStr
     name: str = Field(max_length=64, strip_whitespace=True)
-    last_name: str = Field(max_length=63, strip_whitespace=True)
-    sex: str = Field(max_length=1)
-    phone_number: constr(max_length=50, strip_whitespace=True)
-    institution: str = Field(max_length=63)
+    last_name: str = Field(max_length=64, strip_whitespace=True)
+    institution: str = Field(max_length=64)
     institution_afiliation: str = Field(min_length=3)
     profession: str = Field(min_length=3)
+    sex: str = Field(max_length=1)
+    phone_number: constr(max_length=50, strip_whitespace=True)
     date_of_birth: datetime
 
-    @validator('name', 'last_name', 'institution', 'institution_afiliation', 'profession')
+    @validator(
+        'name', 'last_name', 'institution',
+        'institution_afiliation', 'profession'
+        )
     def validate_alphabetic_field(cls, alphabetic_field):
         """
-            Validate name, last_name, institution, institution_afiliation and profession to
-            contain only alphabetic characters
+            Validates that the `alphabetic_field` contains only alphabetic
+            characters
 
             Parameters
             ----------
             cls: Pydantic class extended from BaseModel
 
             alphabetic_field: str
-                String containing only alphabetic characters
+                String which must contain only alphabetic characters
 
             Return
             ----------
             alphabetic_field: str
-                If the field passes the validation, this string string is returned
-            assert: str
-                Otherwise, force correction
+                If the field passes the validation,
+                this string is returned back
+
+            Raises
+            ----------
+            AssertionError
+                If the field doesn't pass the validation
         """
-        assert alphabetic_field.isalpha(), "must be alphabetic field"
+        assert alphabetic_field.isalpha(), \
+            'The alphabetic field Must be alphabetic field'
         return alphabetic_field
 
     @validator('sex')
     def validate_sex(cls, sex):
         """
-            Validate sex field to either M or F
+            Validates that `sex` field is either M or F
 
             Parameters
             ----------
             cls: Pydantic class extended from BaseModel
 
             sex: str
-                M or F
+                It must be either M or F
 
             Return
             ----------
             sex: str
-                If the field passes the validation, this string is returned
+                If the field passes the validation,
+                this string is returned back
 
-            Raise
+            Raises
             ----------
-            ValueError: str
-                Otherwise, raise an error
+            ValueError
+                If the field doesn't pass the validation
         """
-        if sex != "M" and sex != "F":
-            raise ValueError("Invalid type")
+        if sex != 'M' and sex != 'F':
+            raise ValueError('Invalid type')
         return sex
 
     @validator('phone_number')
     def validate_phone_number(cls, phone_number):
         """
-            Validate phone_number to contain '+' sign, country code, local code and
-            7 digits
+            Validates `phone_number` to contain `+` sign, country code,
+            local code and 7 digits.
+
+            Also validates that `phone_number` is not None.
 
             Parameters
             ----------
@@ -90,30 +102,39 @@ class user_to_register(BaseModel):
             Return
             ----------
             phone_number: str
-                If the field passes the validation, this string is returned
+                If the field passes the validation,
+                this string is returned back
 
-            Raise
+            Raises
             ----------
-            ValueError: str
-                Otherwise, raise an error
+            ValueError
+                If the field doesn't pass the validation
+            
         """
         if phone_number is None:
-            return phone_number
-        try:
-            n = parse_phone_number(phone_number, 'GB')
-        except NumberParseException as e:
-            raise ValueError(
-                'Please provide a valid mobile phone number') from e
+            raise ValueError('Phone number must not be None')
 
-        if not is_valid_number(n) or number_type(n) not in MOBILE_NUMBER_TYPES:
+        try:
+            phone_number_object = parse_phone_number(
+                phone_number,
+                region=settings['REGION_CODE']
+                )
+        except NumberParseException as error:
+            raise ValueError(
+                'Please provide a valid mobile phone number') from error
+
+        if not is_valid_number(phone_number_object):
             raise ValueError('Please provide a valid mobile phone number')
 
-        if n.country_code == 44:
+        if number_type(phone_number_object) not in MOBILE_NUMBER_TYPES:
+            raise ValueError('Please provide a valid mobile phone number')
+
+        if phone_number_object.country_code == settings['COUNTRY_CODE']:
             phone_nationality = PhoneNumberFormat.NATIONAL
         else:
             phone_nationality = PhoneNumberFormat.INTERNATIONAL
 
-        return format_number(n, phone_nationality)
+        return format_number(phone_number_object, phone_nationality)
 
 
 class user_in(user_to_register):
@@ -123,14 +144,14 @@ class user_in(user_to_register):
     @validator('verify_password')
     def password_match(cls, password_to_verify, values):
         """
-            Validate whether passwords match
+            Validates whether passwords provided match
 
             Parameters
             ----------
             cls: Pydantic class extended from BaseModel
 
             password_to_verify: str
-                User input with the password to check
+                User's input with the password to check
 
             values: dict
                 Dictionary containing the stored password to compare
@@ -138,21 +159,22 @@ class user_in(user_to_register):
             Return
             ----------
             password_to_verify: str
-                If the field passes the validation, this string is returned
+                If the field passes the validation,
+                this string is returned back
 
-            Raises:
+            Raises
             ----------
             ValueError
-                Otherwise, raise an error
+                If the field doesn't pass the validation
         """
         if 'password' in values and password_to_verify != values['password']:
-            raise ValueError('passwords do not match')
+            raise ValueError('Passwords provided do not match')
         return password_to_verify
 
 
 class user_in_db(user_to_register):
     is_active: bool = False
-    rol: str = "regular"
+    rol: str = 'regular'
     hashed_password: Optional[str] = None
     key_qr: Optional[str] = None
 

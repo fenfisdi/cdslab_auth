@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 from pydantic import BaseModel, EmailStr, ValidationError, validator, Field, constr, PositiveInt
 from phonenumbers import (
     NumberParseException,
@@ -24,12 +24,14 @@ class user_to_register(BaseModel):
     institution: str = Field(max_length=63)
     institution_afiliation: str = Field(min_length=3)
     profession: str = Field(min_length=3)
-    date_of_birth: str
+    date_of_birth: Any
+    security_question_1: str
+    security_answer_1: str
+    security_question_2: str
+    security_answer_2: str
 
     @validator('name', 'last_name', 'institution', 'institution_afiliation', 'profession')
     def validate_alphabetic_field(cls, alphabetic_field, **kwargs):
-        pprint(kwargs)
-        pprint(alphabetic_field)
         """
         Validates if the name, last_name, institution, institution_afiliation and profession fields
         contains only alphabetic characters
@@ -51,7 +53,7 @@ class user_to_register(BaseModel):
         """
         if alphabetic_field.isalpha():
             return alphabetic_field
-        return responses.error_response_model("error", 404, alphabetic_field.title() + "must be alphabetic field")
+        return responses.error_response_model(f'{kwargs["field"].name}: ''must be alphabetic', 404, 'Error')
 
     @ validator('sex')
     def validate_sex(cls, sex):
@@ -77,7 +79,7 @@ class user_to_register(BaseModel):
 
         """
         if sex != "M" and sex != "F":
-            raise ValueError("Invalid type")
+            return responses.error_response_model("sex field must be M or F letter", 404, "Error")
         return sex
 
     @ validator('phone_number')
@@ -109,11 +111,11 @@ class user_to_register(BaseModel):
         try:
             n = parse_phone_number(phone_number, 'GB')
         except NumberParseException as e:
-            raise ValueError(
-                'Please provide a valid mobile phone number') from e
+            return responses.error_response_model('phone_number: please provide a valid phone number', 404, 'Error')
 
         if not is_valid_number(n) or number_type(n) not in MOBILE_NUMBER_TYPES:
-            raise ValueError('Please provide a valid mobile phone number')
+            return responses.error_response_model(
+                'phone_number: please provide a valid phone number', 404, 'Error')
 
         return format_number(n, PhoneNumberFormat.NATIONAL if n.country_code == 44 else PhoneNumberFormat.INTERNATIONAL)
 
@@ -152,7 +154,8 @@ class user_in(user_to_register):
 
         """
         if 'password' in values and password_to_verify != values['password']:
-            raise ValueError('passwords do not match')
+            return responses.error_response_model(
+                'password: password doesn´t match with verify', 404, 'Password Error')
         return password_to_verify
 
 

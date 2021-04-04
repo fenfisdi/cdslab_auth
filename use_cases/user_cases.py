@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse
 from dotenv import dotenv_values
 
 from dependencies import user_deps, qr_deps, responses
-from operations.user_operations import *
+from operations.user_operations import retrieve_user,insert_user,update_user_state
 
 send_registration_email = jsoncfg.load_config('send_email.cfg')
 settings = dotenv_values(".env")
@@ -19,15 +19,15 @@ def save_user_in_db(user: dict) -> dict:
     user_insert = insert_user(user_in_db.dict())
     if user_insert:
         url_path = qr_deps.generate_url_qr(user_in_db.key_qr, user)
-        return responses.response_model(
-            {
-                'email': user_in_db.email,
-                'urlPath': url_path,
-                'keyQr': user_in_db.key_qr
-            },
-            "successful"
-        )
-    return responses.error_response_model('insert error in users collection', 404, 'Error')
+        return responses.response_model({'email':user_in_db.email, 
+                                         'urlPath': url_path, 
+                                         'keyQr': user_in_db.key_qr},
+                                         'successful'
+                                        )
+    return responses.error_response_model('insert error in users collection', 
+                                           404, 
+                                           'Error'
+                                           )
 
 
 def activate_user(user: dict) -> dict:

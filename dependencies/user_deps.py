@@ -125,3 +125,9 @@ def transform_props_to_user(user_in: user.user_in):
                                  key_qr=generate_key_qr(),
                                  )
     return user_in_db
+    hashed_password = get_hash_password(user.password)
+    return user_in_db(**user.dict(),
+                        hashed_password=hashed_password,
+                        key_qr=generate_key_qr()                    
+                     )
+     

@@ -2,6 +2,13 @@ import pyotp
 
 from src.interfaces.user_interface import UserInterface
 from src.models.user import BaseUser
+from PIL import Image
+
+from models.user import user_to_register
+from operations.user_operations import retrieve_user
+from dependencies import qr_deps
+
+qr_settings = jsoncfg.load_config('qr.cfg')
 
 
 def generate_key_qr() -> str:

@@ -15,6 +15,7 @@ MOBILE_NUMBER_TYPES = \
 
 settings = dotenv_values(".env")
 
+
 class user_to_register(BaseModel):
     email: EmailStr
     name: str = Field(max_length=64, strip_whitespace=True)
@@ -26,10 +27,8 @@ class user_to_register(BaseModel):
     phone_number: constr(max_length=50, strip_whitespace=True)
     date_of_birth: datetime
 
-    @validator(
-        'name', 'last_name', 'institution',
-        'institution_afiliation', 'profession'
-        )
+    @validator('name', 'last_name', 'institution',
+               'institution_afiliation', 'profession')
     def validate_alphabetic_field(cls, alphabetic_field):
         """
             Validates that the `alphabetic_field` contains only alphabetic
@@ -173,7 +172,7 @@ class user_in(user_to_register):
 
 class user_in_db(user_to_register):
     is_active: bool = False
-    rol: str = 'regular'
+    role: str = 'regular'
     hashed_password: Optional[str] = None
     key_qr: Optional[str] = None
 

@@ -4,8 +4,8 @@ from fastapi import HTTPException
 from fastapi.responses import RedirectResponse
 from dotenv import dotenv_values
 
-from dependencies import user_deps, qr_deps, responses
-from operations.user_operations import retrieve_user,insert_user,update_user_state
+from dependencies import user_deps, qr_deps, token_deps, responses
+from operations.user_operations import retrieve_user, insert_user, update_user_state
 
 send_registration_email = jsoncfg.load_config('send_email.cfg')
 settings = dotenv_values(".env")
@@ -19,15 +19,15 @@ def save_user_in_db(user: dict) -> dict:
     user_insert = insert_user(user_in_db.dict())
     if user_insert:
         url_path = qr_deps.generate_url_qr(user_in_db.key_qr, user)
-        return responses.response_model({'email':user_in_db.email, 
-                                         'urlPath': url_path, 
+        return responses.response_model({'email': user_in_db.email,
+                                         'urlPath': url_path,
                                          'keyQr': user_in_db.key_qr},
-                                         'successful'
+                                        'successful'
                                         )
-    return responses.error_response_model('insert error in users collection', 
-                                           404, 
-                                           'Error'
-                                           )
+    return responses.error_response_model('insert error in users collection',
+                                          404,
+                                          'Error'
+                                          )
 
 
 def activate_user(user: dict) -> dict:
@@ -46,6 +46,10 @@ def validate_qr_registration(email: str, qr_value: str) -> str:
 
     is_validate = qr_deps.validate_qr({"email": email}, qr_value)
     if is_validate:
-        user_deps.send_email(email)
+        key_email = token_deps.generate_token_jwt({'email': email})[
+            'access_token']
+        applicant_link = f'{settings["DOMAIN"]}{settings["REGISTER_PATH"]}/{key_email}'
+        user_deps.send_email(
+            email, send_registration_email.message.register(), applicant_link)
         return responses.response_model({}, "successful")
     return responses.error_response_model("authorization failure", 404, "Error") 

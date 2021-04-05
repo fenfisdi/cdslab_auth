@@ -8,7 +8,8 @@ from models import user
 from use_cases.auth_cases import (validation_login_auth,
                                   validation_qr_auth,
                                   generate_refresh_token,
-                                  send_recovery_link_password,
+                                  send_security_code,
+                                  validate_securtity_code,
                                   update_password,
                                   retrieve_security_questions,
                                   validate_security_questions
@@ -105,13 +106,13 @@ async def refresh_auth(user: user.auth_refresh):
 @router_of_authentication.post("/passwordRecoverylink")
 async def password_recovery_link(user: user.user_email):
 
-    return send_recovery_link_password(user)
+    return send_security_code(user)
 
 
-@router_of_authentication.get("/{tokenized_email}")
-async def read_tokenized_email(tokenized_email):
+@router_of_authentication.post("/validateSecuritycode")
+async def validate_security_code(user: user.security_code):
 
-    return token_deps.validate_access_token_email(tokenized_email)
+    return validate_securtity_code(user)
 
 
 @router_of_authentication.post("/passwordRecover")

@@ -28,6 +28,16 @@ class security_questions(BaseModel):
     answers: list
 
 
+class enter_responses(user_email):
+
+    answers = list()
+
+
+class security_code(user_email):
+
+    security_code: str
+
+
 class user_to_register(user_email):
     name: str = Field(max_length=64, strip_whitespace=True)
     last_name: str = Field(max_length=63, strip_whitespace=True)
@@ -174,6 +184,7 @@ class user_in_db(user_to_register):
     rol: str = "regular"
     hashed_password: Optional[str] = None
     key_qr: Optional[str] = None
+    security_code: int = 0
 
 
 class auth_in(BaseModel):
@@ -226,8 +237,3 @@ class recover_password(user_email):
             return responses.error_response_model(
                 'password: password doesn´t match with verify', 404, 'Password Error')
         return new_password_to_verify
-
-
-class enter_responses(user_email):
-
-    answers = list()

@@ -20,26 +20,21 @@ context = CryptContext(schemes=[secrets['CRYPTOCONTEXT_SCHEM']],
                        deprecated=secrets['CRYPTOCONTEXT_DEPRECATED'])
 
 
-def send_email(email: str) -> str:
+def send_email(email: str, initial_message: str, main_message: str) -> str:
     """
-    Send registration email to the adress entered by the user
+        Sends registration email to the given address.
 
+        Builds path for the user and add the tokenized email,
+        then uses MIMEMultipart to add the welcome message containing the
+        image and the link to finish the registration process.
+        connect to the google server and using the user's credentials
+        send the message
 
-    Build the path that will be sent to the user and add the tokenized email, 
-    then use the MIMEMultipart library to pack the welcome message, 
-    the image and the link to the registration, finally it connects with 
-    the google server and with the credentials of the specified email send the message
-
-
-    Parameters
-    ----------
-    email : str
-            Who receives the sent email
-
+        Parameters
+        ----------
+        email : str
+            User's email
     """
-    key_email = token_deps.generate_token_jwt({'email': email})
-    key_email = key_email['access_token']
-    applicant_key = f'{settings["DOMAIN"]}{settings["REGISTER_PATH"]}/{key_email}'
     msg = MIMEMultipart()
 
     message = send_registration_email.message()
@@ -56,7 +51,8 @@ def send_email(email: str) -> str:
     msg_img.add_header("Content-ID", "<cdslab_auth_logo>")
     msg.attach(msg_img)
     msg.attach(MIMEText(message, "html"))
-    msg.attach(MIMEText(applicant_key, "html"))
+    msg.attach(
+        MIMEText(f"<center><br><b>{main_message}</b></br></center>", "html"))
 
     server = smtplib.SMTP(send_registration_email.server())
     server.starttls()

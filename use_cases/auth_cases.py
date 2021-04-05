@@ -1,3 +1,4 @@
+import random
 import time
 import jsoncfg
 
@@ -8,7 +9,7 @@ from pprint import pprint
 
 from dependencies import user_deps, responses, qr_deps, token_deps
 from models.user import *
-from operations.user_operations import retrieve_user
+from operations.user_operations import retrieve_user, update_user_state
 
 
 def validation_login_auth(data: auth_in):
@@ -66,12 +67,29 @@ def generate_refresh_token(key_qr):
     return responses.error_response_model('Incorrect key', 404, 'Error')
 
 
-def send_recovery_link_password(user: dict) -> dict:
+def send_security_code(user: dict) -> dict:
 
-    if retrieve_user({'email': user.email}):
-        user_deps.send_email(
-            user.email, settings['AUTHENTICATION_PATH'], send_registration_email.message.recovery_password())
-        return responses.response_model({}, "email sended")
+    is_user = retrieve_user({'email': user.email})
+    if is_user:
+        security_code = random.randint(1000, 9999)
+        is_updated = update_user_state(
+            {'security_code': security_code}, is_user['_id'])
+        pprint(is_updated)
+        if is_updated:
+            user_deps.send_email(
+                user.email, send_registration_email.message.recovery_password(), str(security_code))
+            return responses.response_model({'email': user.email}, "email sended")
+        return responses.error_response_model('someting went wrong', 404, "Error")
+    return responses.error_response_model("user already exist", 404, "Error")
+
+
+def validate_securtity_code(user: dict) -> dict:
+
+    is_user = retrieve_user({'email': user.email})
+    if is_user:
+        if str(is_user['security_code']) == str(user.security_code):
+            return responses.response_model({'email': user.email}, "true")
+        return responses.error_response_model("Invalid code", 404, "Error")
     return responses.error_response_model('User doesn´t exist', 404, "Error")
 
 

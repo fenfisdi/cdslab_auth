@@ -1,5 +1,8 @@
-from typing import Optional, Any
-from pydantic import BaseModel, EmailStr, ValidationError, validator, Field, constr, PositiveInt
+from datetime import datetime
+from typing import Optional, Any, List
+from pydantic import BaseModel, EmailStr, validator, Field, constr
+from dotenv import dotenv_values
+
 from phonenumbers import (
     NumberParseException,
     PhoneNumberFormat,
@@ -17,6 +20,15 @@ MOBILE_NUMBER_TYPES = PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBI
 
 class user_to_register(BaseModel):
     email: EmailStr
+
+
+class security_questions(BaseModel):
+
+    questions: list
+    answers: list
+
+
+class user_to_register(user_email):
     name: str = Field(max_length=64, strip_whitespace=True)
     last_name: str = Field(max_length=63, strip_whitespace=True)
     sex: str = Field(max_length=1)
@@ -24,11 +36,8 @@ class user_to_register(BaseModel):
     institution: str = Field(max_length=63)
     institution_afiliation: str = Field(min_length=3)
     profession: str = Field(min_length=3)
-    date_of_birth: Any
-    security_question_1: str
-    security_answer_1: str
-    security_question_2: str
-    security_answer_2: str
+    date_of_birth: datetime
+    security_questions: security_questions
 
     @validator('name', 'last_name', 'institution', 'institution_afiliation', 'profession')
     def validate_alphabetic_field(cls, alphabetic_field, **kwargs):

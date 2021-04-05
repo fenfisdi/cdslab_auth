@@ -120,15 +120,8 @@ def transform_props_to_user(user_in: user.user_in):
             and user_in_db class
     """
     hashed_password = get_hash_password(user_in.password)
-    variable = user_in.dict()
-    variable_date = variable.pop("date_of_birth")
-    variable_date.replace('-', '/')
-    print(variable_date)
-    print(variable)
-    user_in_db = user.user_in_db(**variable,
+    user_in_db = user.user_in_db(**user_in.dict(),
                                  hashed_password=hashed_password,
-                                 key_qr=qr_deps.generate_key_qr(),
-                                 date_of_birth=datetime.strptime(
-                                     variable_date, '%Y-%m-%d').strftime('%d/%m/%y')
+                                 key_qr=generate_key_qr(),
                                  )
     return user_in_db

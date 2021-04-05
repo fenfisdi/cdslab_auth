@@ -1,3 +1,5 @@
+import jsoncfg
+
 from fastapi import HTTPException
 from fastapi.responses import RedirectResponse
 from dotenv import dotenv_values
@@ -5,6 +7,7 @@ from dotenv import dotenv_values
 from dependencies import user_deps, qr_deps, responses
 from operations.user_operations import *
 
+send_registration_email = jsoncfg.load_config('send_email.cfg')
 settings = dotenv_values(".env")
 
 

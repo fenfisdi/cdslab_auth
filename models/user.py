@@ -53,7 +53,7 @@ class user_to_register(BaseModel):
         """
         if alphabetic_field.isalpha():
             return alphabetic_field
-        return responses.error_response_model(f'{kwargs["field"].name}: ''must be alphabetic', 404, 'Error')
+        return responses.error_response_model(f'{kwargs["field"].name} ''must be alphabetic', 404, 'Error')
 
     @ validator('sex')
     def validate_sex(cls, sex):
@@ -111,7 +111,7 @@ class user_to_register(BaseModel):
         try:
             n = parse_phone_number(phone_number, 'GB')
         except NumberParseException as e:
-            return responses.error_response_model('phone_number: please provide a valid phone number', 404, 'Error')
+            return responses.error_response_model('phone_number please provide a valid phone number', 404, 'Error')
 
         if not is_valid_number(n) or number_type(n) not in MOBILE_NUMBER_TYPES:
             return responses.error_response_model(

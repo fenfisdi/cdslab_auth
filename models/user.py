@@ -189,3 +189,45 @@ class two_auth_in(BaseModel):
 class auth_refresh(BaseModel):
     email: EmailStr
     key_qr: str
+
+
+class recover_password(user_email):
+
+    new_password: Optional[str] = None
+    new_verify_password: Optional[str] = None
+
+    @validator('new_verify_password')
+    def password_match(cls, new_password_to_verify, values):
+        """
+            Validates whether passwords provided match
+
+            Parameters
+            ----------
+            cls: Pydantic class extended from BaseModel
+
+            password_to_verify: str
+                User's input with the password to check
+
+            values: dict
+                Dictionary containing the stored password to compare
+
+            Return
+            ----------
+            password_to_verify: str
+                If the field passes the validation,
+                this string is returned back
+
+            Raises
+            ----------
+            ValueError
+                If the field doesn't pass the validation
+        """
+        if 'new_password' in values and new_password_to_verify != values['new_password']:
+            return responses.error_response_model(
+                'password: password doesn´t match with verify', 404, 'Password Error')
+        return new_password_to_verify
+
+
+class enter_responses(user_email):
+
+    answers = list()

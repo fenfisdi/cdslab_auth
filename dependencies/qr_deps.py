@@ -75,9 +75,9 @@ def validate_qr(query: dict, qr_value: str):
         ----------
         value: Boolean
     """
-    user_retrieve = retrieve_user(query)
-    if user_retrieve:
-        key_qr_value = qr_deps.get_value_key_qr(user_retrieve["key_qr"])
+    retrieved_user = retrieve_user(query)
+    if retrieved_user:
+        key_qr_value = qr_deps.get_value_key_qr(retrieved_user["key_qr"])
         if key_qr_value:
             if str(key_qr_value) == str(qr_value):
                 return True

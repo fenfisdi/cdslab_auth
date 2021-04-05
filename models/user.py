@@ -1,17 +1,17 @@
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, EmailStr, validator, Field, constr
+from dotenv import dotenv_values
+
 from phonenumbers import (
     NumberParseException, PhoneNumberFormat, PhoneNumberType,
     format_number, is_valid_number, number_type,
     parse as parse_phone_number
     )
-from dotenv import dotenv_values
 
 
 MOBILE_NUMBER_TYPES = \
     PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBILE
-
 
 settings = dotenv_values(".env")
 
@@ -54,7 +54,7 @@ class user_to_register(BaseModel):
                 If the field doesn't pass the validation
         """
         assert alphabetic_field.isalpha(), \
-            'The alphabetic field Must be alphabetic field'
+            'The field must strictly contain alphabetic characters'
         return alphabetic_field
 
     @validator('sex')
@@ -109,10 +109,9 @@ class user_to_register(BaseModel):
             ----------
             ValueError
                 If the field doesn't pass the validation
-            
         """
         if phone_number is None:
-            raise ValueError('Phone number must not be None')
+            raise ValueError('Phone number cannot be empty')
 
         try:
             phone_number_object = parse_phone_number(
@@ -121,10 +120,10 @@ class user_to_register(BaseModel):
                 )
         except NumberParseException as error:
             raise ValueError(
-                'Please provide a valid mobile phone number') from error
+                'Please provide a valid phone number') from error
 
         if not is_valid_number(phone_number_object):
-            raise ValueError('Please provide a valid mobile phone number')
+            raise ValueError('Please provide a valid phone number')
 
         if number_type(phone_number_object) not in MOBILE_NUMBER_TYPES:
             raise ValueError('Please provide a valid mobile phone number')

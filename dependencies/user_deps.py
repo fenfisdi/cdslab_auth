@@ -25,17 +25,14 @@ def send_email(email: str) -> str:
         Builds path for the user and add the tokenized email,
         then uses MIMEMultipart to add the welcome message containing the
         image and the link to finish the registration process.
-        
         connect to the google server and using the user's credentials
         send the message
-
 
         Parameters
         ----------
         email : str
             User's email
     """
-
     key_email = token_deps.generate_token_jwt({'email': email})['access_token']
 
     applicant_link = f'{settings["DOMAIN"]}{settings["REGISTER_PATH"]}/{key_email}'

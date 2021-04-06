@@ -103,8 +103,8 @@ async def refresh_auth(user: user.auth_refresh):
     return generate_refresh_token(user.key_qr)
 
 
-@router_of_authentication.post("/passwordRecoverylink")
-async def password_recovery_link(user: user.user_email):
+@router_of_authentication.post("/securityCodeRecoverylink")
+async def generate_security_code_link(user: user.user_email):
 
     return send_security_code(user)
 

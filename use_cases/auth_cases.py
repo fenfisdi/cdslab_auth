@@ -7,7 +7,7 @@ from bson.objectid import ObjectId
 from datetime import datetime, timedelta
 from pprint import pprint
 
-from dependencies import user_deps, responses, qr_deps, token_deps
+from dependencies import user_deps, responses, qr_deps, token_deps, common
 from models.user import *
 from operations.user_operations import retrieve_user, update_user_state
 
@@ -69,25 +69,26 @@ def generate_refresh_token(key_qr):
 
 def send_security_code(user: dict) -> dict:
 
-    is_user = retrieve_user({'email': user.email})
-    if is_user:
-        security_code = random.randint(1000, 9999)
+    searched_user = retrieve_user({'email': user.email})
+    if searched_user:
+        security_code = common.random_number_with_digits(6)
         is_updated = update_user_state(
-            {'security_code': security_code}, is_user['_id'])
-        pprint(is_updated)
-        if is_updated:
+            {'security_code': security_code}, searched_user['_id'])
+        if is_updated:            
             user_deps.send_email(
-                user.email, send_registration_email.message.recovery_password(), str(security_code))
+                user.email, 
+                send_registration_email.message.recovery_password(), 
+                str(security_code))
             return responses.response_model({'email': user.email}, "email sended")
-        return responses.error_response_model('someting went wrong', 404, "Error")
-    return responses.error_response_model("user already exist", 404, "Error")
+        return responses.error_response_model('Someting went wrong', 404, "Error")
+    return responses.error_response_model("User doesn´t exist", 404, "Error")
 
 
 def validate_securtity_code(user: dict) -> dict:
 
-    is_user = retrieve_user({'email': user.email})
-    if is_user:
-        if str(is_user['security_code']) == str(user.security_code):
+    searched_user = retrieve_user({'email': user.email})
+    if searched_user:
+        if str(searched_user['security_code']) == str(user.security_code):
             return responses.response_model({'email': user.email}, "true")
         return responses.error_response_model("Invalid code", 404, "Error")
     return responses.error_response_model('User doesn´t exist', 404, "Error")
@@ -95,15 +96,14 @@ def validate_securtity_code(user: dict) -> dict:
 
 def update_password(user: dict) -> dict:
 
-    is_user = retrieve_user({'email': user.email})
-
-    if is_user:
+    searched_user = retrieve_user({'email': user.email})
+    if searched_user:
         is_updated = update_user_state({'hashed_password': user_deps.get_hash_password(
-            user.new_password)}, is_user['_id'])
+            user.new_password)}, searched_user['_id'])
         if is_updated:
-            return responses.response_model({user.new_password}, "password updated")
-        return responses.error_response_model("password can´t be updated", 404, "Error")
-    return responses.error_response_model("user not found", 404, "Error")
+            return responses.response_model({'passwordChanged':True}, "password updated")
+        return responses.error_response_model("Password can´t be updated", 404, "Error")
+    return responses.error_response_model("User not found", 404, "Error")
 
 
 def retrieve_security_questions(user: dict) -> dict:

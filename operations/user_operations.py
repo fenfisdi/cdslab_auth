@@ -74,6 +74,6 @@ def update_user_state(data: dict, id: str):
             {"_id": ObjectId(id)}, {"$set": data}
         )
         if updated_user:
-            return updated_user
+            return True
         return False
     return False

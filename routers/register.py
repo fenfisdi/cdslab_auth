@@ -1,11 +1,11 @@
 from fastapi import APIRouter, status
 
+from dependencies.qr_deps import generate_url_qr, validate_qr
+from dependencies.responses import error_response_model, response_model
 from dependencies.token_deps import validate_email_access_token
+from dependencies.user_deps import send_email, transform_props_to_user
 from models.user import User, AuthenticatedUser
-
-from use_cases.user_cases import (save_user_in_db,
-                                  activate_user,
-                                  validate_qr_registration)
+from operations.user_operations import UserInterface
 
 router_of_registry = APIRouter()
 
@@ -51,21 +51,21 @@ async def save_user(user: User) -> dict:
         - **ValueError**:
             If the verified password doesn't match
     """
-    if  retrieve_user({'email': user.email}):
-        return responses.error_response_model('User already exists', 409, 'Error')
+    if UserInterface.retrieve_user({'email': user.email}):
+        return error_response_model('User already exists', 409, 'Error')
 
     else:
         #TODO: RENAME ME, PLS
-        user_in_db = user_deps.transform_props_to_user(user)
-        inserted_user = insert_user(user_in_db.dict())
+        user_in_db = transform_props_to_user(user)
+        inserted_user = UserInterface.insert_user(user_in_db.dict())
 
         if inserted_user:
-            url_path = qr_deps.generate_url_qr(user_in_db.key_qr, user)
+            url_path = generate_url_qr(user_in_db.key_qr, user)
             return { 'email':user_in_db.email,
                      'url_path': url_path,
                      'key_qr': user_in_db.key_qr }
         else:
-            return responses.error_response_model(
+            return error_response_model(
                     'Error while creating user',
                     500,
                     'Error'
@@ -99,7 +99,13 @@ async def qr_validation(authenticated_user: AuthenticatedUser) -> dict:
         - **ValueError**:
             If email is not valid
     """
-    return validate_qr_registration(user.email, user.qr_value)
+    is_validate = validate_qr({"email": authenticated_user.email}, authenticated_user.qr_value)
+
+    if is_validate:
+        send_email(authenticated_user.email)
+        # TODO: Check Data Response
+        return "Check your email to finish the registration process"
+    return error_response_model("authorization failure", 404, "Error")
 
 
 @router_of_registry.get("/{token_email}")
@@ -128,5 +134,15 @@ async def read_email(token_email):
         - **HTTPException**:
             If user's email cannot be found
     """
-    untokenized_email = validate_access_token_email(token_email)
-    return activate_user(untokenized_email)
+    untokenized_email = validate_email_access_token(token_email)
+
+    user_email = UserInterface.retrieve_user({
+        'email': untokenized_email,
+    })
+
+    if user_email:
+        is_updated = UserInterface.update_user_state({'is_active': True}, user_email['_id'])
+        if is_updated:
+            return response_model({'data': is_updated}, "successful")
+        return error_response_model("error to activate account", 404, "Error")
+    return error_response_model("user not found", 404, "Error")

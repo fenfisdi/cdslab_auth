@@ -40,21 +40,3 @@ def validate_user_qr(email: str, qr_value: str):
             return response_model(token, "Successful")
         return error_response_model("Error while generating token", 404, "Error")
     return error_response_model("Invalid QR validation", 404, "Error")
-
-
-def generate_fresh_token(key_qr):
-
-    retrieved_user = retrieve_user({"key_qr": key_qr})
-    if retrieved_user:
-        payload = {
-            "expires": str(datetime.utcnow() + timedelta(hours=24)),
-            "id": str(retrieved_user["_id"]),
-            "role": str(retrieved_user["role"]),
-            "email": str(retrieved_user["email"]),
-        }
-
-        token = generate_token_jwt(payload)
-        if token:
-            return response_model(token, "Successful")
-        return error_response_model("Error while generating token", 404, "Error")
-    return error_response_model("Invalid key", 404, "Error")

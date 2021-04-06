@@ -1,16 +1,11 @@
 # TODO: Add HTTPExceptions
-import pyotp
 
 from fastapi import APIRouter
-from pprint import pprint
 
 from models.user import (PreAuthenticatedUser,
-                         AuthenticatedUser,
-                         auth_refresh)
-
+                         AuthenticatedUser)
 from use_cases.auth_cases import (validate_user_login,
-                                  validate_user_qr,
-                                  generate_fresh_token)
+                                  validate_user_qr)
 
 router_of_authentication = APIRouter()
 
@@ -73,30 +68,3 @@ async def qr_auth(authenticated_user: AuthenticatedUser):
     """
     return validate_user_qr(authenticated_user.email,
                             authenticated_user.qr_value)
-
-
-@router_of_authentication.post("/refreshAuthentication")
-# TODO: REMOVE ME, PLS
-async def refresh_auth(refreshed_user: auth_refresh):
-    """
-         Generate a new token to keep the user logged in
-
-         Parameters
-         ----------
-         - **class**
-            dummy
-
-         Returns
-         ----------
-         - **response**: str
-             token
-
-         Raises
-         ----------
-         - **HTTPException**:
-             If the token cannot be generated
-
-         - **HTTPException**:
-             If key_qr doesn't match the expected value
-     """
-    return generate_fresh_token(refreshed_user.key_qr)

@@ -16,7 +16,7 @@ MOBILE_NUMBER_TYPES = \
 settings = dotenv_values(".env")
 
 
-class user_to_register(BaseModel):
+class BaseUser(BaseModel):
     email: EmailStr
     name: str = Field(max_length=64, strip_whitespace=True)
     last_name: str = Field(max_length=64, strip_whitespace=True)
@@ -125,7 +125,7 @@ class user_to_register(BaseModel):
             raise ValueError('Please provide a valid phone number')
 
         if number_type(phone_number_object) not in MOBILE_NUMBER_TYPES:
-            raise ValueError('Please provide a valid mobile phone number')
+            raise ValueError('Please provide a valid phone number')
 
         if phone_number_object.country_code == settings['COUNTRY_CODE']:
             phone_nationality = PhoneNumberFormat.NATIONAL
@@ -135,7 +135,7 @@ class user_to_register(BaseModel):
         return format_number(phone_number_object, phone_nationality)
 
 
-class user_in(user_to_register):
+class User(BaseUser):
     password: Optional[str] = None
     verify_password: Optional[str] = None
 
@@ -166,23 +166,23 @@ class user_in(user_to_register):
                 If the field doesn't pass the validation
         """
         if 'password' in values and password_to_verify != values['password']:
-            raise ValueError('Passwords provided do not match')
+            raise ValueError("Provided passwords don't match")
         return password_to_verify
 
 
-class user_in_db(user_to_register):
+class StoredUser(BaseUser):
     is_active: bool = False
     role: str = 'regular'
     hashed_password: Optional[str] = None
     key_qr: Optional[str] = None
 
 
-class auth_in(BaseModel):
+class PreAuthenticatedUser(BaseModel):
     email: EmailStr
     password: str
 
 
-class two_auth_in(BaseModel):
+class AuthenticatedUser(BaseModel):
     email: EmailStr
     qr_value: str
 

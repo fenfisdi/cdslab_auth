@@ -10,7 +10,7 @@ users = db[db_config.collection.users()]
 
 def retrieve_user(query: dict) -> dict:
     """
-        Search a for a specific user inside the database
+        Search for a specific user inside the database
 
         Parameters
         ----------
@@ -50,7 +50,7 @@ def update_user_state(data: dict, id: str):
         Parameters
         ----------
         data: dict
-            Key paid associated to a user
+            Key pair associated to a user
 
         id: str
             Unique id associated to a user

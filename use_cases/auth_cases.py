@@ -1,62 +1,60 @@
-import time
-
-from fastapi import HTTPException
-from bson.objectid import ObjectId
 from datetime import datetime, timedelta
-from pprint import pprint
 
-from dependencies import user_deps, responses, qr_deps, token_deps
-from models.user import *
-from operations.user_operations import *
+from models.user import PreAuthenticatedUser
+from operations.user_operations import retrieve_user
+from dependencies.responses import response_model, error_response_model
+from dependencies.token_deps import generate_token_jwt
+from dependencies.user_deps import verify_passowrd
+from dependencies.qr_deps import validate_qr
 
-def validation_login_auth(data: auth_in):
-    user_retrieve = retrieve_user({"email": data.email})
-    if user_retrieve:
-        pprint(user_retrieve)
-        is_equal = user_deps.verify_passowrd(
-            data.password, user_retrieve['hashed_password']
-        )
+
+def validate_user_login(pre_authenticated_user: PreAuthenticatedUser):
+
+    retrieved_user = retrieve_user({"email": pre_authenticated_user.email})
+    if retrieved_user:
+        is_equal = verify_passowrd(pre_authenticated_user.password,
+                                   retrieved_user["hashed_password"])
         if is_equal:
-            return responses.response_model({'key_qr': user_retrieve['key_qr'],
-                                             'email': user_retrieve['email']},
-                                             'successful'
-                                           )
-        return responses.error_response_model('password not is equal', 404, 'Error')
-    return responses.error_response_model('user not exist.!', 404, 'Error')
+            return response_model({"key_qr": retrieved_user["key_qr"],
+                                   "email": retrieved_user["email"]},
+                                   "Successful")
+
+        return error_response_model("Invalid Username or Password", 404, "Error")
+    return error_response_model("User doesn't exist", 404, "Error")
 
 
-def validation_qr_auth(email: str, qr_value: str):
+def validate_user_qr(email: str, qr_value: str):
 
-    is_validate = qr_deps.validate_qr({"email": email}, qr_value)
+    is_validate = validate_qr({"email": email}, qr_value)
     if is_validate:
-        user_retrieve = retrieve_user({"email": email})
-        pprint(user_retrieve)
+        retrieved_user = retrieve_user({"email": email})
         payload = {
             "expires": str(datetime.utcnow() + timedelta(hours=24)),
-            "id": str(user_retrieve["_id"]),
-            "rol": str(user_retrieve["rol"]),
-            "email": str(user_retrieve["email"]),
+            "id": str(retrieved_user["_id"]),
+            "role": str(retrieved_user["role"]),
+            "email": str(retrieved_user["email"]),
         }
 
-        token = token_deps.generate_token_jwt(payload)
+        token = generate_token_jwt(payload)
         if token:
-            return responses.response_model(token, "successfull")
-        return responses.error_response_model('error generate token', 404, 'Error')
-    return responses.error_response_model('incorret valition qr credentials', 404, 'Error')
+            return response_model(token, "Successful")
+        return error_response_model("Error while generating token", 404, "Error")
+    return error_response_model("Invalid QR validation", 404, "Error")
 
-def generate_refresh_token(key_qr):
-    user_retrieve = retrieve_user({"key_qr": key_qr})
-    if user_retrieve:
-        pprint(user_retrieve)
+
+def generate_fresh_token(key_qr):
+
+    retrieved_user = retrieve_user({"key_qr": key_qr})
+    if retrieved_user:
         payload = {
             "expires": str(datetime.utcnow() + timedelta(hours=24)),
-            "id": str(user_retrieve["_id"]),
-            "rol": str(user_retrieve["rol"]),
-            "email": str(user_retrieve["email"]),
+            "id": str(retrieved_user["_id"]),
+            "role": str(retrieved_user["role"]),
+            "email": str(retrieved_user["email"]),
         }
 
-        token = token_deps.generate_token_jwt(payload)
+        token = generate_token_jwt(payload)
         if token:
-            return responses.response_model(token, "successfull")
-        return responses.error_response_model('Error generating user token', 404, 'Error')
-    return responses.error_response_model('Incorrect key', 404, 'Error')
+            return response_model(token, "Successful")
+        return error_response_model("Error while generating token", 404, "Error")
+    return error_response_model("Invalid key", 404, "Error")

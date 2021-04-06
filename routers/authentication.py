@@ -1,31 +1,35 @@
+# TODO: Add HTTPExceptions
 import pyotp
 
 from fastapi import APIRouter
 from pprint import pprint
 
-from models import user
-from use_cases.auth_cases import (validation_login_auth,
-                                  validation_qr_auth,
-                                  generate_refresh_token
-                                 )
+from models.user import (PreAuthenticatedUser,
+                         AuthenticatedUser,
+                         auth_refresh)
+
+from use_cases.auth_cases import (validate_user_login,
+                                  validate_user_qr,
+                                  generate_fresh_token)
 
 router_of_authentication = APIRouter()
 
 @router_of_authentication.post("/loginAuthentication")
-async def login_auth(user: user.auth_in):
+async def login_auth(pre_authenticated_user: PreAuthenticatedUser):
     """
         Validate user information at login time
 
         Parameters
         ----------
-        - user: dict
+        - pre_authenticated_user: dict
             email associated to the user
 
         Returns
         ----------
-        - response : Method
+        - Method
             - key_qr: str
                 Hash to match second authentication factor
+
             - email:str
                 Email associated to the user
 
@@ -33,16 +37,17 @@ async def login_auth(user: user.auth_in):
         ----------
         - HTTPException
             If passwords don't match
+
         - HTTPException
             If user doesn't exist
     """
-    return validation_login_auth(user)
+    return validate_user_login(pre_authenticated_user)
 
 
 @router_of_authentication.post("/qrAuthentication")
-async def qr_auth(user: user.two_auth_in):
+async def qr_auth(authenticated_user: AuthenticatedUser):
     """
-        Validate if qr and the user input match the authentication factor and
+        Validate if qr and the user input match the 2FA and
         generates a token
 
         Parameters
@@ -62,24 +67,24 @@ async def qr_auth(user: user.two_auth_in):
         ----------
         - **HTTPException**:
             If token is invalid or email doesn't exist
+
         - **HTTPException**:
             If key_qr does't match the expected value
     """
-    return validation_qr_auth(user.email, user.qr_value)
+    return validate_user_qr(authenticated_user.email,
+                            authenticated_user.qr_value)
 
 
 @router_of_authentication.post("/refreshAuthentication")
-async def refresh_auth(user: user.auth_refresh):
+# TODO: REMOVE ME, PLS
+async def refresh_auth(refreshed_user: auth_refresh):
     """
          Generate a new token to keep the user logged in
 
          Parameters
          ----------
-         - **email**: str
-            User email
-
-         - **key_qr**: str
-             String stored in the database
+         - **class**
+            dummy
 
          Returns
          ----------
@@ -90,7 +95,8 @@ async def refresh_auth(user: user.auth_refresh):
          ----------
          - **HTTPException**:
              If the token cannot be generated
+
          - **HTTPException**:
              If key_qr doesn't match the expected value
      """
-    return generate_refresh_token(user.key_qr)
+    return generate_fresh_token(refreshed_user.key_qr)

@@ -3,17 +3,6 @@ from fastapi import HTTPException
 from dependencies import user_deps, qr_deps, responses
 from operations.user_operations import *
 
-def save_user_in_db(user: dict) -> dict:
-
-    if  retrieve_user({'email': user.email}):
-        return responses.error_response_model('User already exists', 404, 'Error')
-    user_in_db = user_deps.transform_props_to_user(user)
-    user_insert = insert_user(user_in_db.dict())
-    if user_insert:
-        url_path = qr_deps.generate_url_qr(user_in_db.key_qr, user)
-        return {'email':user_in_db.email, 'url_path': url_path, 'key_qr': user_in_db.key_qr}
-    return responses.error_response_model('insert error in users collection', 404, 'Error')
-
 
 def activate_user(user: dict) -> dict:
 

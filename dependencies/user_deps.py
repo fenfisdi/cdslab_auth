@@ -7,16 +7,16 @@ from email.mime.image import MIMEImage
 from passlib.context import CryptContext
 from dotenv import dotenv_values
 
-from models.user import user_in, user_in_db
+from models.user import User, StoredUser
 from dependencies.qr_deps import generate_key_qr
 from dependencies.token_deps import generate_token_jwt
 
-send_registration_email = jsoncfg.load_config('send_email.cfg')
+send_registration_email = jsoncfg.load_config("send_email.cfg")
 secrets = dotenv_values(".secrets")
 settings = dotenv_values(".env")
 
-context = CryptContext(schemes=[secrets['CRYPTOCONTEXT_SCHEM']],
-                       deprecated=secrets['CRYPTOCONTEXT_DEPRECATED'])
+context = CryptContext(schemes=[secrets["CRYPTOCONTEXT_SCHEM"]],
+                       deprecated=secrets["CRYPTOCONTEXT_DEPRECATED"])
 
 def send_email(email: str) -> str:
     """
@@ -33,7 +33,7 @@ def send_email(email: str) -> str:
         email : str
             User's email
     """
-    key_email = token_deps.generate_token_jwt({'email': email})['access_token']
+    key_email = generate_token_jwt({"email": email})["access_token"]
 
     applicant_link = f'{settings["DOMAIN"]}{settings["REGISTER_PATH"]}/{key_email}'
 
@@ -53,7 +53,7 @@ def send_email(email: str) -> str:
     msg_img.add_header("Content-ID", "<cdslab_auth_logo>")
     msg.attach(msg_img)
     msg.attach(MIMEText(message, "html"))
-    msg.attach(MIMEText(applicant_key, "html"))
+    msg.attach(MIMEText(applicant_link, "html"))
 
     server = smtplib.SMTP(send_registration_email.server())
     server.starttls()
@@ -62,14 +62,14 @@ def send_email(email: str) -> str:
     server.quit()
 
 
-def get_hash_password(password: user_in) -> str:
+def get_hash_password(password: User) -> str:
     """
         Take the user password and hash it
 
         Parameters
         ----------
         password: dict
-            Password taken from user_in class
+            Password taken from User class
 
         Return
         ----------
@@ -79,7 +79,7 @@ def get_hash_password(password: user_in) -> str:
     return context.hash(password)
 
 
-def verify_passowrd(plain_password: str, hashed_password: str) -> bool:
+def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
         Compare stored and entered passwords
 
@@ -98,21 +98,21 @@ def verify_passowrd(plain_password: str, hashed_password: str) -> bool:
     return context.verify(plain_password, hashed_password)
 
 
-def transform_props_to_user(user: user_in):
+def transform_props_to_user(user: User):
     """
-        Construct model from user_in class to store in database
+        Construct model from User class to store in database
 
         Parameters
         ----------
-        user_in: Pydantic class
-            Inherits the properties of user_in
+        User: Pydantic class
+            Inherits the properties of User
 
         Return
         ----------
-        user_in_db: Pydantic class
+        StoredUser: Pydantic class
             Model to store in database
     """
     hashed_password = get_hash_password(user.password)
-    return user_in_db(**user.dict(),
+    return StoredUser(**user.dict(),
                       hashed_password=hashed_password,
                       key_qr=generate_key_qr())

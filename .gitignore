@@ -30,6 +30,7 @@ templates
 # Notebook Checkpoints
 .ipynb_checkpoints
 .vscode
+.idea
 
 # Byte-compiled / optimized / DLL files
 _pycache_/

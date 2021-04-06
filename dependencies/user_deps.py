@@ -1,15 +1,15 @@
 import smtplib
-import jsoncfg
-
+from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
-from passlib.context import CryptContext
-from dotenv import dotenv_values
 
-from models.user import User, StoredUser
+import jsoncfg
+from dotenv import dotenv_values
+from passlib.context import CryptContext
+
 from dependencies.qr_deps import generate_key_qr
 from dependencies.token_deps import generate_token_jwt
+from models.user import User, StoredUser
 
 send_registration_email = jsoncfg.load_config("send_email.cfg")
 secrets = dotenv_values(".secrets")
@@ -17,6 +17,7 @@ settings = dotenv_values(".env")
 
 context = CryptContext(schemes=[secrets["CRYPTOCONTEXT_SCHEM"]],
                        deprecated=secrets["CRYPTOCONTEXT_DEPRECATED"])
+
 
 def send_email(email: str) -> str:
     """
@@ -62,7 +63,7 @@ def send_email(email: str) -> str:
     server.quit()
 
 
-def get_hash_password(password: User) -> str:
+def get_hash_password(password: str) -> str:
     """
         Take the user password and hash it
 
@@ -104,7 +105,7 @@ def transform_props_to_user(user: User):
 
         Parameters
         ----------
-        User: Pydantic class
+        user: Pydantic class
             Inherits the properties of User
 
         Return

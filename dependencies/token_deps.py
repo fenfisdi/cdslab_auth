@@ -1,12 +1,11 @@
+from dotenv import dotenv_values
 from fastapi import HTTPException, status
 from jose import jwt, JWTError
-from dotenv import dotenv_values
-
-from models.user import BaseUser
 
 secrets = dotenv_values(".secrets")
 
-def validate_email_access_token(token: str) -> BaseUser:
+
+def validate_email_access_token(token: str) -> str:
     """
         Extract email from token and return a key pair
 
@@ -32,7 +31,7 @@ def validate_email_access_token(token: str) -> BaseUser:
             raise credential_exception
     except JWTError:
         raise credential_exception
-    return decode_email
+    return decoded_email['email']
 
 
 def generate_token_jwt(payload: dict):

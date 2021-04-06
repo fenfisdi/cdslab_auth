@@ -1,13 +1,18 @@
 # TODO: Add HTTPExceptions
 
+from datetime import datetime, timedelta
+
 from fastapi import APIRouter
 
-from models.user import (PreAuthenticatedUser,
-                         AuthenticatedUser)
-from use_cases.auth_cases import (validate_user_login,
-                                  validate_user_qr)
+from dependencies.qr_deps import validate_qr
+from dependencies.responses import response_model, error_response_model
+from dependencies.token_deps import generate_token_jwt
+from dependencies.user_deps import verify_password
+from models.user import PreAuthenticatedUser, AuthenticatedUser
+from operations.user_operations import UserInterface
 
 router_of_authentication = APIRouter()
+
 
 @router_of_authentication.post("/loginAuthentication")
 async def login_auth(pre_authenticated_user: PreAuthenticatedUser):
@@ -36,7 +41,20 @@ async def login_auth(pre_authenticated_user: PreAuthenticatedUser):
         - HTTPException
             If user doesn't exist
     """
-    return validate_user_login(pre_authenticated_user)
+    retrieved_user = UserInterface.retrieve_user(
+        {"email": pre_authenticated_user.email}
+    )
+
+    if retrieved_user:
+        is_equal = verify_password(pre_authenticated_user.password,
+                                   retrieved_user["hashed_password"])
+        if is_equal:
+            return response_model({"key_qr": retrieved_user["key_qr"],
+                                   "email": retrieved_user["email"]},
+                                  "Successful")
+
+        return error_response_model("Invalid Username or Password", 404, "Error")
+    return error_response_model("User doesn't exist", 404, "Error")
 
 
 @router_of_authentication.post("/qrAuthentication")
@@ -66,5 +84,18 @@ async def qr_auth(authenticated_user: AuthenticatedUser):
         - **HTTPException**:
             If key_qr does't match the expected value
     """
-    return validate_user_qr(authenticated_user.email,
-                            authenticated_user.qr_value)
+    is_valid = validate_qr({"email": authenticated_user.email}, authenticated_user.qr_value)
+    if is_valid:
+        retrieved_user = UserInterface.retrieve_user({"email": authenticated_user.email})
+        payload = {
+            "expires": str(datetime.utcnow() + timedelta(hours=24)),
+            "id": str(retrieved_user["_id"]),
+            "role": str(retrieved_user["role"]),
+            "email": str(retrieved_user["email"]),
+        }
+
+        token = generate_token_jwt(payload)
+        if token:
+            return response_model({'data': token}, "Successful")
+        return error_response_model("Error while generating token", 404, "Error")
+    return error_response_model("Invalid QR validation", 404, "Error")

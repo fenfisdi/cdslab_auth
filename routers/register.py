@@ -5,7 +5,7 @@ from dependencies.responses import error_response_model, response_model
 from dependencies.token_deps import validate_email_access_token
 from dependencies.user_deps import send_email, transform_props_to_user
 from models.user import User, AuthenticatedUser
-from operations.user_operations import UserInterface
+from interfaces.user_interface import UserInterface
 
 router_of_registry = APIRouter()
 
@@ -51,7 +51,7 @@ async def save_user(user: User) -> dict:
         - **ValueError**:
             If the verified password doesn't match
     """
-    if UserInterface.retrieve_user({'email': user.email}):
+    if UserInterface.retrieve_user(email=user.email):
         return error_response_model('User already exists', 409, 'Error')
 
     else:
@@ -136,9 +136,7 @@ async def read_email(token_email):
     """
     untokenized_email = validate_email_access_token(token_email)
 
-    user_email = UserInterface.retrieve_user({
-        'email': untokenized_email,
-    })
+    user_email = UserInterface.retrieve_user(email=untokenized_email)
 
     if user_email:
         is_updated = UserInterface.update_user_state({'is_active': True}, user_email['_id'])

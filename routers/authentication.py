@@ -9,7 +9,7 @@ from dependencies.responses import response_model, error_response_model
 from dependencies.token_deps import generate_token_jwt
 from dependencies.user_deps import verify_password
 from models.user import PreAuthenticatedUser, AuthenticatedUser
-from operations.user_operations import UserInterface
+from interfaces.user_interface import UserInterface
 
 router_of_authentication = APIRouter()
 
@@ -42,7 +42,7 @@ async def login_auth(pre_authenticated_user: PreAuthenticatedUser):
             If user doesn't exist
     """
     retrieved_user = UserInterface.retrieve_user(
-        {"email": pre_authenticated_user.email}
+        email=pre_authenticated_user.email
     )
 
     if retrieved_user:
@@ -86,7 +86,7 @@ async def qr_auth(authenticated_user: AuthenticatedUser):
     """
     is_valid = validate_qr({"email": authenticated_user.email}, authenticated_user.qr_value)
     if is_valid:
-        retrieved_user = UserInterface.retrieve_user({"email": authenticated_user.email})
+        retrieved_user = UserInterface.retrieve_user(email=authenticated_user.email)
         payload = {
             "expires": str(datetime.utcnow() + timedelta(hours=24)),
             "id": str(retrieved_user["_id"]),

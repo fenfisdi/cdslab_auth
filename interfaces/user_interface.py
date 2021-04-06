@@ -11,7 +11,7 @@ users = db[db_config.collection.users()]
 class UserInterface:
 
     @staticmethod
-    def retrieve_user(query: dict) -> dict:
+    def retrieve_user(*args, **kwargs) -> dict:
         """
             Search for a specific user inside the database
 
@@ -25,7 +25,7 @@ class UserInterface:
             user: pymongo object
                 Object containing the results of the search
         """
-        return users.find_one(query)
+        return users.find_one(*args, **kwargs)
 
     @staticmethod
     def insert_user(data: dict):
@@ -46,7 +46,7 @@ class UserInterface:
         return users.find_one({"_id": user.inserted_id})
 
     @staticmethod
-    def update_user_state(data: dict, id: str):
+    def update_user_state(data: dict, user_id: str):
         """
             Update user's status to active after verification
 
@@ -55,7 +55,7 @@ class UserInterface:
             data: dict
                 Key pair associated to a user
 
-            id: str
+            user_id: str
                 Unique id associated to a user
 
             Return
@@ -71,10 +71,10 @@ class UserInterface:
         """
         if len(data) < 1:
             return False
-        user = users.find_one({"_id": ObjectId(id)})
+        user = users.find_one({"_id": ObjectId(user_id)})
         if user:
             updated_user = users.update_one(
-                {"_id": ObjectId(id)}, {"$set": data}
+                {"_id": ObjectId(user_id)}, {"$set": data}
             )
             if updated_user:
                 return True

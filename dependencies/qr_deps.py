@@ -4,7 +4,7 @@ import jsoncfg
 from PIL import Image
 
 from models.user import BaseUser
-from operations.user_operations import retrieve_user
+from interfaces.user_interface import retrieve_user
 
 qr_settings = jsoncfg.load_config("qr.cfg")
 

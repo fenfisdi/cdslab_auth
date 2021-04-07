@@ -16,7 +16,7 @@ def validation_login_auth(data: auth_in):
     user_retrieve = retrieve_user({"email": data.email})
     if user_retrieve:
         if user_retrieve['is_active']:
-            is_equal = user_deps.verify_passowrd(
+            is_equal = user_deps.verify_passoword(
                 data.password, user_retrieve['hashed_password']
             )
             if is_equal:
@@ -98,43 +98,41 @@ def update_password(user: dict) -> dict:
 
     searched_user = retrieve_user({'email': user.email})
     if searched_user:
-        is_updated = update_user_state({'hashed_password': user_deps.get_hash_password(
-            user.new_password)}, searched_user['_id'])
+        is_updated = update_user_state({
+            'hashed_password': user_deps.get_hash_password(user.new_password)},
+            searched_user['_id'])
         if is_updated:
-            return responses.response_model({'passwordChanged':True}, "password updated")
-        return responses.error_response_model("Password can´t be updated", 404, "Error")
+            return responses.response_model({'passwordChanged':True}, 
+            "password updated")
+        return responses.error_response_model("Password can´t be updated", 
+        404, "Error")
     return responses.error_response_model("User not found", 404, "Error")
 
 
 def retrieve_security_questions(user: dict) -> dict:
 
-    is_user = retrieve_user({'email': user.email})
-
-    if is_user:
-        security_questions = {
-            'security_questions': is_user['security_questions']['questions']}
-        if security_questions:
-            return responses.response_model(security_questions, "success")
-        return responses.error_response_model("Invalid operation", 404, "Error")
+    searched_user = retrieve_user({"email": user.email})
+    if searched_user:
+        if "security_questions" in searched_user:
+            return responses.response_model(
+                {"securityQuestions": searched_user["security_questions"]["questions"],
+                'email': searched_user['email']},
+                "success")
+        return responses.error_response_model("User has no security questions", 404, "Error")
     return responses.error_response_model("Invalid user", 404, "user doesn´t exists")
 
 
 def validate_security_questions(user: dict) -> dict:
 
-    is_user = retrieve_user({'email': user.email})
-
-    if is_user:
-        security_answers = {
-            'answers': is_user['security_questions']['answers']
-        }
-        if user.answers == security_answers['answers']:
-            url_path = qr_deps.generate_url_qr(is_user['key_qr'], user)
-            return responses.response_model({
-                'email': is_user['email'],
+    searched_user = retrieve_user({'email': user.email})
+    if searched_user:
+        if user.answers == searched_user['security_questions']['answers']:
+            url_path = qr_deps.generate_url_qr(searched_user['key_qr'], user)
+            return responses.response_model(
+                {'email': searched_user['email'],
                 'urlPath': url_path,
-                'keyQr': is_user['key_qr']
-            },
+                'keyQr': searched_user['key_qr']},
                 "successful"
             )
-        return responses.error_response_model("authentication error", 404, "please try again")
-    return responses.error_response_model("user doesn't exist", 404, "Error")
+        return responses.error_response_model("Invalid answers. please try again", 404, "Error")
+    return responses.error_response_model("User doesn't exist", 404, "Error")

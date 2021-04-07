@@ -127,7 +127,7 @@ async def qr_recovery_vinculation(user: user.user_email):
     return retrieve_security_questions(user)
 
 
-@router_of_authentication.post("/vaditateAnswers")
+@router_of_authentication.post("/validateAnswers")
 async def validate_security_answers(user: user.enter_responses):
 
     return validate_security_questions(user)

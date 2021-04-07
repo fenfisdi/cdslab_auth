@@ -1,4 +1,4 @@
-from dotenv import load_dotenv, dotenv_values
+from dotenv import dotenv_values
 
 settings = dotenv_values(".env")
 secrets = dotenv_values(".secrets")

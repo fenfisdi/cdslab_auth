@@ -2,7 +2,6 @@ from bson.objectid import ObjectId
 
 from source.db import get_db_connection
 
-
 user_db = get_db_connection().get_collection('user')
 
 
@@ -66,7 +65,7 @@ class UserInterface:
             True:
                 If the user has valid data and its status can be updated
         """
-        if len(data) < 1:
+        if not bool(data):
             return False
         user = user_db.find_one({"_id": ObjectId(user_id)})
         if user:
@@ -75,5 +74,4 @@ class UserInterface:
             )
             if updated_user:
                 return True
-            return False
         return False

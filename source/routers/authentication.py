@@ -1,15 +1,15 @@
-# TODO: Add HTTPExceptions
-
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, status
 
 from source.dependencies.qr_deps import validate_qr
-from source.dependencies.responses import response_model, error_response_model
+from source.dependencies.responses import set_json_response
 from source.dependencies.token_deps import generate_token_jwt
 from source.dependencies.user_deps import verify_password
-from source.models.user import PreAuthenticatedUser, AuthenticatedUser
 from source.interfaces.user_interface import UserInterface
+from source.models.user import PreAuthenticatedUser, AuthenticatedUser
+from source.utils import LoginMessage, UserMessage
+
 
 router_of_authentication = APIRouter()
 
@@ -49,15 +49,28 @@ async def login_auth(pre_authenticated_user: PreAuthenticatedUser):
         is_equal = verify_password(pre_authenticated_user.password,
                                    retrieved_user["hashed_password"])
         if is_equal:
-            return response_model({"key_qr": retrieved_user["key_qr"],
-                                   "email": retrieved_user["email"]},
-                                  "Successful")
+            data = {
+                "key_qr": retrieved_user.get("key_qr"),
+                "email": retrieved_user.get("email"),
+            }
+            return set_json_response(
+                LoginMessage.logged,
+                status.HTTP_200_OK,
+                data
+            )
 
-        return error_response_model("Invalid Username or Password", status.HTTP_404_NOT_FOUND, "Error")
-    return error_response_model("User doesn't exist", status.HTTP_404_NOT_FOUND, "Error")
+        return set_json_response(
+            LoginMessage.invalid_user,
+            status.HTTP_404_NOT_FOUND
+        )
+    return set_json_response(
+        UserMessage.not_found,
+        status.HTTP_404_NOT_FOUND
+    )
 
 
-@router_of_authentication.post("/qrAuthentication")
+@router_of_authentication.post("/qrAuthentication",
+                               status_code=status.HTTP_200_OK)
 async def qr_auth(authenticated_user: AuthenticatedUser):
     """
         Validate if qr and the user input match the 2FA and
@@ -84,9 +97,14 @@ async def qr_auth(authenticated_user: AuthenticatedUser):
         - **HTTPException**:
             If key_qr does't match the expected value
     """
-    is_valid = validate_qr({"email": authenticated_user.email}, authenticated_user.qr_value)
+    is_valid = validate_qr(
+        {"email": authenticated_user.email},
+        authenticated_user.qr_value
+    )
+
     if is_valid:
-        retrieved_user = UserInterface.retrieve_user(email=authenticated_user.email)
+        retrieved_user = UserInterface.retrieve_user(
+            email=authenticated_user.email)
         payload = {
             "expires": str(datetime.utcnow() + timedelta(hours=24)),
             "id": str(retrieved_user["_id"]),
@@ -96,6 +114,16 @@ async def qr_auth(authenticated_user: AuthenticatedUser):
 
         token = generate_token_jwt(payload)
         if token:
-            return response_model({'data': token}, "Successful")
-        return error_response_model("Error while generating token", status.HTTP_404_NOT_FOUND, "Error")
-    return error_response_model("Invalid QR validation", status.HTTP_404_NOT_FOUND, "Error")
+            return set_json_response(
+                LoginMessage.logged,
+                status.HTTP_200_OK,
+                dict(token=token)
+            )
+        return set_json_response(
+            LoginMessage.token_error,
+            status.HTTP_404_NOT_FOUND
+        )
+    return set_json_response(
+        LoginMessage.invalid_qr,
+        status.HTTP_404_NOT_FOUND
+    )

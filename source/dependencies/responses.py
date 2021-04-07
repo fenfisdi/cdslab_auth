@@ -1,45 +1,31 @@
-from fastapi import HTTPException
+from starlette.responses import JSONResponse
 
 
-def response_model(data: dict, message: str) -> dict:
+def set_json_response(
+        message: str,
+        code: int = 200,
+        data: dict = None
+) -> JSONResponse:
     """
         Endpoint response for every successful request
 
         Parameters
         ----------
+        message: str
+            Customized reply
+        code: int
+            Customized reply
         data: dict
             Dictionary containing a successful response
-        message: str
-            Customized reply
+
 
         Returns
         ----------
         Dictionary containing data, a message and a code response
     """
-
-    return {"data": data,
-            "code": 200,
-            "message": message}
-
-
-def error_response_model(message, code, error):
-    """
-        Endpoint response for every failed request
-
-        Parameters
-        ----------
-        data: dict
-            Dictionary containing a failed response
-        code: int
-            Status code associated with the response
-        message: str
-            Customized reply
-
-        Returns
-        ----------
-        Dictionary containing data, a message and a code response
-    """
-    raise HTTPException(status_code=code,
-                        detail=({"error": error,
-                                 "code": code,
-                                 "message": message, }))
+    body = dict(
+        message=message,
+        code=code,
+        data=data,
+    )
+    return JSONResponse(body, code)

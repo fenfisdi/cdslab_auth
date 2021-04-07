@@ -1,9 +1,7 @@
 import pyotp
-import jsoncfg
 
-from source.models.user import BaseUser
 from source.interfaces.user_interface import UserInterface
-from source.config import qr_config
+from source.models.user import BaseUser
 
 
 def generate_key_qr() -> str:
@@ -75,9 +73,6 @@ def validate_qr(query: dict, qr_value: str):
     retrieved_user = UserInterface.retrieve_user(query)
     if retrieved_user:
         key_qr_value = get_value_key_qr(retrieved_user["key_qr"])
-        if key_qr_value:
-            if str(key_qr_value) == str(qr_value):
-                return True
-            return False
-        return False
+        if key_qr_value and (str(key_qr_value) == str(qr_value)):
+            return True
     return False

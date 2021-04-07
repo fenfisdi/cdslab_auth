@@ -3,18 +3,17 @@ from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-import jsoncfg
-from dotenv import dotenv_values
 from passlib.context import CryptContext
 
+from source.config import email_config, settings, secrets
 from source.dependencies.qr_deps import generate_key_qr
 from source.dependencies.token_deps import generate_token_jwt
 from source.models.user import User, StoredUser
-from source.config import email_config, settings, secrets
 
-
-context = CryptContext(schemes=[secrets.get("CRYPTOCONTEXT_SCHEM")],
-                       deprecated=secrets.get("CRYPTOCONTEXT_DEPRECATED"))
+context = CryptContext(
+    schemes=[secrets.get("CRYPTOCONTEXT_SCHEM")],
+    deprecated=secrets.get("CRYPTOCONTEXT_DEPRECATED")
+)
 
 
 def send_email(email: str) -> str:
@@ -38,14 +37,14 @@ def send_email(email: str) -> str:
 
     msg = MIMEMultipart()
 
-    message = email_config.get("message")
-    password = email_config.get("password")
-    msg["From"] = email_config.get("from_email")
+    message = email_config.get("MESSAGE")
+    password = email_config.get("PASSWORD")
+    msg["From"] = email_config.get("FROM_EMAIL")
     msg["To"] = email
-    msg["Subject"] = email_config.get("subject")
-    msg.attach(MIMEText(email_config.get("logo"), "html"))
+    msg["Subject"] = email_config.get("SUBJECT")
+    msg.attach(MIMEText(email_config.get("LOGO"), "html"))
 
-    fp = open(email_config.get("logo_path"), "rb")
+    fp = open(email_config.get("LOGO_PATH"), "rb")
     msg_img = MIMEImage(fp.read())
     fp.close()
 
@@ -54,7 +53,7 @@ def send_email(email: str) -> str:
     msg.attach(MIMEText(message, "html"))
     msg.attach(MIMEText(applicant_link, "html"))
 
-    server = smtplib.SMTP(email_config.get("server"))
+    server = smtplib.SMTP(email_config.get("SERVER"))
     server.starttls()
     server.login(msg["From"], password)
     server.sendmail(msg["From"], msg["To"], msg.as_string())

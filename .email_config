@@ -1,8 +1,0 @@
-message="<center><br><b>This is your register link!!</b></br></center>"
-logo="<b>Welcome to CDSLAB!!</b><br><img src='cid:image1'<br>"
-logo_path="assets/images/cdslab_auth_logo.jpeg"
-password="YOUR_EMAIL_PASSWORD"
-from_email="YOUR_EMAIL_ADRESS"
-subject="THE_EMAIL_SUBJECT"
-server="smtp.gmail.com: 587"
-response="RESPONSE_API_AFTER_SEND_EMAIL"

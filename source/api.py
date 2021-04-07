@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 from source.config import settings
-from source.db import get_db_connection
 from source.routers.authentication import router_of_authentication
 from source.routers.register import router_of_registry
 

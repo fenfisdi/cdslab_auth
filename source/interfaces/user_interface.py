@@ -1,11 +1,9 @@
-import jsoncfg
-
 from bson.objectid import ObjectId
-from source.db.mongo import db
 
-db_config = jsoncfg.load_config('db_config.cfg')
+from source.db import get_db_connection
 
-users = db['user']
+
+user_db = get_db_connection().get_collection('user')
 
 
 class UserInterface:
@@ -25,7 +23,7 @@ class UserInterface:
             user: pymongo object
                 Object containing the results of the search
         """
-        return users.find_one(*args, **kwargs)
+        return user_db.find_one(kwargs)
 
     @staticmethod
     def insert_user(data: dict):
@@ -42,8 +40,7 @@ class UserInterface:
             new_user: dict
                 Codified information to add to the database
         """
-        user = users.insert_one(data)
-        return users.find_one({"_id": user.inserted_id})
+        return user_db.find_one({"_id": user_db.inserted_id})
 
     @staticmethod
     def update_user_state(data: dict, user_id: str):
@@ -71,9 +68,9 @@ class UserInterface:
         """
         if len(data) < 1:
             return False
-        user = users.find_one({"_id": ObjectId(user_id)})
+        user = user_db.find_one({"_id": ObjectId(user_id)})
         if user:
-            updated_user = users.update_one(
+            updated_user = user.update_one(
                 {"_id": ObjectId(user_id)}, {"$set": data}
             )
             if updated_user:

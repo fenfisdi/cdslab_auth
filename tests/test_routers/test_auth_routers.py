@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 from dotenv import dotenv_values
-from operations.user_operations import *
+from interfaces.user_interface import *
 from dependencies.qr_deps import *
 from main import app
 from db_connection import users

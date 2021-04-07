@@ -4,6 +4,7 @@ __pycache__
 
 # Virtual environment - venv
 venv_cdslab_auth
+.venv
 
 # Virtual environment - pyenv
 .python-version
@@ -12,10 +13,9 @@ venv_cdslab_auth
 .env
 
 # configuration settings
-db_config.cfg
-send_email.cfg
-config.cfg
-qr.cfg
+.db_config
+.email_config
+.qr_config
 
 
 # Secrets
@@ -30,6 +30,7 @@ templates
 # Notebook Checkpoints
 .ipynb_checkpoints
 .vscode
+.idea
 
 # Byte-compiled / optimized / DLL files
 _pycache_/

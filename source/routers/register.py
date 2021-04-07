@@ -1,17 +1,18 @@
 from fastapi import APIRouter, status
 
-from dependencies.token_deps import validate_email_access_token
-from models.user import User, AuthenticatedUser
-
-from use_cases.user_cases import (save_user_in_db,
-                                  activate_user,
-                                  validate_qr_registration)
+from source.dependencies.qr_deps import generate_url_qr, validate_qr
+from source.dependencies.responses import set_json_response
+from source.dependencies.token_deps import validate_email_access_token
+from source.dependencies.user_deps import send_email, transform_props_to_user
+from source.interfaces.user_interface import UserInterface
+from source.models.user import User, AuthenticatedUser
+from source.utils import UserMessage, LoginMessage
 
 router_of_registry = APIRouter()
 
 
 @router_of_registry.post("/save_user", status_code=status.HTTP_201_CREATED)
-async def save_user(user: User) -> dict:
+async def save_user(user: User):
     """
         Validates user data by verifying if that the user doesn't exist in the
         database and creates the model to be added to the user collection
@@ -51,29 +52,28 @@ async def save_user(user: User) -> dict:
         - **ValueError**:
             If the verified password doesn't match
     """
-    if  retrieve_user({'email': user.email}):
-        return responses.error_response_model('User already exists', 409, 'Error')
+    if UserInterface.retrieve_user(email=user.email):
+        return set_json_response(UserMessage.exist, status.HTTP_400_BAD_REQUEST)
 
     else:
         #TODO: RENAME ME, PLS
-        user_in_db = user_deps.transform_props_to_user(user)
-        inserted_user = insert_user(user_in_db.dict())
+        user_in_db = transform_props_to_user(user)
+        inserted_user = UserInterface.insert_user(user_in_db.dict())
 
         if inserted_user:
-            url_path = qr_deps.generate_url_qr(user_in_db.key_qr, user)
-            return { 'email':user_in_db.email,
-                     'url_path': url_path,
-                     'key_qr': user_in_db.key_qr }
+            url_path = generate_url_qr(user_in_db.key_qr, user)
+            data = {
+                'email': user_in_db.email,
+                'url_path': url_path,
+                'key_qr': user_in_db.key_qr
+            }
+            return set_json_response(UserMessage.created, status.HTTP_201_CREATED, data)
         else:
-            return responses.error_response_model(
-                    'Error while creating user',
-                    500,
-                    'Error'
-                    )
+            return set_json_response(UserMessage.invalid, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
-@router_of_registry.post("/qr_validation")
-async def qr_validation(authenticated_user: AuthenticatedUser) -> dict:
+@router_of_registry.post("/qr_validation", status_code=status.HTTP_200_OK)
+async def qr_validation(authenticated_user: AuthenticatedUser):
     """
         Validate the code given by Google Authenticator
 
@@ -99,18 +99,23 @@ async def qr_validation(authenticated_user: AuthenticatedUser) -> dict:
         - **ValueError**:
             If email is not valid
     """
-    return validate_qr_registration(user.email, user.qr_value)
+    is_validate = validate_qr({"email": authenticated_user.email}, authenticated_user.qr_value)
+
+    if is_validate:
+        send_email(authenticated_user.email)
+        return set_json_response(LoginMessage.validate_email, status.HTTP_400_BAD_REQUEST)
+    return set_json_response(LoginMessage.invalid_qr, status.HTTP_404_NOT_FOUND)
 
 
-@router_of_registry.get("/{token_email}")
-async def read_email(token_email):
+@router_of_registry.get("/{tokenized_email}", status_code=status.HTTP_200_OK)
+async def read_email(tokenized_email):
     """
         Read the tokenized email, check if it is inside the database
         and update user's status to active
 
         Parameters
         ----------
-        - **token_email**: str
+        - **tokenized_email**: str
             String containing a tokenized version of the user's email
 
         Returns
@@ -128,5 +133,15 @@ async def read_email(token_email):
         - **HTTPException**:
             If user's email cannot be found
     """
-    untokenized_email = validate_access_token_email(token_email)
-    return activate_user(untokenized_email)
+    is_valid, email = validate_email_access_token(tokenized_email)
+    if not is_valid:
+        return set_json_response(LoginMessage.invalid_token, status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+    user_email = UserInterface.retrieve_user(email=email)
+
+    if user_email:
+        is_updated = UserInterface.update_user_state({'is_active': True}, user_email['_id'])
+        if is_updated:
+            return set_json_response(UserMessage.verified, status.HTTP_200_OK, is_updated)
+        return set_json_response("error to activate account", status.HTTP_404_NOT_FOUND)
+    return set_json_response("user not found", status.HTTP_404_NOT_FOUND)

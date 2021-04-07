@@ -1,22 +1,20 @@
 import smtplib
-import jsoncfg
-
+from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
+
 from passlib.context import CryptContext
-from dotenv import dotenv_values
 
-from models.user import User, StoredUser
-from dependencies.qr_deps import generate_key_qr
-from dependencies.token_deps import generate_token_jwt
+from source.config import email_config, settings, secrets
+from source.dependencies.qr_deps import generate_key_qr
+from source.dependencies.token_deps import generate_token_jwt
+from source.models.user import User, StoredUser
 
-send_registration_email = jsoncfg.load_config("send_email.cfg")
-secrets = dotenv_values(".secrets")
-settings = dotenv_values(".env")
+context = CryptContext(
+    schemes=[secrets.get("CRYPTOCONTEXT_SCHEM")],
+    deprecated=secrets.get("CRYPTOCONTEXT_DEPRECATED")
+)
 
-context = CryptContext(schemes=[secrets["CRYPTOCONTEXT_SCHEM"]],
-                       deprecated=secrets["CRYPTOCONTEXT_DEPRECATED"])
 
 def send_email(email: str) -> str:
     """
@@ -39,14 +37,14 @@ def send_email(email: str) -> str:
 
     msg = MIMEMultipart()
 
-    message = send_registration_email.message()
-    password = send_registration_email.password()
-    msg["From"] = send_registration_email.from_email()
+    message = email_config.get("MESSAGE")
+    password = email_config.get("PASSWORD")
+    msg["From"] = email_config.get("FROM_EMAIL")
     msg["To"] = email
-    msg["Subject"] = send_registration_email.subject()
-    msg.attach(MIMEText(send_registration_email.logo(), "html"))
+    msg["Subject"] = email_config.get("SUBJECT")
+    msg.attach(MIMEText(email_config.get("LOGO"), "html"))
 
-    fp = open(send_registration_email.logo_path(), "rb")
+    fp = open(email_config.get("LOGO_PATH"), "rb")
     msg_img = MIMEImage(fp.read())
     fp.close()
 
@@ -55,14 +53,14 @@ def send_email(email: str) -> str:
     msg.attach(MIMEText(message, "html"))
     msg.attach(MIMEText(applicant_link, "html"))
 
-    server = smtplib.SMTP(send_registration_email.server())
+    server = smtplib.SMTP(email_config.get("SERVER"))
     server.starttls()
     server.login(msg["From"], password)
     server.sendmail(msg["From"], msg["To"], msg.as_string())
     server.quit()
 
 
-def get_hash_password(password: User) -> str:
+def get_hash_password(password: str) -> str:
     """
         Take the user password and hash it
 
@@ -104,7 +102,7 @@ def transform_props_to_user(user: User):
 
         Parameters
         ----------
-        User: Pydantic class
+        user: Pydantic class
             Inherits the properties of User
 
         Return

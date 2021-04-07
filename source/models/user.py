@@ -1,14 +1,13 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr, validator, Field, constr
-from dotenv import dotenv_values
 
+from dotenv import dotenv_values
 from phonenumbers import (
     NumberParseException, PhoneNumberFormat, PhoneNumberType,
     format_number, is_valid_number, number_type,
     parse as parse_phone_number
-    )
-
+)
+from pydantic import BaseModel, EmailStr, validator, Field, constr
 
 MOBILE_NUMBER_TYPES = \
     PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBILE

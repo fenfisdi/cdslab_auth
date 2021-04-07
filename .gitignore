@@ -12,10 +12,9 @@ venv_cdslab_auth
 .env
 
 # configuration settings
-db_config.cfg
-send_email.cfg
-config.cfg
-qr.cfg
+.db_config
+.email_configs
+.qr_config
 
 
 # Secrets

@@ -7,16 +7,14 @@ import jsoncfg
 from dotenv import dotenv_values
 from passlib.context import CryptContext
 
-from dependencies.qr_deps import generate_key_qr
-from dependencies.token_deps import generate_token_jwt
-from models.user import User, StoredUser
+from source.dependencies.qr_deps import generate_key_qr
+from source.dependencies.token_deps import generate_token_jwt
+from source.models.user import User, StoredUser
+from source.config import email_config, settings, secrets
 
-send_registration_email = jsoncfg.load_config("send_email.cfg")
-secrets = dotenv_values(".secrets")
-settings = dotenv_values(".env")
 
-context = CryptContext(schemes=[secrets["CRYPTOCONTEXT_SCHEM"]],
-                       deprecated=secrets["CRYPTOCONTEXT_DEPRECATED"])
+context = CryptContext(schemes=[secrets.get("CRYPTOCONTEXT_SCHEM")],
+                       deprecated=secrets.get("CRYPTOCONTEXT_DEPRECATED"))
 
 
 def send_email(email: str) -> str:
@@ -40,14 +38,14 @@ def send_email(email: str) -> str:
 
     msg = MIMEMultipart()
 
-    message = send_registration_email.message()
-    password = send_registration_email.password()
-    msg["From"] = send_registration_email.from_email()
+    message = email_config.get("message")
+    password = email_config.get("password")
+    msg["From"] = email_config.get("from_email")
     msg["To"] = email
-    msg["Subject"] = send_registration_email.subject()
-    msg.attach(MIMEText(send_registration_email.logo(), "html"))
+    msg["Subject"] = email_config.get("subject")
+    msg.attach(MIMEText(email_config.get("logo"), "html"))
 
-    fp = open(send_registration_email.logo_path(), "rb")
+    fp = open(email_config.get("logo_path"), "rb")
     msg_img = MIMEImage(fp.read())
     fp.close()
 
@@ -56,7 +54,7 @@ def send_email(email: str) -> str:
     msg.attach(MIMEText(message, "html"))
     msg.attach(MIMEText(applicant_link, "html"))
 
-    server = smtplib.SMTP(send_registration_email.server())
+    server = smtplib.SMTP(email_config.get("server"))
     server.starttls()
     server.login(msg["From"], password)
     server.sendmail(msg["From"], msg["To"], msg.as_string())

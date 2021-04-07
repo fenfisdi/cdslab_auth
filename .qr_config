@@ -1,0 +1,5 @@
+qr_path=assets/images/QR/
+fill_color=black
+back_color=white
+color_composition=RGB
+qr_type=.jpg

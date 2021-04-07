@@ -17,9 +17,9 @@ def response_model(data: dict, message: str) -> dict:
         Dictionary containing data, a message and a code response
     """
 
-    return { "data": data,
-             "code": 200,
-             "message": message }
+    return {"data": data,
+            "code": 200,
+            "message": message}
 
 
 def error_response_model(message, code, error):
@@ -39,7 +39,7 @@ def error_response_model(message, code, error):
         ----------
         Dictionary containing data, a message and a code response
     """
-    raise HTTPException(status_code=code, 
-                        detail=({ "error": error,
-                                  "code": code,
-                                  "message": message,}))
+    raise HTTPException(status_code=code,
+                        detail=({"error": error,
+                                 "code": code,
+                                 "message": message, }))

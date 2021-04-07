@@ -1,11 +1,11 @@
 from fastapi import APIRouter, status
 
-from dependencies.qr_deps import generate_url_qr, validate_qr
-from dependencies.responses import error_response_model, response_model
-from dependencies.token_deps import validate_email_access_token
-from dependencies.user_deps import send_email, transform_props_to_user
-from models.user import User, AuthenticatedUser
-from interfaces.user_interface import UserInterface
+from source.dependencies.qr_deps import generate_url_qr, validate_qr
+from source.dependencies.responses import error_response_model, response_model
+from source.dependencies.token_deps import validate_email_access_token
+from source.dependencies.user_deps import send_email, transform_props_to_user
+from source.models.user import User, AuthenticatedUser
+from source.interfaces.user_interface import UserInterface
 
 router_of_registry = APIRouter()
 
@@ -105,7 +105,7 @@ async def qr_validation(authenticated_user: AuthenticatedUser) -> dict:
         send_email(authenticated_user.email)
         # TODO: Check Data Response
         return "Check your email to finish the registration process"
-    return error_response_model("authorization failure", 404, "Error")
+    return error_response_model("authorization failure", status.HTTP_404_NOT_FOUND, "Error")
 
 
 @router_of_registry.get("/{token_email}")
@@ -142,5 +142,5 @@ async def read_email(token_email):
         is_updated = UserInterface.update_user_state({'is_active': True}, user_email['_id'])
         if is_updated:
             return response_model({'data': is_updated}, "successful")
-        return error_response_model("error to activate account", 404, "Error")
-    return error_response_model("user not found", 404, "Error")
+        return error_response_model("error to activate account", status.HTTP_404_NOT_FOUND, "Error")
+    return error_response_model("user not found", status.HTTP_404_NOT_FOUND, "Error")

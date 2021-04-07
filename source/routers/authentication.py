@@ -2,19 +2,19 @@
 
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter
+from fastapi import APIRouter, status
 
-from dependencies.qr_deps import validate_qr
-from dependencies.responses import response_model, error_response_model
-from dependencies.token_deps import generate_token_jwt
-from dependencies.user_deps import verify_password
-from models.user import PreAuthenticatedUser, AuthenticatedUser
-from interfaces.user_interface import UserInterface
+from source.dependencies.qr_deps import validate_qr
+from source.dependencies.responses import response_model, error_response_model
+from source.dependencies.token_deps import generate_token_jwt
+from source.dependencies.user_deps import verify_password
+from source.models.user import PreAuthenticatedUser, AuthenticatedUser
+from source.interfaces.user_interface import UserInterface
 
 router_of_authentication = APIRouter()
 
 
-@router_of_authentication.post("/loginAuthentication")
+@router_of_authentication.post("/loginAuthentication", status_code=status.HTTP_200_OK)
 async def login_auth(pre_authenticated_user: PreAuthenticatedUser):
     """
         Validate user information at login time
@@ -53,8 +53,8 @@ async def login_auth(pre_authenticated_user: PreAuthenticatedUser):
                                    "email": retrieved_user["email"]},
                                   "Successful")
 
-        return error_response_model("Invalid Username or Password", 404, "Error")
-    return error_response_model("User doesn't exist", 404, "Error")
+        return error_response_model("Invalid Username or Password", status.HTTP_404_NOT_FOUND, "Error")
+    return error_response_model("User doesn't exist", status.HTTP_404_NOT_FOUND, "Error")
 
 
 @router_of_authentication.post("/qrAuthentication")
@@ -97,5 +97,5 @@ async def qr_auth(authenticated_user: AuthenticatedUser):
         token = generate_token_jwt(payload)
         if token:
             return response_model({'data': token}, "Successful")
-        return error_response_model("Error while generating token", 404, "Error")
-    return error_response_model("Invalid QR validation", 404, "Error")
+        return error_response_model("Error while generating token", status.HTTP_404_NOT_FOUND, "Error")
+    return error_response_model("Invalid QR validation", status.HTTP_404_NOT_FOUND, "Error")

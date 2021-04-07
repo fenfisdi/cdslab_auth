@@ -1,11 +1,11 @@
 import jsoncfg
 
 from bson.objectid import ObjectId
-from db_connection import db
+from source.db.mongo import db
 
 db_config = jsoncfg.load_config('db_config.cfg')
 
-users = db[db_config.collection.users()]
+users = db['user']
 
 
 class UserInterface:

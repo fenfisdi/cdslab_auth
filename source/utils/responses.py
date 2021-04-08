@@ -16,6 +16,6 @@ class LoginMessage:
     invalid_user: str = "Invalid Username or Password"
     invalid_qr: str = "Invalid QR code"
     invalid_token: str = "Invalid token"
-    logged: str = "User logged"
+    logged: str = "User logged in"
     token_error: str = "Can not create token"
     validate_email: str = "Check your email to finish the registration process"

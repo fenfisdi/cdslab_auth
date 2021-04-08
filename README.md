@@ -1,6 +1,4 @@
----
 # CDSLab Auth
----
 
 This API constitutes the authentication module used in CDSLab.
 
@@ -129,7 +127,7 @@ be possible.
 #### Database configuration file
 
 Connection to the database is done by configuring the parameters inside the file
-`db_config.cfg`, an example file called `db_config_example.cfg`, rename it and
+`.db_config`, an example file called `.db_config_example`, rename it and
 add the necessary data, this file includes fields such as `host` and `port`
 which are *necessary* for MongoDB to function. Inside this configuration you can
 also modify the collections used if needed.
@@ -137,8 +135,8 @@ also modify the collections used if needed.
 #### Email configuration file
 
 Every time a user gets created, a confirmation emails needs to be issued, in
-order to do so, a file called `send_email.cfg` is needed, an example file called
-`send_email_example.cfg` is included inside the repo, modify the fields
+order to do so, a file called `.email_config` is needed, an example file called
+`.email_config_example` is included inside the repo, modify the fields
 accordingly.
 
 #### Environment configuration

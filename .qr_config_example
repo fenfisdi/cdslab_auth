@@ -1,0 +1,28 @@
+### --------------------------------------- ###
+# This file configures the qr code generation #
+### --------------------------------------- ###
+
+# ===================
+# QR_PATH -> location where the QR code is located
+#
+# FILL_COLOR -> color used to generate the QR, black
+#   is conventional, but other colors can be used
+#   without generating problems
+#
+# BACK_COLOR -> color used as the background when
+#   generating the QR code
+#
+# COLOR_COMPOSITION -> type of color scheme used in
+#   the generation of the QR, others HSL or HSV can
+#   also be used, but we recommend RGB.
+#
+# QR_TYPE -> image format used to generate the QR
+#   code, the library supports other filetypes,
+#   but it is a convention to use *.jpg or *.png.
+# ===================
+
+QR_PATH=assets/images/QR/
+FILL_COLOR=black
+BACK_COLOR=white
+COLOR_COMPOSITION=RGB
+QR_TYPE=.jpg

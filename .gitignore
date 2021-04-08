@@ -17,7 +17,6 @@ venv_cdslab_auth
 .email_config
 .qr_config
 
-
 # Secrets
 .secrets
 

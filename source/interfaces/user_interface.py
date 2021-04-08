@@ -2,7 +2,9 @@ from bson.objectid import ObjectId
 
 from source.db import get_db_connection
 
-user_db = get_db_connection().get_collection('user')
+
+def user_db():
+    return get_db_connection().get_collection('user')
 
 
 class UserInterface:
@@ -22,7 +24,7 @@ class UserInterface:
             user: pymongo object
                 Object containing the results of the search
         """
-        return user_db.find_one(kwargs)
+        return user_db().find_one(kwargs)
 
     @staticmethod
     def insert_user(data: dict):
@@ -39,7 +41,7 @@ class UserInterface:
             new_user: dict
                 Codified information to add to the database
         """
-        return user_db.find_one({"_id": user_db.inserted_id})
+        return user_db().insert_one(data)
 
     @staticmethod
     def update_user_state(data: dict, user_id: str):
@@ -67,9 +69,9 @@ class UserInterface:
         """
         if not bool(data):
             return False
-        user = user_db.find_one({"_id": ObjectId(user_id)})
+        user = user_db().find_one({"_id": ObjectId(user_id)})
         if user:
-            updated_user = user.update_one(
+            updated_user = user_db().update_one(
                 {"_id": ObjectId(user_id)}, {"$set": data}
             )
             if updated_user:

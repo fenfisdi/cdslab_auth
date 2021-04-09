@@ -2,20 +2,18 @@ from datetime import datetime, timedelta
 
 from fastapi import APIRouter, status
 
-from source.dependencies.qr_deps import validate_qr
-from source.dependencies.responses import set_json_response
-from source.dependencies.token_deps import generate_token_jwt
-from source.dependencies.user_deps import verify_password
-from source.interfaces.user_interface import UserInterface
-from source.models.user import PreAuthenticatedUser, AuthenticatedUser
-from source.utils import LoginMessage, UserMessage
-
+from src.interfaces.user_interface import UserInterface
+from src.models.user import PreAuthenticatedUser, AuthenticatedUser
+from src.use_cases.qr_deps import validate_qr
+from src.use_cases.token_deps import generate_token_jwt
+from src.use_cases.user_deps import verify_password
+from src.utils import LoginMessage, UserMessage
+from src.utils.response import set_json_response
 
 router_of_authentication = APIRouter()
 
 
-@router_of_authentication.post("/loginAuthentication",
-                               status_code=status.HTTP_200_OK)
+@router_of_authentication.post("/loginAuthentication", status_code=status.HTTP_200_OK)
 async def login_auth(pre_authenticated_user: PreAuthenticatedUser):
     """
         Validate user information at login time

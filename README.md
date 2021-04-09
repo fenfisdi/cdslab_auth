@@ -66,7 +66,7 @@ that we need to activate it so that the prompt has access to it whenever needed.
 This gets done by executing:
 
 ```shell
-source venv_cdslab_auth/bin/activate
+src venv_cdslab_auth/bin/activate
 ```
 
 on Linux/Mac, or

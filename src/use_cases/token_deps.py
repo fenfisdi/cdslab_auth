@@ -1,7 +1,8 @@
 from typing import Tuple, Union
 
 from jose import jwt, JWTError
-from source.config import secrets
+
+from src.config import secrets
 
 
 def validate_email_access_token(token: str) -> Tuple[bool, Union[dict, None]]:
@@ -21,8 +22,8 @@ def validate_email_access_token(token: str) -> Tuple[bool, Union[dict, None]]:
     try:
         decoded_email = jwt.decode(
             token,
-            secrets['SECRET_KEY'],
-            algorithms=secrets['ALGORITHM']
+            secrets.get("SECRET_KEY"),
+            algorithms=secrets.get("ALGORITHM")
         )
         if decoded_email.get('email') is None:
             return False, None
@@ -31,7 +32,7 @@ def validate_email_access_token(token: str) -> Tuple[bool, Union[dict, None]]:
         return False, None
 
 
-def generate_token_jwt(payload: dict):
+def generate_token_jwt(payload: dict) -> dict:
     """
         Generate token and respective payload
 
@@ -47,7 +48,7 @@ def generate_token_jwt(payload: dict):
     """
     token = jwt.encode(
         payload,
-        secrets["SECRET_KEY"],
-        algorithm=secrets["ALGORITHM"]
+        secrets.get("SECRET_KEY"),
+        algorithm=secrets.get("ALGORITHM")
     )
     return {"access_token": token}

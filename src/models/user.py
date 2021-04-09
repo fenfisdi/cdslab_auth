@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Optional
 
-from dotenv import dotenv_values
 from phonenumbers import (
     NumberParseException, PhoneNumberFormat, PhoneNumberType,
     format_number, is_valid_number, number_type,
@@ -9,10 +8,10 @@ from phonenumbers import (
 )
 from pydantic import BaseModel, EmailStr, validator, Field, constr
 
+from src.config import settings
+
 MOBILE_NUMBER_TYPES = \
     PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBILE
-
-settings = dotenv_values(".env")
 
 
 class BaseUser(BaseModel):

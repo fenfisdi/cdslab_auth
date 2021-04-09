@@ -1,12 +1,12 @@
 from fastapi import APIRouter, status
 
-from src.dependencies.qr_deps import generate_url_qr, validate_qr
-from src.dependencies.responses import set_json_response
-from src.dependencies.token_deps import validate_email_access_token
-from src.dependencies.user_deps import send_email, transform_props_to_user
 from src.interfaces.user_interface import UserInterface
 from src.models.user import User, AuthenticatedUser
+from src.use_cases.qr_deps import generate_url_qr, validate_qr
+from src.use_cases.token_deps import validate_email_access_token
+from src.use_cases.user_deps import send_email, transform_props_to_user
 from src.utils import UserMessage, LoginMessage
+from src.utils.response import set_json_response
 
 router_of_registry = APIRouter()
 

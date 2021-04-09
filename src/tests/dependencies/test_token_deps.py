@@ -1,14 +1,14 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock
 
-from src.dependencies.token_deps import (
+from src.use_cases.token_deps import (
     generate_token_jwt,
     validate_email_access_token
 )
 
 
 def solve_path(path: str):
-    source = 'src.dependencies.token_deps'
+    source = 'src.use_cases.token_deps'
     return ".".join([source, path])
 
 

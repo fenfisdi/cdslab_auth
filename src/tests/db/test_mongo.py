@@ -4,11 +4,11 @@ from unittest.mock import patch, Mock
 from mongomock import patch as db_patch
 from pymongo.database import Database
 
-from source.db.mongo import get_db_connection
+from src.db.mongo import get_db_connection
 
 
 def solve_path(path: str):
-    source = 'source.db.mongo'
+    source = 'src.db.mongo'
     return ".".join([source, path])
 
 

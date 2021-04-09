@@ -1,7 +1,7 @@
 import pyotp
 
-from source.interfaces.user_interface import UserInterface
-from source.models.user import BaseUser
+from src.interfaces.user_interface import UserInterface
+from src.models.user import BaseUser
 
 
 def generate_key_qr() -> str:

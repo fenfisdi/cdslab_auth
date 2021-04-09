@@ -2,7 +2,7 @@ from typing import Tuple, Union
 
 from jose import jwt, JWTError
 
-from source.config import secrets
+from src.config import secrets
 
 
 def validate_email_access_token(token: str) -> Tuple[bool, Union[dict, None]]:

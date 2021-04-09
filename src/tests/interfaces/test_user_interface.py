@@ -5,11 +5,11 @@ import pymongo
 from mongomock import patch as db_path, ObjectId
 from pymongo.results import InsertOneResult
 
-from source.interfaces.user_interface import UserInterface
+from src.interfaces.user_interface import UserInterface
 
 
 def solve_path(path: str):
-    source = 'source.interfaces.user_interface'
+    source = 'src.interfaces.user_interface'
     return ".".join([source, path])
 
 

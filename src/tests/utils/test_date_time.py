@@ -2,11 +2,11 @@ from datetime import datetime
 from unittest import TestCase
 from unittest.mock import patch, Mock
 
-from source.utils.date_time import DateTime
+from src.utils.date_time import DateTime
 
 
 def solve_path(path: str):
-    source = 'source.utils.date_time'
+    source = 'src.utils.date_time'
     return ".".join([source, path])
 
 

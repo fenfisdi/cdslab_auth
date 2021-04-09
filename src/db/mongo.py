@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from pymongo.database import Database
 
-from source.config import db_config
+from src.config import db_config
 
 
 def get_db_connection() -> Database:

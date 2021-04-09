@@ -2,14 +2,13 @@ from datetime import datetime, timedelta
 
 from fastapi import APIRouter, status
 
-from source.dependencies.qr_deps import validate_qr
-from source.dependencies.responses import set_json_response
-from source.dependencies.token_deps import generate_token_jwt
-from source.dependencies.user_deps import verify_password
-from source.interfaces.user_interface import UserInterface
-from source.models.user import PreAuthenticatedUser, AuthenticatedUser
-from source.utils import LoginMessage, UserMessage
-
+from src.dependencies.qr_deps import validate_qr
+from src.dependencies.responses import set_json_response
+from src.dependencies.token_deps import generate_token_jwt
+from src.dependencies.user_deps import verify_password
+from src.interfaces.user_interface import UserInterface
+from src.models.user import PreAuthenticatedUser, AuthenticatedUser
+from src.utils import LoginMessage, UserMessage
 
 router_of_authentication = APIRouter()
 

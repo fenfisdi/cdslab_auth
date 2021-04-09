@@ -1,6 +1,6 @@
 from bson.objectid import ObjectId
 
-from source.db import get_db_connection
+from src.db import get_db_connection
 
 
 def user_db():

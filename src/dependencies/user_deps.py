@@ -5,10 +5,10 @@ from email.mime.text import MIMEText
 
 from passlib.context import CryptContext
 
-from source.config import email_config, settings, secrets
-from source.dependencies.qr_deps import generate_key_qr
-from source.dependencies.token_deps import generate_token_jwt
-from source.models.user import User, StoredUser
+from src.config import email_config, settings, secrets
+from src.dependencies.qr_deps import generate_key_qr
+from src.dependencies.token_deps import generate_token_jwt
+from src.models.user import User, StoredUser
 
 context = CryptContext(
     schemes=[secrets.get("CRYPTOCONTEXT_SCHEM")],

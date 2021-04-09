@@ -8,7 +8,7 @@ from phonenumbers import (
 )
 from pydantic import BaseModel, EmailStr, validator, Field, constr
 
-from source.config import settings
+from src.config import settings
 
 MOBILE_NUMBER_TYPES = \
     PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBILE

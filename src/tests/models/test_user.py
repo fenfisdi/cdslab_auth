@@ -5,11 +5,11 @@ from unittest.mock import patch, Mock
 from pydantic.error_wrappers import ValidationError
 from pydantic.main import BaseModel
 
-from source.models.user import BaseUser, User
+from src.models.user import BaseUser, User
 
 
 def solve_path(path: str):
-    source = 'source.models.user'
+    source = 'src.models.user'
     return ".".join([source, path])
 
 

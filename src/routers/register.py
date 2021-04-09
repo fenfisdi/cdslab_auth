@@ -2,18 +2,19 @@ from fastapi import APIRouter, status
 from starlette.status import HTTP_201_CREATED
 
 from src.interfaces.user_interface import UserInterface
-from src.models.user import User, AuthenticatedUser
+from src.models import NewUser
+from src.models.user import AuthenticatedUser
 from src.use_cases.qr_deps import generate_url_qr, validate_qr
 from src.use_cases.token_deps import validate_email_access_token
-from src.use_cases.user_deps import send_email, transform_props_to_user
+from src.use_cases.user_deps import send_email
 from src.utils import UserMessage, LoginMessage
-from src.utils.response import set_json_response
+from src.utils.response import json_response
 
 registry_routes = APIRouter()
 
 
 @registry_routes.post("/user", status_code=HTTP_201_CREATED)
-def create_user(user: User):
+def create_user(user: NewUser):
     """
         Validates user data by verifying if that the user doesn't exist in the
         database and creates the model to be added to the user collection
@@ -54,23 +55,21 @@ def create_user(user: User):
             If the verified password doesn't match
     """
     if UserInterface.retrieve_user(email=user.email):
-        return set_json_response(UserMessage.exist, status.HTTP_400_BAD_REQUEST)
+        return json_response(UserMessage.exist, status.HTTP_400_BAD_REQUEST)
 
     else:
-        #TODO: RENAME ME, PLS
-        user_in_db = transform_props_to_user(user)
-        inserted_user = UserInterface.insert_user(user_in_db.dict())
+        inserted_user = UserInterface.insert_user(user.dict())
 
         if inserted_user:
-            url_path = generate_url_qr(user_in_db.key_qr, user)
+            url_path = generate_url_qr('qr_key', user.email)
             data = {
-                'email': user_in_db.email,
+                'email': user.email,
                 'url_path': url_path,
-                'key_qr': user_in_db.key_qr
+                'key_qr': 'qr_key',
             }
-            return set_json_response(UserMessage.created, status.HTTP_201_CREATED, data)
+            return json_response(UserMessage.created, status.HTTP_201_CREATED, data)
         else:
-            return set_json_response(UserMessage.invalid, status.HTTP_422_UNPROCESSABLE_ENTITY)
+            return json_response(UserMessage.invalid, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 @registry_routes.post("/qr_validation", status_code=status.HTTP_200_OK)
@@ -104,8 +103,8 @@ async def qr_validation(authenticated_user: AuthenticatedUser):
 
     if is_validate:
         send_email(authenticated_user.email)
-        return set_json_response(LoginMessage.validate_email, status.HTTP_400_BAD_REQUEST)
-    return set_json_response(LoginMessage.invalid_qr, status.HTTP_404_NOT_FOUND)
+        return json_response(LoginMessage.validate_email, status.HTTP_400_BAD_REQUEST)
+    return json_response(LoginMessage.invalid_qr, status.HTTP_404_NOT_FOUND)
 
 
 @registry_routes.get("/{tokenized_email}", status_code=status.HTTP_200_OK)
@@ -136,13 +135,13 @@ async def read_email(tokenized_email):
     """
     is_valid, email = validate_email_access_token(tokenized_email)
     if not is_valid:
-        return set_json_response(LoginMessage.invalid_token, status.HTTP_422_UNPROCESSABLE_ENTITY)
+        return json_response(LoginMessage.invalid_token, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     user_email = UserInterface.retrieve_user(email=email)
 
     if user_email:
         is_updated = UserInterface.update_user_state({'is_active': True}, user_email['_id'])
         if is_updated:
-            return set_json_response(UserMessage.verified, status.HTTP_200_OK, is_updated)
-        return set_json_response("error to activate account", status.HTTP_404_NOT_FOUND)
-    return set_json_response("user not found", status.HTTP_404_NOT_FOUND)
+            return json_response(UserMessage.verified, status.HTTP_200_OK, is_updated)
+        return json_response("error to activate account", status.HTTP_404_NOT_FOUND)
+    return json_response("user not found", status.HTTP_404_NOT_FOUND)

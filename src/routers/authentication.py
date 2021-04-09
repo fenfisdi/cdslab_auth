@@ -10,8 +10,8 @@ from src.use_cases.token_deps import generate_token_jwt
 from src.use_cases.user_deps import send_email, get_hash_password
 from src.use_cases.user_deps import verify_password
 from src.utils import LoginMessage, UserMessage
-from src.utils.response import set_json_response
-from src.utils.security_code import random_number_with_digits
+from src.utils.response import json_response
+from src.utils.security import random_number_with_digits
 
 authentication_routes = APIRouter()
 
@@ -55,17 +55,17 @@ async def login_auth(pre_authenticated_user: PreAuthenticatedUser):
                 "key_qr": retrieved_user.get("key_qr"),
                 "email": retrieved_user.get("email"),
             }
-            return set_json_response(
+            return json_response(
                 LoginMessage.logged,
                 status.HTTP_200_OK,
                 data
             )
 
-        return set_json_response(
+        return json_response(
             LoginMessage.invalid_user,
             status.HTTP_404_NOT_FOUND
         )
-    return set_json_response(
+    return json_response(
         UserMessage.not_found,
         status.HTTP_404_NOT_FOUND
     )
@@ -116,16 +116,16 @@ async def qr_auth(authenticated_user: AuthenticatedUser):
 
         token = generate_token_jwt(payload)
         if token:
-            return set_json_response(
+            return json_response(
                 LoginMessage.logged,
                 status.HTTP_200_OK,
                 dict(token=token)
             )
-        return set_json_response(
+        return json_response(
             LoginMessage.token_error,
             status.HTTP_404_NOT_FOUND
         )
-    return set_json_response(
+    return json_response(
         LoginMessage.invalid_qr,
         status.HTTP_404_NOT_FOUND
     )
@@ -143,16 +143,16 @@ async def refresh_auth(user: AuthenticatedUser):
         }
         token = generate_token_jwt(payload)
         if token:
-            return set_json_response(
+            return json_response(
                 LoginMessage.logged,
                 status.HTTP_200_OK,
                 dict(token=token)
             )
-        return set_json_response(
+        return json_response(
             LoginMessage.token_error,
             status.HTTP_404_NOT_FOUND
         )
-    return set_json_response(
+    return json_response(
         LoginMessage.invalid_qr,
         status.HTTP_404_NOT_FOUND
     )
@@ -173,9 +173,9 @@ async def generate_security_code_link(user: RecoverUser):
                 'Recovery Message from settings',
                 str(security_code))
             # TODO: return email?
-            return set_json_response('email_sended', 200)
-        return set_json_response('Someting went wrong', 404)
-    return set_json_response("User doesn´t exist", 404)
+            return json_response('email_sended', 200)
+        return json_response('Someting went wrong', 404)
+    return json_response("User doesn´t exist", 404)
 
 
 @authentication_routes.post("/validateSecuritycode")
@@ -186,9 +186,9 @@ async def validate_security_code(user: SecurityCode):
     if searched_user:
         if str(searched_user['security_code']) == str(user.security_code):
             # TODO: return email?
-            return set_json_response('any_message', 200)
-        return set_json_response('invalid code', 400)
-    return set_json_response('user doesnt exist', 404)
+            return json_response('any_message', 200)
+        return json_response('invalid code', 400)
+    return json_response('user doesnt exist', 404)
 
 
 @authentication_routes.post("/passwordRecover")
@@ -201,9 +201,9 @@ async def password_recover(user: RecoverUser):
             'hashed_password': get_hash_password(user.new_password)},
             searched_user['_id'])
         if is_updated:
-            return set_json_response('Password Changed', 200)
-        return set_json_response('Password can not be updated', 400)
-    return set_json_response('user doesnt exist', 404)
+            return json_response('Password Changed', 200)
+        return json_response('Password can not be updated', 400)
+    return json_response('user doesnt exist', 404)
 
 
 @authentication_routes.post("/qrRecoveryvinculation")
@@ -215,9 +215,9 @@ async def qr_recovery_vinculation(user: user_email):
     if user.answers == searched_user['security_questions']['answers']:
         if "security_questions" in searched_user:
             # TODO: Return Question Security
-            return set_json_response('Any_Message', 200, {'data': 'question'})
-        return set_json_response('Dint Have Security Question', 404)
-    return set_json_response('Invalid User', 400)
+            return json_response('Any_Message', 200, {'data': 'question'})
+        return json_response('Dint Have Security Question', 404)
+    return json_response('Invalid User', 400)
 
 
 @authentication_routes.post("/validateAnswers")
@@ -229,6 +229,6 @@ async def validate_security_answers(user: enter_responses):
     if user.answers == searched_user['security_questions']['answers']:
         if "security_questions" in searched_user:
             # TODO: Return Question Security
-            return set_json_response('Any_Message', 200, {'data': 'question'})
-        return set_json_response('Dint Have Security Question', 404)
-    return set_json_response('Invalid User', 400)
+            return json_response('Any_Message', 200, {'data': 'question'})
+        return json_response('Dint Have Security Question', 404)
+    return json_response('Invalid User', 400)

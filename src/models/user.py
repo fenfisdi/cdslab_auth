@@ -4,41 +4,58 @@ from typing import Optional, List
 from phonenumbers import (
     NumberParseException, PhoneNumberFormat, PhoneNumberType,
     format_number, is_valid_number, number_type,
-    parse as parse_phone_number
+    parse as parse_phone
 )
 from pydantic import BaseModel, EmailStr, validator, Field, constr
 
 from src.config import settings
+from src.utils import Security
 
 MOBILE_NUMBER_TYPES = \
     PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE_OR_MOBILE
 
-
-class user_email(BaseModel):
-    email: EmailStr
+ALPHANUMERIC = r'^[a-zA-ZñÑ\s]+$'
+PHONE_PREFIX = r'^\+[\d]{1,3}$'
 
 
 class SecurityQuestion(BaseModel):
-    question: list
-    answer: list
-
-
-class enter_responses(user_email):
-    security_code: str
+    question: str = Field(...)
+    answer: str = Field(...)
 
 
 class UserInput(BaseModel):
-    name: str = Field(..., max_length=64, regex='[a-zA-Z]')
-    last_name: str = Field(..., max_length=64)
+    name: str = Field(..., max_length=64, regex=ALPHANUMERIC)
+    last_name: str = Field(..., max_length=64, regex=ALPHANUMERIC)
     email: EmailStr = Field(...)
-    phone_number: str = Field(...)
-    institution: str = Field(..., max_length=64)
-    institution_afiliation: str = Field(..., min_length=3)
-    profession: str = Field(None, min_length=3)
+    phone: int = Field(...)
+    phone_prefix: str = Field(..., regex=PHONE_PREFIX)
+    institution: str = Field(..., max_length=64, regex=ALPHANUMERIC)
+    institution_role: str = Field(..., min_length=3, regex=ALPHANUMERIC)
+    profession: str = Field(None, min_length=3, regex=ALPHANUMERIC)
     gender: str = Field(None, max_length=1)
+    birthday: datetime = Field(...)
+    security_questions: List[SecurityQuestion] = Field(None)
 
-    date_of_birth: datetime
-    security_questions: List[SecurityQuestion]
+    @validator('gender')
+    def validate_gender(cls, value: str):
+        genders = ['F', 'M']
+        if value.upper() in genders:
+            return value.upper()
+        raise ValueError('Invalid Type, gender must be F, M')
+
+    @validator('birthday', pre=True)
+    def validate_birthday(cls, value):
+        return value + 'T00:00'
+
+
+class NewUser(UserInput):
+    password: str = Field(...)
+    verify_password: str = Field(...)
+
+    @validator('password', 'verify_password', pre=True)
+    def set_hash(cls, value: str):
+        value = Security.hash_password(value)
+        return value
 
 
 class BaseUser(BaseModel):
@@ -146,7 +163,7 @@ class BaseUser(BaseModel):
             raise ValueError('Phone number cannot be empty')
 
         try:
-            phone_number_object = parse_phone_number(
+            phone_number_object = parse_phone(
                 phone_number,
                 region=settings['REGION_CODE']
                 )
@@ -243,6 +260,10 @@ class AuthenticatedUser(BaseModel):
     qr_value: str
 
 
+class user_email(BaseModel):
+    email: EmailStr
+
+
 class RecoverUser(user_email):
     new_password: Optional[str] = None
     new_verify_password: Optional[str] = None
@@ -260,4 +281,10 @@ class RecoverUser(user_email):
 
 
 class SecurityCode(user_email):
+    security_code: str
+
+
+
+
+class enter_responses(user_email):
     security_code: str

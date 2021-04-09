@@ -1,7 +1,7 @@
 from starlette.responses import JSONResponse
 
 
-def set_json_response(
+def json_response(
         message: str,
         code: int = 200,
         data: dict = None

@@ -14,7 +14,8 @@ from source.utils import LoginMessage, UserMessage
 router_of_authentication = APIRouter()
 
 
-@router_of_authentication.post("/loginAuthentication", status_code=status.HTTP_200_OK)
+@router_of_authentication.post("/loginAuthentication",
+                               status_code=status.HTTP_200_OK)
 async def login_auth(pre_authenticated_user: PreAuthenticatedUser):
     """
         Validate user information at login time

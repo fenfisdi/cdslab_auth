@@ -2,9 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
-from source.config import settings
-from source.routers.authentication import router_of_authentication
-from source.routers.register import router_of_registry
+from src.config import settings
+from src.routers.authentication import router_of_authentication
+from src.routers.register import router_of_registry
 
 app = FastAPI()
 

@@ -1,7 +1,6 @@
-from fastapi import HTTPException, status
-from jose import jwt, JWTError
 from typing import Tuple, Union
 
+from jose import jwt, JWTError
 from source.config import secrets
 
 

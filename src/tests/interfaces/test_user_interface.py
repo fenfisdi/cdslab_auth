@@ -3,7 +3,6 @@ from unittest.mock import patch, Mock
 
 import pymongo
 from mongomock import patch as db_path, ObjectId
-from pymongo.results import InsertOneResult
 
 from src.interfaces.user_interface import UserInterface
 
@@ -55,8 +54,7 @@ class UserInterfaceTestCase(TestCase):
         result = UserInterface.insert_user(user)
 
         self.assertIsNotNone(result)
-        self.assertIsInstance(result, InsertOneResult)
-        self.assertIsInstance(result.inserted_id, ObjectId)
+        self.assertIsInstance(result, dict)
 
     @patch(solve_path('get_db_connection'))
     def test_update_user_state_ok(self, mock_db: Mock):

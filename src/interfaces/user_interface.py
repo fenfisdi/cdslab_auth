@@ -41,7 +41,8 @@ class UserInterface:
             new_user: dict
                 Codified information to add to the database
         """
-        return user_db().insert_one(data)
+        user = user_db().insert_one(data)
+        return user_db().find_one({'_id': user.inserted_id})
 
     @staticmethod
     def update_user_state(data: dict, user_id: str):

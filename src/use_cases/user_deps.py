@@ -5,18 +5,19 @@ from email.mime.text import MIMEText
 
 from passlib.context import CryptContext
 
-from src.config import email_config, settings, secrets
+from src.config import email_config, secrets
 from src.models.user import User, StoredUser
 from src.use_cases.qr_deps import generate_key_qr
-from src.use_cases.token_deps import generate_token_jwt
-
-context = CryptContext(
-    schemes=[secrets.get("CRYPTOCONTEXT_SCHEM")],
-    deprecated=secrets.get("CRYPTOCONTEXT_DEPRECATED")
-)
 
 
-def send_email(email: str) -> str:
+def get_context():
+    return CryptContext(
+        schemes=[secrets.get("CRYPTOCONTEXT_SCHEM")],
+        deprecated=secrets.get("CRYPTOCONTEXT_DEPRECATED")
+    )
+
+
+def send_email(email: str, initial_message: str, main_message: str) -> str:
     """
         Sends registration email to the given address.
 
@@ -31,10 +32,6 @@ def send_email(email: str) -> str:
         email : str
             User's email
     """
-    key_email = generate_token_jwt({"email": email})["access_token"]
-
-    applicant_link = f'{settings["DOMAIN"]}{settings["REGISTER_PATH"]}/{key_email}'
-
     msg = MIMEMultipart()
 
     message = email_config.get("MESSAGE")
@@ -51,7 +48,9 @@ def send_email(email: str) -> str:
     msg_img.add_header("Content-ID", "<cdslab_auth_logo>")
     msg.attach(msg_img)
     msg.attach(MIMEText(message, "html"))
-    msg.attach(MIMEText(applicant_link, "html"))
+    msg.attach(
+        MIMEText(f"<center><br><b>{main_message}</b></br></center>", "html")
+    )
 
     server = smtplib.SMTP(email_config.get("SERVER"))
     server.starttls()
@@ -74,7 +73,7 @@ def get_hash_password(password: str) -> str:
         Method: str
             Password hashed by the passlib library
     """
-    return context.hash(password)
+    return get_context().hash(password)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -93,7 +92,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         Method: bool
             True or False whether passwords match
     """
-    return context.verify(plain_password, hashed_password)
+    return get_context().verify(plain_password, hashed_password)
 
 
 def transform_props_to_user(user: User):

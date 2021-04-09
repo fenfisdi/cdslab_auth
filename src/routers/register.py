@@ -1,4 +1,5 @@
 from fastapi import APIRouter, status
+from starlette.status import HTTP_201_CREATED
 
 from src.interfaces.user_interface import UserInterface
 from src.models.user import User, AuthenticatedUser
@@ -8,11 +9,11 @@ from src.use_cases.user_deps import send_email, transform_props_to_user
 from src.utils import UserMessage, LoginMessage
 from src.utils.response import set_json_response
 
-router_of_registry = APIRouter()
+registry_routes = APIRouter()
 
 
-@router_of_registry.post("/save_user", status_code=status.HTTP_201_CREATED)
-async def save_user(user: User):
+@registry_routes.post("/user", status_code=HTTP_201_CREATED)
+def create_user(user: User):
     """
         Validates user data by verifying if that the user doesn't exist in the
         database and creates the model to be added to the user collection
@@ -72,7 +73,7 @@ async def save_user(user: User):
             return set_json_response(UserMessage.invalid, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
-@router_of_registry.post("/qr_validation", status_code=status.HTTP_200_OK)
+@registry_routes.post("/qr_validation", status_code=status.HTTP_200_OK)
 async def qr_validation(authenticated_user: AuthenticatedUser):
     """
         Validate the code given by Google Authenticator
@@ -107,7 +108,7 @@ async def qr_validation(authenticated_user: AuthenticatedUser):
     return set_json_response(LoginMessage.invalid_qr, status.HTTP_404_NOT_FOUND)
 
 
-@router_of_registry.get("/{tokenized_email}", status_code=status.HTTP_200_OK)
+@registry_routes.get("/{tokenized_email}", status_code=status.HTTP_200_OK)
 async def read_email(tokenized_email):
     """
         Read the tokenized email, check if it is inside the database

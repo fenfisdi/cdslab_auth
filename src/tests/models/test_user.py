@@ -30,6 +30,10 @@ class BaseUserTestCase(TestCase):
             'sex': 'F',
             'phone_number': '+573214849484',
             'date_of_birth': datetime(2021, 4, 5),
+            'security_questions': {
+                'questions': ['best beach?'],
+                'answers': ['caribe'],
+            },
         }
 
     @patch(solve_path('settings'))
@@ -109,6 +113,10 @@ class UserTestCase(TestCase):
             'date_of_birth': datetime(2021, 4, 5),
             'password': 'string',
             'verify_password': 'string',
+            'security_questions': {
+                'questions': ['best beach?'],
+                'answers': ['caribe'],
+            },
         }
 
     @patch(solve_path('settings'))

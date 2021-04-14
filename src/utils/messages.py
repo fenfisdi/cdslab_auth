@@ -14,7 +14,7 @@ class UserMessage:
 @dataclass
 class LoginMessage:
     invalid_user: str = "Invalid Username or Password"
-    invalid_qr: str = "Invalid QR code"
+    invalid_qr: str = "Invalid OTP code"
     invalid_token: str = "Invalid token"
     logged: str = "User logged in"
     token_error: str = "Can not create token"

@@ -1,14 +1,16 @@
 from fastapi import APIRouter, status
-from starlette.status import HTTP_201_CREATED
+from starlette.status import (
+    HTTP_200_OK,
+    HTTP_201_CREATED,
+    HTTP_400_BAD_REQUEST,
+    HTTP_422_UNPROCESSABLE_ENTITY
+)
 
-from src.interfaces.user_interface import UserInterface
-from src.models import NewUser
-from src.models.user import AuthenticatedUser
-from src.use_cases.qr_deps import generate_url_qr, validate_qr
-from src.use_cases.token_deps import validate_email_access_token
-from src.use_cases.user_deps import send_email
+from src.models import NewUser, OTPUser
+from src.services import UserAPI
+from src.use_cases import SecurityUseCase
 from src.utils import UserMessage, LoginMessage
-from src.utils.response import json_response
+from src.utils.response import UJSONResponse
 
 registry_routes = APIRouter()
 
@@ -54,26 +56,23 @@ def create_user(user: NewUser):
         - **ValueError**:
             If the verified password doesn't match
     """
-    if UserInterface.retrieve_user(email=user.email):
-        return json_response(UserMessage.exist, status.HTTP_400_BAD_REQUEST)
+    data = user.dict(exclude={'verify_password'})
+    data['otp_code'] = SecurityUseCase.create_otp_code()
+    response, is_invalid = UserAPI.create_user(data)
+    if is_invalid:
+        return response
 
-    else:
-        inserted_user = UserInterface.insert_user(user.dict())
-
-        if inserted_user:
-            url_path = generate_url_qr('qr_key', user.email)
-            data = {
-                'email': user.email,
-                'url_path': url_path,
-                'key_qr': 'qr_key',
-            }
-            return json_response(UserMessage.created, status.HTTP_201_CREATED, data)
-        else:
-            return json_response(UserMessage.invalid, status.HTTP_422_UNPROCESSABLE_ENTITY)
+    user_found = response.get('data')
+    user_found['otp_code'] = data.get('otp_code')
+    user_found['url'] = SecurityUseCase.create_otp_url(
+        user_found.get('otp_code'),
+        user_found.get('email')
+    )
+    return UJSONResponse(UserMessage.created, HTTP_201_CREATED, user_found)
 
 
-@registry_routes.post("/qr_validation", status_code=status.HTTP_200_OK)
-async def qr_validation(authenticated_user: AuthenticatedUser):
+@registry_routes.post('/user/otp', status_code=HTTP_200_OK)
+def validate_user_otp(user: OTPUser):
     """
         Validate the code given by Google Authenticator
 
@@ -99,23 +98,36 @@ async def qr_validation(authenticated_user: AuthenticatedUser):
         - **ValueError**:
             If email is not valid
     """
-    is_validate = validate_qr({"email": authenticated_user.email}, authenticated_user.qr_value)
+    response, is_invalid = UserAPI.find_user(user.email, True)
+    if is_invalid:
+        return response
 
-    if is_validate:
-        send_email(authenticated_user.email)
-        return json_response(LoginMessage.validate_email, status.HTTP_400_BAD_REQUEST)
-    return json_response(LoginMessage.invalid_qr, status.HTTP_404_NOT_FOUND)
+    otp_code = SecurityUseCase.transform_otp_code(user.otp_code)
+
+    response, is_invalid = UserAPI.find_otp_code(user.email)
+    if is_invalid:
+        return response
+
+    data = response.get('data')
+    auth_code = SecurityUseCase.transform_otp_code(data.get('otp_code'))
+    if auth_code != otp_code:
+        return UJSONResponse(LoginMessage.invalid_qr, HTTP_400_BAD_REQUEST)
+
+    token = SecurityUseCase.encode_token(user.email)
+    # TODO: Send Email
+    print(token)
+    return UJSONResponse(LoginMessage.validate_email, HTTP_200_OK)
 
 
-@registry_routes.get("/{tokenized_email}", status_code=status.HTTP_200_OK)
-async def read_email(tokenized_email):
+@registry_routes.get('/user/email')
+def validate_user_email(token: str):
     """
         Read the tokenized email, check if it is inside the database
         and update user's status to active
 
         Parameters
         ----------
-        - **tokenized_email**: str
+        - **token**: str
             String containing a tokenized version of the user's email
 
         Returns
@@ -133,15 +145,23 @@ async def read_email(tokenized_email):
         - **HTTPException**:
             If user's email cannot be found
     """
-    is_valid, email = validate_email_access_token(tokenized_email)
+    data, is_valid = SecurityUseCase.decode_token(token)
     if not is_valid:
-        return json_response(LoginMessage.invalid_token, status.HTTP_422_UNPROCESSABLE_ENTITY)
+        return UJSONResponse(
+            LoginMessage.invalid_token,
+            status.HTTP_422_UNPROCESSABLE_ENTITY
+        )
 
-    user_email = UserInterface.retrieve_user(email=email)
+    email = data.get('email')
 
-    if user_email:
-        is_updated = UserInterface.update_user_state({'is_active': True}, user_email['_id'])
-        if is_updated:
-            return json_response(UserMessage.verified, status.HTTP_200_OK, is_updated)
-        return json_response("error to activate account", status.HTTP_404_NOT_FOUND)
-    return json_response("user not found", status.HTTP_404_NOT_FOUND)
+    response, is_invalid = UserAPI.find_user(email, True)
+    if is_invalid:
+        return response
+
+    if response.get('data').get('email') != email:
+        return UJSONResponse('Error', HTTP_422_UNPROCESSABLE_ENTITY)
+
+    response, is_invalid = UserAPI.validate_user(email)
+    if is_invalid:
+        return response
+    return UJSONResponse(UserMessage.verified, HTTP_200_OK)

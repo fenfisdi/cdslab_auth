@@ -20,6 +20,6 @@ def to_response(response: Response) -> UJSONResponse:
     message = 'API Error'
     if response.headers.get('content-type') == 'application/json':
         data = response.json()
-        data = data.get('data', data)
         message = data.get('message', message)
+        data = data.get('data', data)
     return UJSONResponse(message, response.status_code, data)

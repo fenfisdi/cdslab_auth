@@ -39,3 +39,44 @@ class UserAPI:
         if not response.ok:
             return to_response(response), True
         return response.json(), False
+
+    @classmethod
+    def validate_credentials(cls, data: dict):
+        response = cls.request.post(f'/user/credentials', data)
+        if not response.ok:
+            return to_response(response), True
+        return response.json(), False
+
+    @classmethod
+    def save_security_code(cls, email: str, code: str):
+        params = {
+            'code': code,
+        }
+        response = cls.request.post(
+            f'/user/{email}/security_code',
+            parameters=params
+        )
+        if not response.ok:
+            return to_response(response), True
+        return response.json(), False
+
+    @classmethod
+    def find_security_code(cls, email: str):
+        response = cls.request.get(f'/user/{email}/security_code')
+        if not response.ok:
+            return to_response(response), True
+        return response.json(), False
+
+    @classmethod
+    def find_security_questions(cls, email: str):
+        response = cls.request.get(f'/user/{email}/questions')
+        if not response.ok:
+            return to_response(response), True
+        return response.json(), False
+
+    @classmethod
+    def update_password(cls, data: dict):
+        response = cls.request.post(f'/user/password', data)
+        if not response.ok:
+            return to_response(response), True
+        return response.json(), False

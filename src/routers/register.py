@@ -1,8 +1,9 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter
 from starlette.status import (
     HTTP_200_OK,
     HTTP_201_CREATED,
     HTTP_400_BAD_REQUEST,
+    HTTP_404_NOT_FOUND,
     HTTP_422_UNPROCESSABLE_ENTITY
 )
 
@@ -113,9 +114,8 @@ def validate_user_otp(user: OTPUser):
     if auth_code != otp_code:
         return UJSONResponse(LoginMessage.invalid_qr, HTTP_400_BAD_REQUEST)
 
-    token = SecurityUseCase.encode_token(user.email)
+    token = SecurityUseCase.encode_token_email(user.email)
     # TODO: Send Email
-    print(token)
     return UJSONResponse(LoginMessage.validate_email, HTTP_200_OK)
 
 
@@ -149,19 +149,19 @@ def validate_user_email(token: str):
     if not is_valid:
         return UJSONResponse(
             LoginMessage.invalid_token,
-            status.HTTP_422_UNPROCESSABLE_ENTITY
+            HTTP_422_UNPROCESSABLE_ENTITY
         )
 
     email = data.get('email')
 
-    response, is_invalid = UserAPI.find_user(email, True)
-    if is_invalid:
+    response, is_valid = UserAPI.find_user(email, True)
+    if is_valid:
         return response
 
     if response.get('data').get('email') != email:
-        return UJSONResponse('Error', HTTP_422_UNPROCESSABLE_ENTITY)
+        return UJSONResponse(UserMessage.not_found, HTTP_404_NOT_FOUND)
 
-    response, is_invalid = UserAPI.validate_user(email)
-    if is_invalid:
+    response, is_valid = UserAPI.validate_user(email)
+    if not is_valid:
         return response
     return UJSONResponse(UserMessage.verified, HTTP_200_OK)

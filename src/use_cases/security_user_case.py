@@ -4,15 +4,25 @@ from jose import jwt, JWTError
 from pyotp import TOTP, random_base32
 
 from src.config import secrets
+from src.utils import DateTime
 
 
 class SecurityUseCase:
 
     @staticmethod
-    def encode_token(email: str) -> str:
+    def encode_token_email(email: str) -> str:
         data = {
             'email': email,
         }
+        return jwt.encode(
+            data,
+            secrets.get('SECRET_KEY'),
+            secrets.get('ALGORITHM')
+        )
+
+    @staticmethod
+    def encode_token_access(data: dict) -> str:
+        data['exp'] = DateTime.expiration_date(hours=1)
         return jwt.encode(
             data,
             secrets.get('SECRET_KEY'),

@@ -1,23 +1,29 @@
-from datetime import datetime, timedelta
+from typing import List
 
 from fastapi import APIRouter, status
+from starlette.status import (
+    HTTP_200_OK,
+    HTTP_400_BAD_REQUEST
+)
 
-from src.interfaces.user_interface import UserInterface
-from src.models.user import PreAuthenticatedUser, AuthenticatedUser, \
-    RecoverUser, SecurityCode, user_email, enter_responses
-from src.use_cases.qr_deps import validate_qr
-from src.use_cases.token_deps import generate_token_jwt
-from src.use_cases.user_deps import send_email, get_hash_password
-from src.use_cases.user_deps import verify_password
-from src.utils import LoginMessage, UserMessage
-from src.utils.response import json_response
+from src.models import (
+    LoginUser,
+    OTPUser,
+    RecoverUser,
+    SecurityCode,
+    SecurityQuestion
+)
+from src.services import UserAPI
+from src.use_cases import SecurityUseCase
+from src.utils import LoginMessage
+from src.utils.response import UJSONResponse
 from src.utils.security import random_number_with_digits
 
 authentication_routes = APIRouter()
 
 
-@authentication_routes.post("/loginAuthentication", status_code=status.HTTP_200_OK)
-async def login_auth(pre_authenticated_user: PreAuthenticatedUser):
+@authentication_routes.post("/login", status_code=status.HTTP_200_OK)
+def login_auth(user: LoginUser):
     """
         Validate user information at login time
 
@@ -43,37 +49,18 @@ async def login_auth(pre_authenticated_user: PreAuthenticatedUser):
         - HTTPException
             If user doesn't exist
     """
-    retrieved_user = UserInterface.retrieve_user(
-        email=pre_authenticated_user.email
-    )
+    response, is_invalid = UserAPI.validate_credentials(user.dict())
+    if is_invalid:
+        return response
 
-    if retrieved_user:
-        is_equal = verify_password(pre_authenticated_user.password,
-                                   retrieved_user["hashed_password"])
-        if is_equal:
-            data = {
-                "key_qr": retrieved_user.get("key_qr"),
-                "email": retrieved_user.get("email"),
-            }
-            return json_response(
-                LoginMessage.logged,
-                status.HTTP_200_OK,
-                data
-            )
+    data = response.get('data')
+    data['email'] = user.email
 
-        return json_response(
-            LoginMessage.invalid_user,
-            status.HTTP_404_NOT_FOUND
-        )
-    return json_response(
-        UserMessage.not_found,
-        status.HTTP_404_NOT_FOUND
-    )
+    return UJSONResponse(LoginMessage.logged, HTTP_200_OK, data)
 
 
-@authentication_routes.post("/qrAuthentication",
-                            status_code=status.HTTP_200_OK)
-async def qr_auth(authenticated_user: AuthenticatedUser):
+@authentication_routes.post("/login/otp", status_code=status.HTTP_200_OK)
+def login_otp_auth(user: OTPUser):
     """
         Validate if qr and the user input match the 2FA and
         generates a token
@@ -99,136 +86,120 @@ async def qr_auth(authenticated_user: AuthenticatedUser):
         - **HTTPException**:
             If key_qr does't match the expected value
     """
-    is_valid = validate_qr(
-        {"email": authenticated_user.email},
-        authenticated_user.qr_value
+    response, is_invalid = UserAPI.find_user(user.email)
+    if is_invalid:
+        return response
+
+    otp_code = SecurityUseCase.transform_otp_code(user.otp_code)
+    response, is_invalid = UserAPI.find_otp_code(user.email)
+    if is_invalid:
+        return response
+
+    data = response.get('data')
+    auth_code = SecurityUseCase.transform_otp_code(data.get('otp_code'))
+    if auth_code != otp_code:
+        return UJSONResponse(LoginMessage.invalid_qr, HTTP_400_BAD_REQUEST)
+
+    data = {
+        'token': SecurityUseCase.encode_token_access(dict(email=user.email))
+    }
+    return UJSONResponse(LoginMessage.logged, HTTP_200_OK, data)
+
+
+@authentication_routes.post('/login/recovery_code')
+def create_security_code(email: str):
+    response, is_invalid = UserAPI.find_user(email, False)
+    if is_invalid:
+        return response
+
+    security_code = random_number_with_digits(6)
+    response, is_invalid = UserAPI.save_security_code(email, security_code)
+    if is_invalid:
+        return response
+
+    # TODO: Send Email
+
+
+@authentication_routes.post('/login/validate_code')
+def validate_security_code(user: SecurityCode):
+    response, is_invalid = UserAPI.find_user(user.email, False)
+    if is_invalid:
+        return response
+
+    response, is_invalid = UserAPI.find_security_code(user.email)
+    if is_invalid:
+        return response
+
+    if user.security_code == response.get('data').get('security_code'):
+        return UJSONResponse(LoginMessage.success_code, HTTP_200_OK)
+    return UJSONResponse(LoginMessage.invalid_code, HTTP_400_BAD_REQUEST)
+
+
+@authentication_routes.post('/login/recover_password')
+def recover_password(user: RecoverUser):
+    response, is_invalid = UserAPI.find_user(user.email)
+    if is_invalid:
+        return response
+
+    response, is_invalid = UserAPI.update_password(
+        user.dict(exclude={'verify_password'})
     )
+    if is_invalid:
+        return response
 
-    if is_valid:
-        retrieved_user = UserInterface.retrieve_user(
-            email=authenticated_user.email)
-        payload = {
-            "expires": str(datetime.utcnow() + timedelta(hours=24)),
-            "id": str(retrieved_user["_id"]),
-            "role": str(retrieved_user["role"]),
-            "email": str(retrieved_user["email"]),
-        }
-
-        token = generate_token_jwt(payload)
-        if token:
-            return json_response(
-                LoginMessage.logged,
-                status.HTTP_200_OK,
-                dict(token=token)
-            )
-        return json_response(
-            LoginMessage.token_error,
-            status.HTTP_404_NOT_FOUND
-        )
-    return json_response(
-        LoginMessage.invalid_qr,
-        status.HTTP_404_NOT_FOUND
-    )
+    return UJSONResponse('updated', HTTP_200_OK)
 
 
-@authentication_routes.post("/refreshAuthentication")
-async def refresh_auth(user: AuthenticatedUser):
-    user_retrieve = UserInterface.retrieve_user(key_qr=user.qr_value)
-    if user_retrieve:
-        payload = {
-            "expires": str(datetime.utcnow() + timedelta(hours=24)),
-            "id": str(user_retrieve["_id"]),
-            "rol": str(user_retrieve["rol"]),
-            "email": str(user_retrieve["email"]),
-        }
-        token = generate_token_jwt(payload)
-        if token:
-            return json_response(
-                LoginMessage.logged,
-                status.HTTP_200_OK,
-                dict(token=token)
-            )
-        return json_response(
-            LoginMessage.token_error,
-            status.HTTP_404_NOT_FOUND
-        )
-    return json_response(
-        LoginMessage.invalid_qr,
-        status.HTTP_404_NOT_FOUND
-    )
+@authentication_routes.get('/login/security_question')
+def find_security_questions(email: str):
+    response, is_invalid = UserAPI.find_user(email)
+    if is_invalid:
+        return response
+
+    response, is_invalid = UserAPI.find_security_questions(email)
+    if is_invalid:
+        return response
+
+    data = response.get('data')
+
+    return UJSONResponse(LoginMessage.found_question, HTTP_200_OK, data)
 
 
-@authentication_routes.post("/securityCodeRecoverylink")
-async def generate_security_code_link(user: RecoverUser):
-    email = user.email
+@authentication_routes.post('/login/security_questions')
+def recover_otp(
+        email: str,
+        security_questions: List[SecurityQuestion]
+):
+    response, is_invalid = UserAPI.find_user(email)
+    if is_invalid:
+        return response
 
-    searched_user = UserInterface.retrieve_user(email=email)
-    if searched_user:
-        security_code = random_number_with_digits(6)
-        is_updated = UserInterface.update_user_state(
-            {'security_code': security_code}, searched_user['_id'])
-        if is_updated:
-            send_email(
-                user.email,
-                'Recovery Message from settings',
-                str(security_code))
-            # TODO: return email?
-            return json_response('email_sended', 200)
-        return json_response('Someting went wrong', 404)
-    return json_response("User doesn´t exist", 404)
+    response, is_invalid = UserAPI.find_security_questions(email)
+    if is_invalid:
+        return response
 
+    questions = response.get('data')
+    valid = list()
+    for question in security_questions:
+        valid_question = next((
+            in_question for in_question in questions
+            if in_question.get('question') == question.question
+        ), None)
+        if valid_question is None:
+            valid.append(False)
+            continue
+        if valid_question.get('answer') == question.answer:
+            valid.append(True)
+        else:
+            valid.append(False)
 
-@authentication_routes.post("/validateSecuritycode")
-async def validate_security_code(user: SecurityCode):
-    email = user.email
+    if not all(valid):
+        return UJSONResponse(LoginMessage.invalid_answers, HTTP_400_BAD_REQUEST)
 
-    searched_user = UserInterface.retrieve_user(email=email)
-    if searched_user:
-        if str(searched_user['security_code']) == str(user.security_code):
-            # TODO: return email?
-            return json_response('any_message', 200)
-        return json_response('invalid code', 400)
-    return json_response('user doesnt exist', 404)
-
-
-@authentication_routes.post("/passwordRecover")
-async def password_recover(user: RecoverUser):
-    email = user.email
-
-    searched_user = UserInterface.retrieve_user(email=email)
-    if searched_user:
-        is_updated = UserInterface.update_user_state({
-            'hashed_password': get_hash_password(user.new_password)},
-            searched_user['_id'])
-        if is_updated:
-            return json_response('Password Changed', 200)
-        return json_response('Password can not be updated', 400)
-    return json_response('user doesnt exist', 404)
-
-
-@authentication_routes.post("/qrRecoveryvinculation")
-async def qr_recovery_vinculation(user: user_email):
-    email = user.email
-
-    searched_user = UserInterface.retrieve_user(email=email)
-    # TODO: Model didn't have answer
-    if user.answers == searched_user['security_questions']['answers']:
-        if "security_questions" in searched_user:
-            # TODO: Return Question Security
-            return json_response('Any_Message', 200, {'data': 'question'})
-        return json_response('Dint Have Security Question', 404)
-    return json_response('Invalid User', 400)
-
-
-@authentication_routes.post("/validateAnswers")
-async def validate_security_answers(user: enter_responses):
-    email = user.email
-
-    searched_user = UserInterface.retrieve_user(email=email)
-    # TODO: Model didn't have answer
-    if user.answers == searched_user['security_questions']['answers']:
-        if "security_questions" in searched_user:
-            # TODO: Return Question Security
-            return json_response('Any_Message', 200, {'data': 'question'})
-        return json_response('Dint Have Security Question', 404)
-    return json_response('Invalid User', 400)
+    response, is_invalid = UserAPI.find_otp_code(email)
+    if is_invalid:
+        return response
+    data = response.get('data')
+    data['email'] = email
+    data['url'] = SecurityUseCase.create_otp_url(data.get('otp_code'), email)
+    return UJSONResponse('any', HTTP_200_OK, data)

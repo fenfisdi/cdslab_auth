@@ -1,31 +1,25 @@
-from starlette.responses import JSONResponse
+from typing import Optional
+
+from fastapi.responses import UJSONResponse as FastAPIResponse
+from requests.models import Response
 
 
-def set_json_response(
-        message: str,
-        code: int = 200,
-        data: dict = None
-) -> JSONResponse:
-    """
-        Endpoint response for every successful request
-
-        Parameters
-        ----------
-        message: str
-            Customized reply
-        code: int
-            Customized reply
-        data: dict
-            Dictionary containing a successful response
+class UJSONResponse(FastAPIResponse):
+    def __init__(self, message: str, status_code: int,
+                 data: Optional[dict] = None):
+        response = dict(
+            message=message,
+            status_code=status_code,
+            data=data,
+        )
+        super().__init__(response, status_code)
 
 
-        Returns
-        ----------
-        Dictionary containing data, a message and a code response
-    """
-    body = dict(
-        message=message,
-        code=code,
-        data=data,
-    )
-    return JSONResponse(body, code)
+def to_response(response: Response) -> UJSONResponse:
+    data = response.text
+    message = 'API Error'
+    if response.headers.get('content-type') == 'application/json':
+        data = response.json()
+        message = data.get('message', message)
+        data = data.get('data', data)
+    return UJSONResponse(message, response.status_code, data)

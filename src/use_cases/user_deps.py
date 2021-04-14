@@ -3,20 +3,10 @@ from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from passlib.context import CryptContext
-
-from src.config import email_config, settings, secrets
-from src.models.user import User, StoredUser
-from src.use_cases.qr_deps import generate_key_qr
-from src.use_cases.token_deps import generate_token_jwt
-
-context = CryptContext(
-    schemes=[secrets.get("CRYPTOCONTEXT_SCHEM")],
-    deprecated=secrets.get("CRYPTOCONTEXT_DEPRECATED")
-)
+from src.config import email_config
 
 
-def send_email(email: str) -> str:
+def send_email(email: str, main_message: str):
     """
         Sends registration email to the given address.
 
@@ -31,10 +21,6 @@ def send_email(email: str) -> str:
         email : str
             User's email
     """
-    key_email = generate_token_jwt({"email": email})["access_token"]
-
-    applicant_link = f'{settings["DOMAIN"]}{settings["REGISTER_PATH"]}/{key_email}'
-
     msg = MIMEMultipart()
 
     message = email_config.get("MESSAGE")
@@ -51,66 +37,12 @@ def send_email(email: str) -> str:
     msg_img.add_header("Content-ID", "<cdslab_auth_logo>")
     msg.attach(msg_img)
     msg.attach(MIMEText(message, "html"))
-    msg.attach(MIMEText(applicant_link, "html"))
+    msg.attach(
+        MIMEText(f"<center><br><b>{main_message}</b></br></center>", "html")
+    )
 
     server = smtplib.SMTP(email_config.get("SERVER"))
     server.starttls()
     server.login(msg["From"], password)
     server.sendmail(msg["From"], msg["To"], msg.as_string())
     server.quit()
-
-
-def get_hash_password(password: str) -> str:
-    """
-        Take the user password and hash it
-
-        Parameters
-        ----------
-        password: dict
-            Password taken from User class
-
-        Return
-        ----------
-        Method: str
-            Password hashed by the passlib library
-    """
-    return context.hash(password)
-
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """
-        Compare stored and entered passwords
-
-        Parameters
-        ----------
-        plain_password: str
-            String used to authenticate
-        hashed_password: str
-            String with the respective stored password
-
-        Return
-        ----------
-        Method: bool
-            True or False whether passwords match
-    """
-    return context.verify(plain_password, hashed_password)
-
-
-def transform_props_to_user(user: User):
-    """
-        Construct model from User class to store in database
-
-        Parameters
-        ----------
-        user: Pydantic class
-            Inherits the properties of User
-
-        Return
-        ----------
-        StoredUser: Pydantic class
-            Model to store in database
-    """
-    hashed_password = get_hash_password(user.password)
-    return StoredUser(**user.dict(),
-                      hashed_password=hashed_password,
-                      key_qr=generate_key_qr())

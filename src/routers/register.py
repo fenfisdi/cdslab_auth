@@ -13,49 +13,17 @@ from src.use_cases import SecurityUseCase
 from src.utils import UserMessage, LoginMessage
 from src.utils.response import UJSONResponse
 
-registry_routes = APIRouter()
+registry_routes = APIRouter(prefix='/register', tags=['Register'])
 
 
 @registry_routes.post("/user", status_code=HTTP_201_CREATED)
 def create_user(user: NewUser):
     """
-        Validates user data by verifying if that the user doesn't exist in the
-        database and creates the model to be added to the user collection
+    Validates user data by verifying if that the user doesn't exist in the
+    database and creates the model to be added to the user collection.
 
-        Parameters
-        ----------
-        - **user**: pydantic class
-            Class extending user_to_register, contains all the information
-            about a user
-
-        Returns
-        ----------
-        - **response**: dict
-        #TODO
-            Email sent to the user containing generated QR
-
-        Raises
-        ----------
-        - **HTTPException**:
-            If email is alredy registered
-
-        - **ValueError**:
-            If email is not valid
-
-        - **ValueError**:
-            If name has non-alphabetic values
-
-        - **ValueError**:
-            If last_name has non-alphabetic values
-
-        - **ValueError**:
-            If sex contains characters other than M or F
-
-        - **ValueError**:
-            If phone_number is not valid
-
-        - **ValueError**:
-            If the verified password doesn't match
+    \f
+    :param user: contains all the information about a user
     """
     data = user.dict(exclude={'verify_password'})
     data['otp_code'] = SecurityUseCase.create_otp_code()
@@ -75,29 +43,10 @@ def create_user(user: NewUser):
 @registry_routes.post('/user/otp', status_code=HTTP_200_OK)
 def validate_user_otp(user: OTPUser):
     """
-        Validate the code given by Google Authenticator
+    Validate the code given by Google Authenticator
 
-        Parameters
-        ----------
-        - **user**: pydantic class
-            Class extending AuthenticatedUser, contains the data necessary for
-            two factor authentication
-
-        Returns
-        ----------
-        - **response**: str
-            Send link with the tokenized information to user's email
-
-        Raises
-        ----------
-        - **HTTPException**:
-            If email isn't stored in the database
-
-        - **HTTPException**:
-            If email doesn't match the key_qr
-
-        - **ValueError**:
-            If email is not valid
+    \f
+    :param user: Contains the data necessary for two factor authentication.
     """
     response, is_invalid = UserAPI.find_user(user.email, True)
     if is_invalid:
@@ -122,28 +71,11 @@ def validate_user_otp(user: OTPUser):
 @registry_routes.get('/user/email')
 def validate_user_email(token: str):
     """
-        Read the tokenized email, check if it is inside the database
-        and update user's status to active
+    Read the tokenized email, check if it is inside the database
+    and update user's status to active.
 
-        Parameters
-        ----------
-        - **token**: str
-            String containing a tokenized version of the user's email
-
-        Returns
-        ----------
-        - **response**: dict
-
-        Raises
-        ----------
-        - **HTTPException**:
-            If token or email key don't exist
-
-        - **HTTPException**:
-            If status update is not successful
-
-        - **HTTPException**:
-            If user's email cannot be found
+    \f
+    :param token: jwt token with the user information to validate.
     """
     data, is_valid = SecurityUseCase.decode_token(token)
     if not is_valid:

@@ -63,7 +63,7 @@ class NewUser(UpdateUser):
     email: EmailStr = Field(...)
     password: str = Field(...)
     verify_password: str = Field(...)
-    security_questions: List[SecurityQuestion] = Field(None)
+    security_questions: List[SecurityQuestion] = Field(...)
 
     @validator('password', 'verify_password', pre=True)
     def set_hash(cls, value: str):

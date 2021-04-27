@@ -2,10 +2,10 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from src.config import settings
+from src.config import settings, fastApiConfig
 from src.routers import authentication_routes, registry_routes
 
-app = FastAPI()
+app = FastAPI(**fastApiConfig)
 
 app.add_middleware(
     TrustedHostMiddleware,

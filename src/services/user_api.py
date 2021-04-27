@@ -16,6 +16,12 @@ class UserAPI:
             cls,
             user_data: dict
     ) -> Tuple[Union[dict, UJSONResponse], bool]:
+        """
+        Create and save user data to storage in User API, could return 400 if
+        user exist
+
+        :param user_data: user information to save
+        """
         user_data = encode_request(user_data)
         response = cls.request.post('/user', user_data)
         if not response.ok:
@@ -27,16 +33,27 @@ class UserAPI:
             cls,
             email: str
     ) -> Tuple[Union[dict, UJSONResponse], bool]:
+        """
+        Validate user state to valid user
+
+        :param email:
+        """
         response = cls.request.get(f'/user/{email}/validate')
         if not response.ok:
             return to_response(response), True
         return response.json(), False
 
     @classmethod
-    def find_otp_code(
+    def find_otp_key(
             cls,
             email: str
     ) -> Tuple[Union[dict, UJSONResponse], bool]:
+        """
+
+
+        :param email: user email to find otp key
+        :return:
+        """
         response = cls.request.get(f'/user/{email}/otp')
         if not response.ok:
             return to_response(response), True

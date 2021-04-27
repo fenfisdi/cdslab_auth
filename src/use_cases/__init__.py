@@ -1,3 +1,3 @@
-from .security import SecurityUseCase, ValidateOTPUseCase
+from .security import ValidateOTPUseCase
 
-__all__ = ['SecurityUseCase', 'ValidateOTPUseCase']
+__all__ = ['ValidateOTPUseCase']

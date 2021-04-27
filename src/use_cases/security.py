@@ -18,12 +18,12 @@ class ValidateOTPUseCase:
             invalid: bool = False
     ) -> Tuple[Optional[UJSONResponse], bool]:
         """
-        Validate OTP code from user,
+        Validate OTP code from user in any state (valid, invalid) and return
+        response if had any error in the request, else return a false.
 
-        :param email:
-        :param otp_code:
-        :param invalid:
-        :return:
+        :param email: user email to validate otp code.
+        :param otp_code: otp code to validate with otp key.
+        :param invalid: find user if have valid or invalid state.
         """
         response, is_invalid = UserAPI.find_user(email, invalid)
         if is_invalid:

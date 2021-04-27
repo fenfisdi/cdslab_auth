@@ -4,7 +4,7 @@ from typing import List
 
 from pydantic import BaseModel, Field, validator, EmailStr
 
-from src.utils import Security
+from src.utils.security import Security
 
 ALPHANUMERIC = r'^[a-zA-ZñÑ\s]+$'
 PHONE_PREFIX = r'^\+[\d]{1,3}$'
@@ -62,16 +62,9 @@ class NewUser(UpdateUser):
     birthday: datetime = Field(...)
     email: EmailStr = Field(...)
     password: str = Field(...)
-    verify_password: str = Field(...)
     security_questions: List[SecurityQuestion] = Field(...)
 
-    @validator('password', 'verify_password', pre=True)
+    @validator('password', pre=True)
     def set_hash(cls, value: str):
         value = Security.hash_password(value)
-        return value
-
-    @validator('verify_password')
-    def password_match(cls, value, values):
-        if value != values.get('password'):
-            raise ValueError("Provided passwords don't match")
         return value

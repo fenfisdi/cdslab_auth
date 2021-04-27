@@ -1,10 +1,14 @@
-from typing import Tuple, Union
+from typing import Tuple, Union, Optional
 
 from jose import jwt, JWTError
 from pyotp import TOTP, random_base32
+from starlette.status import HTTP_400_BAD_REQUEST
 
 from src.config import secrets
-from src.utils import DateTime
+from src.services import UserAPI
+from src.utils.date_time import DateTime
+from src.utils.messages import LoginMessage
+from src.utils.response import UJSONResponse
 
 
 class SecurityUseCase:
@@ -64,6 +68,35 @@ class SecurityUseCase:
     def create_otp_url(otp_code: str, email: str):
         return TOTP(otp_code).provisioning_uri(email)
 
-    @staticmethod
-    def transform_otp_code(otp_code: str) -> str:
-        return TOTP(otp_code).now()
+
+class ValidateOTPUseCase:
+
+    @classmethod
+    def handle(
+            cls,
+            email: str,
+            otp_code: str
+    ) -> Tuple[Optional[UJSONResponse], bool]:
+        """
+        Validate OTP code from user,
+
+        :param email:
+        :param otp_code:
+        :return:
+        """
+        response, is_invalid = UserAPI.find_user(email, True)
+        if is_invalid:
+            return response, True
+
+        response, is_invalid = UserAPI.find_otp_code(email)
+        if is_invalid:
+            return response, True
+
+        data = response.get('data')
+        auth = TOTP(data.get('otp_code'))
+        if auth.verify(otp_code):
+            return UJSONResponse(
+                LoginMessage.invalid_qr,
+                HTTP_400_BAD_REQUEST
+            ), True
+        return None, False

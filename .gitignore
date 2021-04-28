@@ -147,6 +147,4 @@ cython_debug/
 
 # Data
 .data/
-.email_config
 .secrets
-.qr_config

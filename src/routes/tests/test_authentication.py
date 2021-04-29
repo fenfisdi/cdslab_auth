@@ -18,7 +18,7 @@ class LoginAuthTestCase(RoutesTestCase):
         self.client = TestClient(app)
 
         self.valid_data = dict(
-            email='login@test.com',
+            email='login1@test.com',
             password='any_password'
         )
         self.route = '/login'
@@ -49,7 +49,7 @@ class LoginOTPAuthTestCase(RoutesTestCase):
         self.client = TestClient(app)
 
         self.valid_data = dict(
-            email='login@test.com',
+            email='login2@test.com',
             otp_code='192837'
         )
         self.route = '/login/otp'
@@ -60,20 +60,6 @@ class LoginOTPAuthTestCase(RoutesTestCase):
         self,
         mock_use_case: Mock,
         mock_security: Mock
-    ):
-        mock_use_case.handle.return_value = None, False
-        mock_security.encode_token.return_value = 'myToken'
-
-        result = self.client.post(self.route, json=self.valid_data)
-
-        self.verify_response(result, 200)
-
-    @patch(solve_path('Security'))
-    @patch(solve_path('ValidateOTPUseCase'))
-    def test_login_otp_auth_successful(
-            self,
-            mock_use_case: Mock,
-            mock_security: Mock
     ):
         mock_use_case.handle.return_value = None, False
         mock_security.encode_token.return_value = 'myToken'
@@ -99,7 +85,7 @@ class CreateSecurityCodeTestCase(RoutesTestCase):
         self.client = TestClient(app)
 
         self.valid_data = dict(
-            email='login@test.com'
+            email='login3@test.com'
         )
         self.route = '/login/recovery_code'
 
@@ -139,7 +125,7 @@ class ValidateSecurityCodeTestCase(RoutesTestCase):
         self.client = TestClient(app)
 
         self.valid_data = dict(
-            email='login@test.com',
+            email='login4@test.com',
             security_code='192734'
         )
         self.route = '/login/validate_code'
@@ -191,7 +177,7 @@ class RecoverPasswordTestCase(RoutesTestCase):
         self.client = TestClient(app)
 
         self.valid_data = dict(
-            email='login@test.com',
+            email='login5@test.com',
             password='192734',
             verify_password='192734'
         )
@@ -233,7 +219,7 @@ class FindSecurityQuestionTestCase(RoutesTestCase):
         self.client = TestClient(app)
 
         self.valid_data = dict(
-            email='login@test.com'
+            email='login6@test.com'
         )
         self.route = '/login/security_question'
 

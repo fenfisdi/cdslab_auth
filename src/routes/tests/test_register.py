@@ -99,6 +99,7 @@ class ValidateUserEmailTestCase(RoutesTestCase):
         self.client = TestClient(app)
 
         self.valid_data = dict(token='myToken')
+        self.token_data = dict(email='test@test.co')
 
         self.route = '/register/user/email'
 
@@ -109,9 +110,8 @@ class ValidateUserEmailTestCase(RoutesTestCase):
         mock_security: Mock,
         mock_api: Mock
     ):
-        token_data = dict(email='test@test.co')
-        api_data = dict(data=token_data)
-        mock_security.decode_token.return_value = token_data, True
+        api_data = dict(data=self.token_data)
+        mock_security.decode_token.return_value = self.token_data, True
         mock_api.find_user.return_value = api_data, False
         mock_api.validate_user.return_value = None, True
 
@@ -134,8 +134,7 @@ class ValidateUserEmailTestCase(RoutesTestCase):
             mock_security: Mock,
             mock_api: Mock
     ):
-        token_data = dict(email='test@test.co')
-        mock_security.decode_token.return_value = token_data, True
+        mock_security.decode_token.return_value = self.token_data, True
         response = UJSONResponse('message', 400)
         mock_api.find_user.return_value = response, True
 
@@ -150,9 +149,8 @@ class ValidateUserEmailTestCase(RoutesTestCase):
             mock_security: Mock,
             mock_api: Mock
     ):
-        token_data = dict(email='test@test.co')
         api_data = dict(data=dict(email='test2@test.co'))
-        mock_security.decode_token.return_value = token_data, True
+        mock_security.decode_token.return_value = self.token_data, True
         mock_api.find_user.return_value = api_data, False
 
         result = self.client.get(self.route, params=self.valid_data)
@@ -166,9 +164,8 @@ class ValidateUserEmailTestCase(RoutesTestCase):
             mock_security: Mock,
             mock_api: Mock
     ):
-        token_data = dict(email='test@test.co')
-        api_data = dict(data=token_data)
-        mock_security.decode_token.return_value = token_data, True
+        api_data = dict(data=self.token_data)
+        mock_security.decode_token.return_value = self.token_data, True
         mock_api.find_user.return_value = api_data, False
         response = UJSONResponse('message', 400)
         mock_api.validate_user.return_value = response, False

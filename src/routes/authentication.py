@@ -77,7 +77,9 @@ def create_security_code(email: str):
         return response
 
     # TODO: Send Email Security Code
-    return UJSONResponse(LoginMessage.validate_email, HTTP_200_OK)
+    print(security_code)
+    data = dict(email=email)
+    return UJSONResponse(LoginMessage.validate_email, HTTP_200_OK, data)
 
 
 @authentication_routes.post('/login/validate_code')
@@ -151,7 +153,7 @@ def find_security_questions(email: str):
 
 
 @authentication_routes.post('/login/security_questions')
-def recover_otp(
+def validate_security_questions(
         email: str,
         security_questions: List[SecurityQuestion]
 ):

@@ -59,6 +59,7 @@ def validate_user_otp(user: OTPUser):
     token = Security.encode_token(dict(email=user.email))
 
     # TODO: Send Email Validation Token
+    print(token)
     return UJSONResponse(LoginMessage.validate_email, HTTP_200_OK)
 
 

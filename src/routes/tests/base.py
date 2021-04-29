@@ -11,7 +11,7 @@ class RoutesTestCase(TestCase):
         status_code: int,
         has_data: bool = False
     ):
-        self.assertEqual(result.status_code, status_code)
+        self.assertEqual(status_code, result.status_code)
         self.assertEqual(result.headers.get('content-type'), 'application/json')
         data_json: dict = result.json()
         print(data_json)

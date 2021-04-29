@@ -15,7 +15,5 @@ class UserApiTestCase(TestCase):
     @patch.object(UserAPI, 'api_url')
     def test_create_user_successful(self, mock_settings: Mock, mock_api: Mock):
         mock_settings.return_value = {'USER_API': 'https://myapi'}
-        mock_api.post = [None]
+        mock_api = "asd"
         result = UserAPI.create_user({})
-
-        print(result)

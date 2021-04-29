@@ -1,0 +1,19 @@
+version: "3.5"
+services:
+  auth_app:
+    build: .
+    container_name: cdslab_auth_app
+    env_file: .env
+    image: cdslab_auth
+    networks:
+      - cdslab_auth
+    ports:
+      - 5000:5000
+    volumes:
+    - ./src:/app/src
+
+
+networks:
+  cdslab_auth:
+    name: cdslab_auth
+    driver: bridge

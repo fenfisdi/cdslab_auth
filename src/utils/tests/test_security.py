@@ -40,7 +40,7 @@ class SecurityTokenTestCase(TestCase):
             'dhZzAwJQlCYI70pj038YXPqorEHQY6nQ'
         )
 
-    @patch(solve_path('secrets'))
+    @patch(solve_path('environ'))
     def test_encode_token_successful(self, mock_secrets: Mock):
         mock_secrets.get.side_effect = [self.secret_key, self.secret_algorithm]
 
@@ -48,7 +48,7 @@ class SecurityTokenTestCase(TestCase):
 
         self.assertIsInstance(result, str)
 
-    @patch(solve_path('secrets'))
+    @patch(solve_path('environ'))
     def test_decode_token_successful(self, mock_secrets: Mock):
         mock_secrets.get.side_effect = [self.secret_key, self.secret_algorithm]
 
@@ -58,7 +58,7 @@ class SecurityTokenTestCase(TestCase):
         self.assertIsNotNone(result[0])
         self.assertTrue(result[1])
 
-    @patch(solve_path('secrets'))
+    @patch(solve_path('environ'))
     def test_decode_token_invalid_key(self, mock_secrets: Mock):
         mock_secrets.get.side_effect = ['Invalid Key', self.secret_algorithm]
 

@@ -1,11 +1,12 @@
+from dataclasses import dataclass
+
 from requests import Request, Session
 from requests.models import Response
 
 
+@dataclass
 class API:
-
-    def __init__(self, url: str):
-        self.url = url
+    url: str
 
 
 class APIService:

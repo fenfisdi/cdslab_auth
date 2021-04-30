@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter
 from starlette.status import (
     HTTP_200_OK,
     HTTP_400_BAD_REQUEST
@@ -14,15 +14,15 @@ from src.models import (
     SecurityQuestion
 )
 from src.services import UserAPI
-from src.use_cases import SecurityUseCase
-from src.utils import LoginMessage
+from src.use_cases import ValidateOTPUseCase
+from src.utils.messages import LoginMessage
 from src.utils.response import UJSONResponse
-from src.utils.security import random_number_with_digits
+from src.utils.security import random_number_with_digits, Security
 
 authentication_routes = APIRouter(tags=["Authentication"])
 
 
-@authentication_routes.post("/login", status_code=status.HTTP_200_OK)
+@authentication_routes.post("/login", status_code=HTTP_200_OK)
 def login_auth(user: LoginUser):
     """
     Validate user credentials and return ok if email and password match.
@@ -40,35 +40,26 @@ def login_auth(user: LoginUser):
     return UJSONResponse(LoginMessage.logged, HTTP_200_OK, data)
 
 
-@authentication_routes.post("/login/otp", status_code=status.HTTP_200_OK)
+@authentication_routes.post("/login/otp", status_code=HTTP_200_OK)
 def login_otp_auth(user: OTPUser):
     """
-    Validate if qr and the user input match the 2FA and generates a token.
+    Validate if otp_code and the user input match the 2FA, if true, return
+    token with user information.
 
     \f
-    :param user: user credentials as email and password.
+    :param user: user credentials as email and otp code.
     """
-    response, is_invalid = UserAPI.find_user(user.email)
+    response, is_invalid = ValidateOTPUseCase.handle(user.email, user.otp_code)
     if is_invalid:
         return response
-
-    otp_code = SecurityUseCase.transform_otp_code(user.otp_code)
-    response, is_invalid = UserAPI.find_otp_code(user.email)
-    if is_invalid:
-        return response
-
-    data = response.get('data')
-    auth_code = SecurityUseCase.transform_otp_code(data.get('otp_code'))
-    if auth_code != otp_code:
-        return UJSONResponse(LoginMessage.invalid_qr, HTTP_400_BAD_REQUEST)
 
     data = {
-        'token': SecurityUseCase.encode_token_access(dict(email=user.email))
+        'token': Security.encode_token(dict(email=user.email), 24)
     }
     return UJSONResponse(LoginMessage.logged, HTTP_200_OK, data)
 
 
-@authentication_routes.post('/login/recovery_code')
+@authentication_routes.post('/login/recovery_code', status_code=HTTP_200_OK)
 def create_security_code(email: str):
     """
     Create security code to specific user.
@@ -85,7 +76,10 @@ def create_security_code(email: str):
     if is_invalid:
         return response
 
-    # TODO: Send Email
+    # TODO: Send Email Security Code
+    print(security_code)
+    data = dict(email=email)
+    return UJSONResponse(LoginMessage.validate_email, HTTP_200_OK, data)
 
 
 @authentication_routes.post('/login/validate_code')
@@ -149,12 +143,17 @@ def find_security_questions(email: str):
         return response
 
     data = response.get('data')
+    data = [
+        {k: v} for i in data.copy()
+        for k, v in i.items()
+        if k == 'question'
+    ]
 
     return UJSONResponse(LoginMessage.found_question, HTTP_200_OK, data)
 
 
 @authentication_routes.post('/login/security_questions')
-def recover_otp(
+def validate_security_questions(
         email: str,
         security_questions: List[SecurityQuestion]
 ):
@@ -192,10 +191,10 @@ def recover_otp(
     if not all(valid):
         return UJSONResponse(LoginMessage.invalid_answers, HTTP_400_BAD_REQUEST)
 
-    response, is_invalid = UserAPI.find_otp_code(email)
+    response, is_invalid = UserAPI.find_otp_key(email)
     if is_invalid:
         return response
     data = response.get('data')
     data['email'] = email
-    data['url'] = SecurityUseCase.create_otp_url(data.get('otp_code'), email)
+    data['url'] = Security.create_otp_url(data.get('otp_code'), email)
     return UJSONResponse('any', HTTP_200_OK, data)

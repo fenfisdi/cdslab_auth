@@ -1,6 +1,6 @@
 from pydantic import BaseModel, validator, Field, EmailStr
 
-from src.utils import Security
+from src.utils.security import Security
 
 
 class LoginUser(BaseModel):

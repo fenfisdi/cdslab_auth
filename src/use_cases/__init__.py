@@ -1,3 +1,3 @@
-from .security_user_case import SecurityUseCase
+from .security import ValidateOTPUseCase
 
-__all__ = ["SecurityUseCase"]
+__all__ = ['ValidateOTPUseCase']

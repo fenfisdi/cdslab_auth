@@ -7,10 +7,10 @@ This API constitutes the authentication module used in CDSLab.
 We recommend using a local python environment to avoid messing with the global
 installation. In the following process we will go through the process of
 creating such environment (generally known as _virtual environment_) and it will
-be named *venv_cdslab_auth*.
+be named *.venv*.
 
 ---
-### Creation of `venv_cdslab_auth`
+### Creation of `.venv`
 
 Whether you use Python installed locally (the usual case for Linux users) or you
 prefer to manage your installations using Conda, the creation of the environment
@@ -59,20 +59,20 @@ If you are not using any of the previously mentioned distros, then do as follows
 (Otherwise change `python3` -> `python`):
 
 ```shell
-python3 -m venv venv_cdslab_auth
+python3 -m venv .venv
 ```
 This creates a virtual environment on the folder we mentioned previously, after
 that we need to activate it so that the prompt has access to it whenever needed.
 This gets done by executing:
 
 ```shell
-src venv_cdslab_auth/bin/activate
+src .venv/bin/activate
 ```
 
 on Linux/Mac, or
 
 ```shell
-venv_cdslab_auth\Scripts\activate.bat
+.venv\Scripts\activate.bat
 ```
 
 on Windows.
@@ -81,7 +81,7 @@ on Windows.
 ### Installation of required libraries
 
 Now, in order to use the library, we need to install all of the required
-packages. `cd` into `venv_cdslab_auth` and follow the steps bellow:
+packages. `cd` into `.venv` and follow the steps bellow:
 
 #### Conda
 
@@ -123,14 +123,6 @@ be possible.
 
 ---
 ### Configuration files setup
-
-#### Database configuration file
-
-Connection to the database is done by configuring the parameters inside the file
-`.db_config`, an example file called `.db_config_example`, rename it and
-add the necessary data, this file includes fields such as `host` and `port`
-which are *necessary* for MongoDB to function. Inside this configuration you can
-also modify the collections used if needed.
 
 #### Email configuration file
 

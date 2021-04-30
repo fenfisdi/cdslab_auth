@@ -1,6 +1,6 @@
+from os import environ
 from typing import Union, Tuple
 
-from src.config import settings
 from src.utils.response import UJSONResponse
 from src.utils.response import to_response
 from src.utils.serializer import encode_request
@@ -8,7 +8,7 @@ from .service import API, APIService
 
 
 class UserAPI:
-    api_url = settings.get('USER_API')
+    api_url = environ.get('USER_API')
     request = APIService(API(api_url))
 
     @classmethod

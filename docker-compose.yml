@@ -4,7 +4,7 @@ services:
     build: .
     container_name: cdslab_auth_app
     env_file: .env
-    image: cdslab_auth
+    image: fenfisdi/cdslab_auth:dev
     networks:
       - cdslab_auth
     ports:

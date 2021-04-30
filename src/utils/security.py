@@ -1,11 +1,11 @@
 from hashlib import sha256
+from os import environ
 from random import randint
 from typing import Union, Tuple
 
 from jose import jwt, JWTError
 from pyotp import random_base32, TOTP
 
-from src.config import secrets
 from src.utils.date_time import DateTime
 
 
@@ -30,8 +30,8 @@ class Security:
         data['exp'] = DateTime.expiration_date(hours=hours)
         return jwt.encode(
             data,
-            secrets.get('SECRET_KEY'),
-            secrets.get('ALGORITHM')
+            environ.get('SECRET_KEY'),
+            environ.get('ALGORITHM')
         )
 
     @staticmethod
@@ -46,8 +46,8 @@ class Security:
         try:
             data = jwt.decode(
                 token,
-                secrets.get('SECRET_KEY'),
-                secrets.get('ALGORITHM')
+                environ.get('SECRET_KEY'),
+                environ.get('ALGORITHM')
             )
             if not data.get('email'):
                 return None, False

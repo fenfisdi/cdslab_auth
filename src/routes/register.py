@@ -51,7 +51,7 @@ def validate_user_otp(user: OTPUser):
     response, is_invalid = ValidateOTPUseCase.handle(
         user.email,
         user.otp_code,
-        invalid=True
+        is_valid=False
     )
     if is_invalid:
         return response
@@ -81,7 +81,7 @@ def validate_user_email(token: str):
 
     email = data.get('email')
 
-    response, is_valid = UserAPI.find_user(email, True)
+    response, is_valid = UserAPI.find_user(email, False)
     if is_valid:
         return response
 

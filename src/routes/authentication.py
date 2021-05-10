@@ -49,12 +49,16 @@ def login_otp_auth(user: OTPUser):
     \f
     :param user: user credentials as email and otp code.
     """
-    response, is_invalid = ValidateOTPUseCase.handle(user.email, user.otp_code)
+    response, is_invalid = ValidateOTPUseCase.handle(
+        user.email,
+        user.otp_code,
+        True
+    )
     if is_invalid:
         return response
 
     data = {
-        'token': Security.encode_token(dict(email=user.email), 24)
+        'token': Security.encode_token(dict(email=user.email), 50)
     }
     return UJSONResponse(LoginMessage.logged, HTTP_200_OK, data)
 

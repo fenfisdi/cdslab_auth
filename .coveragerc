@@ -5,9 +5,9 @@ omit=
     */venv/*
     venv/*
     .venv/*
-    instance/*
     main.py
-    config.py
+    src/config.py
+    src/api.py
 
 source=
     *.py

@@ -62,16 +62,16 @@ class UserAPI:
     def find_user(
             cls,
             email: str,
-            invalid: bool = False
+            is_valid: bool = True
     ) -> Tuple[Union[dict, UJSONResponse], bool]:
         """
         Find all relevant information about user, according with the user email.
 
         :param email: user email to find in application.
-        :param invalid: if user had valid or invalid status.
+        :param is_valid: if user had valid or invalid status.
         """
         parameters = {
-            'invalid': invalid,
+            'is_valid': is_valid,
         }
         response = cls.request.get(f'/user/{email}', parameters=parameters)
         if not response.ok:

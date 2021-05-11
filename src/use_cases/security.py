@@ -29,7 +29,7 @@ class ValidateOTPUseCase:
         if is_invalid:
             return response, True
 
-        response, is_invalid = UserAPI.find_otp_key(email)
+        response, is_invalid = UserAPI.find_otp_key(email, is_valid)
         if is_invalid:
             return response, True
 

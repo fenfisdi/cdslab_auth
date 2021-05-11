@@ -13,7 +13,7 @@ from src.models import (
     SecurityCode,
     SecurityQuestion
 )
-from src.services import UserAPI
+from src.services import UserAPI, ManagementAPI
 from src.use_cases import ValidateOTPUseCase
 from src.utils.messages import LoginMessage
 from src.utils.response import UJSONResponse
@@ -71,7 +71,7 @@ def create_security_code(email: str):
     \f
     :param email: user email to create security code.
     """
-    response, is_invalid = UserAPI.find_user(email, False)
+    response, is_invalid = UserAPI.find_user(email, True)
     if is_invalid:
         return response
 
@@ -80,8 +80,16 @@ def create_security_code(email: str):
     if is_invalid:
         return response
 
-    # TODO: Send Email Security Code
-    print(security_code)
+    data = {
+        'email': email,
+        'subject': 'Verification Mail',
+        'message': f'Your Code Verification is {security_code}',
+    }
+
+    response, is_valid = ManagementAPI.send_email(data)
+    if is_valid:
+        return response
+
     data = dict(email=email)
     return UJSONResponse(LoginMessage.validate_email, HTTP_200_OK, data)
 

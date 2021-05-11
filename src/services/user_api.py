@@ -46,14 +46,19 @@ class UserAPI:
     @classmethod
     def find_otp_key(
             cls,
-            email: str
+            email: str,
+            is_valid: bool = True
     ) -> Tuple[Union[dict, UJSONResponse], bool]:
         """
         find account and otp key according with user email.
 
         :param email: user email to find otp key.
+        :param is_valid:
         """
-        response = cls.request.get(f'/user/{email}/otp')
+        param = {
+            'is_valid': is_valid,
+        }
+        response = cls.request.get(f'/user/{email}/otp', parameters=param)
         if not response.ok:
             return to_response(response), True
         return response.json(), False

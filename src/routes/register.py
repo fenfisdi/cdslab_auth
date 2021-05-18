@@ -47,7 +47,7 @@ def validate_user_otp(user: OTPUser, background_tasks: BackgroundTasks):
     Validate the code given by OTP application
 
     \f
-    :param request:
+    :param background_tasks:
     :param user: Contains the data necessary for two factor authentication.
     """
     response, is_invalid = ValidateOTPUseCase.handle(

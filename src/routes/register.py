@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from fastapi import Request
+from starlette.background import BackgroundTasks
 from starlette.status import (
     HTTP_200_OK,
     HTTP_201_CREATED,
@@ -8,9 +8,9 @@ from starlette.status import (
 )
 
 from src.models import NewUser, OTPUser
-from src.services import UserAPI, ManagementAPI
+from src.services import ManagementAPI, UserAPI
 from src.use_cases.security import ValidateOTPUseCase
-from src.utils.messages import UserMessage, LoginMessage
+from src.utils.messages import LoginMessage, UserMessage
 from src.utils.response import UJSONResponse
 from src.utils.security import Security
 
@@ -42,12 +42,12 @@ def create_user(user: NewUser):
 
 
 @registry_routes.post('/user/otp', status_code=HTTP_200_OK)
-def validate_user_otp(user: OTPUser, request: Request):
+def validate_user_otp(user: OTPUser, background_tasks: BackgroundTasks):
     """
     Validate the code given by OTP application
 
     \f
-    :param request:
+    :param background_tasks:
     :param user: Contains the data necessary for two factor authentication.
     """
     response, is_invalid = ValidateOTPUseCase.handle(
@@ -67,9 +67,7 @@ def validate_user_otp(user: OTPUser, request: Request):
         'message': 'Your Verification mail is',
     }
 
-    response, is_valid = ManagementAPI.send_email(data)
-    if is_valid:
-        return response
+    background_tasks.add_task(ManagementAPI.send_email, data)
 
     return UJSONResponse(LoginMessage.validate_email, HTTP_200_OK)
 

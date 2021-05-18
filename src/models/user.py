@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 from typing import List
 
-from pydantic import BaseModel, Field, validator, EmailStr
+from pydantic import BaseModel, EmailStr, Field, validator
 
 from src.utils.security import Security
 
@@ -24,8 +24,9 @@ class UpdateUser(BaseModel):
     institution: str = Field(None)
     institution_role: str = Field(None)
     profession: str = Field(None)
-    gender: str = Field(None)
     birthday: datetime = Field(None)
+    notify_removal: bool = Field(True)
+    notify_simulation_done: bool = Field(True)
 
     class Config:
         fields = {
@@ -37,13 +38,6 @@ class UpdateUser(BaseModel):
             'profession': {'max_length': 64, 'regex': ALPHANUMERIC},
             'gender': {'max_length': 1}
         }
-
-    @validator('gender')
-    def validate_gender(cls, value: str):
-        genders = ['F', 'M']
-        if value.upper() in genders:
-            return value.upper()
-        raise ValueError('Invalid Type, gender must be F, M')
 
     @validator('birthday', pre=True)
     def validate_birthday(cls, value):

@@ -13,11 +13,11 @@ from src.models import (
     SecurityCode,
     SecurityQuestion
 )
-from src.services import UserAPI, ManagementAPI
+from src.services import ManagementAPI, UserAPI
 from src.use_cases import ValidateOTPUseCase
 from src.utils.messages import LoginMessage
 from src.utils.response import UJSONResponse
-from src.utils.security import random_number_with_digits, Security
+from src.utils.security import Security, random_number_with_digits
 
 authentication_routes = APIRouter(tags=["Authentication"])
 
@@ -57,6 +57,7 @@ def login_otp_auth(user: OTPUser):
     if is_invalid:
         return response
 
+    # TODO: Update Token Expiration Time.
     data = {
         'token': Security.encode_token(dict(email=user.email), 50)
     }

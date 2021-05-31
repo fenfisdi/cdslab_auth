@@ -36,7 +36,6 @@ class UpdateUser(BaseModel):
             'institution': {'max_length': 64, 'regex': ALPHANUMERIC},
             'institution_role': {'max_length': 64, 'regex': ALPHANUMERIC},
             'profession': {'max_length': 64, 'regex': ALPHANUMERIC},
-            'gender': {'max_length': 1}
         }
 
     @validator('birthday', pre=True)

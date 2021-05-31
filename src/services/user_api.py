@@ -1,5 +1,5 @@
 from os import environ
-from typing import Union, Tuple
+from typing import Tuple, Union
 
 from src.utils.response import UJSONResponse
 from src.utils.response import to_response
@@ -59,6 +59,18 @@ class UserAPI:
             'is_valid': is_valid,
         }
         response = cls.request.get(f'/user/{email}/otp', parameters=param)
+        if not response.ok:
+            return to_response(response), True
+        return response.json(), False
+
+    @classmethod
+    def updated_user(cls, email: str, data: dict):
+        """
+
+        :param email:
+        :param data:
+        """
+        response = cls.request.put(f'/user/{email}', json=data)
         if not response.ok:
             return to_response(response), True
         return response.json(), False

@@ -58,7 +58,7 @@ class SecurityUseCase:
         email = token_data.get('email')
 
         response, is_invalid = UserAPI.find_user(email, is_valid=True)
-        if not is_invalid:
+        if is_invalid:
             raise HTTPException(
                 HTTP_400_BAD_REQUEST,
                 SecurityMessage.invalid_user

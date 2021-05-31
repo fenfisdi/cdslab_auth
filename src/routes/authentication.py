@@ -1,6 +1,7 @@
 from typing import List
 
 from fastapi import APIRouter
+from starlette.background import BackgroundTasks
 from starlette.status import (
     HTTP_200_OK,
     HTTP_400_BAD_REQUEST
@@ -13,8 +14,8 @@ from src.models import (
     SecurityCode,
     SecurityQuestion
 )
-from src.services import ManagementAPI, UserAPI
-from src.use_cases import ValidateOTPUseCase
+from src.services import UserAPI
+from src.use_cases import SendCodeVerificationUseCase, ValidateOTPUseCase
 from src.utils.messages import LoginMessage
 from src.utils.response import UJSONResponse
 from src.utils.security import Security, random_number_with_digits
@@ -65,12 +66,13 @@ def login_otp_auth(user: OTPUser):
 
 
 @authentication_routes.post('/login/recovery_code', status_code=HTTP_200_OK)
-def create_security_code(email: str):
+def create_security_code(email: str, background_tasks: BackgroundTasks):
     """
     Create security code to specific user.
 
     \f
     :param email: user email to create security code.
+    :param background_tasks:
     """
     response, is_invalid = UserAPI.find_user(email, True)
     if is_invalid:
@@ -81,15 +83,11 @@ def create_security_code(email: str):
     if is_invalid:
         return response
 
-    data = {
-        'email': email,
-        'subject': 'Verification Mail',
-        'message': f'Your Code Verification is {security_code}',
-    }
-
-    response, is_valid = ManagementAPI.send_email(data)
-    if is_valid:
-        return response
+    background_tasks.add_task(
+        SendCodeVerificationUseCase.handle,
+        email,
+        security_code
+    )
 
     data = dict(email=email)
     return UJSONResponse(LoginMessage.validate_email, HTTP_200_OK, data)
@@ -104,7 +102,7 @@ def validate_security_code(user: SecurityCode):
     \f
     :param user: user information as email and security code.
     """
-    response, is_invalid = UserAPI.find_user(user.email, False)
+    response, is_invalid = UserAPI.find_user(user.email, True)
     if is_invalid:
         return response
 
@@ -165,10 +163,10 @@ def find_security_questions(email: str):
     return UJSONResponse(LoginMessage.found_question, HTTP_200_OK, data)
 
 
-@authentication_routes.post('/login/security_questions')
+@authentication_routes.post('/login/security_question')
 def validate_security_questions(
-        email: str,
-        security_questions: List[SecurityQuestion]
+    email: str,
+    security_questions: List[SecurityQuestion]
 ):
     """
     Validate security questions from the user, if the validations is ok, will

@@ -9,6 +9,8 @@ class UserMessage:
     not_found: str = "User not found"
     not_valid: str = "User can not activate"
     verified: str = "User has been verified"
+    found: str = "User Found"
+    updated: str = "User Updated"
 
 
 @dataclass
@@ -23,3 +25,9 @@ class LoginMessage:
     success_code: str = "Success code"
     token_error: str = "Can not create token"
     validate_email: str = "Check your email to finish the registration process"
+
+
+@dataclass
+class SecurityMessage:
+    invalid_user: str = 'Invalid User'
+    invalid_token: str = "Invalid Token"

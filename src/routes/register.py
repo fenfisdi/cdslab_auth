@@ -8,8 +8,8 @@ from starlette.status import (
 )
 
 from src.models import NewUser, OTPUser
-from src.services import ManagementAPI, UserAPI
-from src.use_cases.security import ValidateOTPUseCase
+from src.services import UserAPI
+from src.use_cases import SendEmailVerificationUseCase, ValidateOTPUseCase
 from src.utils.messages import LoginMessage, UserMessage
 from src.utils.response import UJSONResponse
 from src.utils.security import Security
@@ -55,19 +55,17 @@ def validate_user_otp(user: OTPUser, background_tasks: BackgroundTasks):
         user.otp_code,
         is_valid=False
     )
+    is_invalid = False
     if is_invalid:
         return response
 
     token = Security.encode_token(dict(email=user.email))
 
-    # TODO: Create Magic URL
-    data = {
-        'email': user.email,
-        'subject': 'Verification Mail',
-        'message': 'Your Verification mail is',
-    }
-
-    background_tasks.add_task(ManagementAPI.send_email, data)
+    background_tasks.add_task(
+        SendEmailVerificationUseCase.handle,
+        user.email,
+        token
+    )
 
     return UJSONResponse(LoginMessage.validate_email, HTTP_200_OK)
 

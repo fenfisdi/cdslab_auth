@@ -1,5 +1,5 @@
-from .login import LoginUser, RecoverUser, OTPUser, SecurityCode
-from .user import NewUser, UpdateUser, SecurityQuestion
+from .login import LoginUser, OTPUser, RecoverUser, SecurityCode
+from .user import NewUser, SecurityQuestion, UpdateUser
 
 __all__ = [
     'NewUser',

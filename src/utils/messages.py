@@ -23,3 +23,9 @@ class LoginMessage:
     success_code: str = "Success code"
     token_error: str = "Can not create token"
     validate_email: str = "Check your email to finish the registration process"
+
+
+@dataclass
+class SecurityMessage:
+    invalid_user: str = 'Invalid User'
+    invalid_token: str = "Invalid Token"

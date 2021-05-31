@@ -61,13 +61,6 @@ def validate_user_otp(user: OTPUser, background_tasks: BackgroundTasks):
 
     token = Security.encode_token(dict(email=user.email))
 
-    # TODO: Create Magic URL
-    data = {
-        'email': user.email,
-        'subject': 'Verification Mail',
-        'message': 'Your Verification mail is',
-    }
-
     background_tasks.add_task(
         SendEmailVerificationUseCase.handle,
         user.email,

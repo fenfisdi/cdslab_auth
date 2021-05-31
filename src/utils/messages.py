@@ -9,6 +9,8 @@ class UserMessage:
     not_found: str = "User not found"
     not_valid: str = "User can not activate"
     verified: str = "User has been verified"
+    found: str = "User Found"
+    updated: str = "User Updated"
 
 
 @dataclass

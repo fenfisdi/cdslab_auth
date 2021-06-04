@@ -34,6 +34,8 @@ class ValidateOTPUseCase:
         if is_invalid:
             return response, True
 
+        user_data = response.get('data')
+
         response, is_invalid = UserAPI.find_otp_key(email, is_valid)
         if is_invalid:
             return response, True
@@ -46,7 +48,7 @@ class ValidateOTPUseCase:
                 HTTP_400_BAD_REQUEST
             ), True
 
-        return None, False
+        return user_data, False
 
 
 class SecurityUseCase:
@@ -89,3 +91,13 @@ class SecurityUseCase:
             return data
         except JWTError as error:
             raise HTTPException(HTTP_401_UNAUTHORIZED, str(error))
+
+    @classmethod
+    def validate_root(cls, token: str = Depends(oauth2_scheme)):
+        root_token = environ.get('ROOT_TOKEN')
+        if token == root_token:
+            return dict()
+        raise HTTPException(
+            HTTP_401_UNAUTHORIZED,
+            SecurityMessage.invalid_token
+        )

@@ -13,8 +13,8 @@ class UserAPI:
 
     @classmethod
     def create_user(
-            cls,
-            user_data: dict
+        cls,
+        user_data: dict
     ) -> Tuple[Union[dict, UJSONResponse], bool]:
         """
         Create and save user data to storage in User API, could return 400 if
@@ -30,8 +30,8 @@ class UserAPI:
 
     @classmethod
     def validate_user(
-            cls,
-            email: str
+        cls,
+        email: str
     ) -> Tuple[Union[dict, UJSONResponse], bool]:
         """
         Validate user, if is valid, user could be execute 3 party applications.
@@ -45,9 +45,9 @@ class UserAPI:
 
     @classmethod
     def find_otp_key(
-            cls,
-            email: str,
-            is_valid: bool = True
+        cls,
+        email: str,
+        is_valid: bool = True
     ) -> Tuple[Union[dict, UJSONResponse], bool]:
         """
         find account and otp key according with user email.
@@ -77,9 +77,9 @@ class UserAPI:
 
     @classmethod
     def find_user(
-            cls,
-            email: str,
-            is_valid: bool = True
+        cls,
+        email: str,
+        is_valid: bool = True
     ) -> Tuple[Union[dict, UJSONResponse], bool]:
         """
         Find all relevant information about user, according with the user email.
@@ -97,8 +97,8 @@ class UserAPI:
 
     @classmethod
     def validate_credentials(
-            cls,
-            data: dict
+        cls,
+        data: dict
     ) -> Tuple[Union[dict, UJSONResponse], bool]:
         """
         Validate user credentials as email and password, according with user
@@ -113,9 +113,9 @@ class UserAPI:
 
     @classmethod
     def save_security_code(
-            cls,
-            email: str,
-            code: str
+        cls,
+        email: str,
+        code: str
     ) -> Tuple[Union[dict, UJSONResponse], bool]:
         """
         Update security code to recover account link with otp service.
@@ -136,8 +136,8 @@ class UserAPI:
 
     @classmethod
     def find_security_code(
-            cls,
-            email: str
+        cls,
+        email: str
     ) -> Tuple[Union[dict, UJSONResponse], bool]:
         """
         Recover account security code to recover account password.
@@ -151,8 +151,8 @@ class UserAPI:
 
     @classmethod
     def find_security_questions(
-            cls,
-            email: str
+        cls,
+        email: str
     ) -> Tuple[Union[dict, UJSONResponse], bool]:
         """
         Find security questions from user to recover account.
@@ -166,8 +166,8 @@ class UserAPI:
 
     @classmethod
     def update_password(
-            cls,
-            data: dict
+        cls,
+        data: dict
     ) -> Tuple[Union[dict, UJSONResponse], bool]:
         """
         Update user account password.
@@ -175,6 +175,20 @@ class UserAPI:
         :param data: User information to update passwords as email.
         """
         response = cls.request.post(f'/user/password', data)
+        if not response.ok:
+            return to_response(response), True
+        return response.json(), False
+
+    @classmethod
+    def update_root(cls, email):
+        """
+
+        :param email:
+        """
+        parameters = {
+            'email': email,
+        }
+        response = cls.request.post('/root/user', parameters=parameters)
         if not response.ok:
             return to_response(response), True
         return response.json(), False

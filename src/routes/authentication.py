@@ -58,9 +58,12 @@ def login_otp_auth(user: OTPUser):
     if is_invalid:
         return response
 
-    # TODO: Update Token Expiration Time.
+    token_data = dict(
+        email=user.email,
+        role=response.get('role')
+    )
     data = {
-        'token': Security.encode_token(dict(email=user.email), 50)
+        'token': Security.encode_token(token_data, 12)
     }
     return UJSONResponse(LoginMessage.logged, HTTP_200_OK, data)
 

@@ -1,5 +1,8 @@
+from os import environ
+
 from fastapi import APIRouter
 from starlette.background import BackgroundTasks
+from starlette.responses import RedirectResponse
 from starlette.status import (
     HTTP_200_OK,
     HTTP_201_CREATED,
@@ -88,14 +91,15 @@ def validate_user_email(token: str):
 
     email = data.get('email')
 
-    response, is_valid = UserAPI.find_user(email, False)
-    if is_valid:
+    response, is_invalid = UserAPI.find_user(email, False)
+    if is_invalid:
         return response
 
     if response.get('data').get('email') != email:
         return UJSONResponse(UserMessage.not_found, HTTP_404_NOT_FOUND)
 
-    response, is_valid = UserAPI.validate_user(email)
-    if not is_valid:
+    response, is_invalid = UserAPI.validate_user(email)
+    if is_invalid:
         return response
-    return UJSONResponse(UserMessage.verified, HTTP_200_OK)
+
+    return RedirectResponse(environ.get('FENFISDI_HOST'))

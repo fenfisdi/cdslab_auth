@@ -12,6 +12,10 @@ user_routes = APIRouter(tags=['User'])
 
 @user_routes.get("/user")
 def find_user(user=Depends(SecurityUseCase.validate)):
+    """
+
+    :param user:
+    """
     email = user.get('email')
 
     response, is_invalid = UserAPI.find_user(email)
@@ -27,6 +31,11 @@ def update_user(
     user_updated: UpdateUser,
     user=Depends(SecurityUseCase.validate)
 ):
+    """
+
+    :param user_updated:
+    :param user:
+    """
     email = user.get('email')
 
     response, is_invalid = UserAPI.find_user(email)

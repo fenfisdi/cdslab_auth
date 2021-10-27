@@ -93,7 +93,7 @@ def validate_user_email(token: str):
 
     response, is_invalid = UserAPI.find_user(email, False)
     if is_invalid:
-        return response
+        return RedirectResponse(environ.get('FENFISDI_HOST'))
 
     if response.get('data').get('email') != email:
         return UJSONResponse(UserMessage.not_found, HTTP_404_NOT_FOUND)

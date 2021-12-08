@@ -1,0 +1,17 @@
+[run]
+omit=
+    */envs/*
+    */tests/*
+    */venv/*
+    venv/*
+    .venv/*
+    main.py
+    src/config.py
+    src/api.py
+
+source=
+    *.py
+
+[report]
+fail_under=60
+show_missing=True

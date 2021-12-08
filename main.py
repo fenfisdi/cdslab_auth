@@ -1,6 +1,3 @@
-import uvicorn
-from fastapi import FastAPI
-from routers import user_routers
+from src.api import app
 
-app = FastAPI()
-app.include_router(user_routers.router)
+__all__ = ['app']
